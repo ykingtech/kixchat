@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat v5 - Mobile Responsive</title>
+    <title>Kix Chat v7 - Fixed Layout</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -22,16 +22,15 @@
             --msg-received: #334155;
         }
 
-        /* FIX: Use dynamic viewport height for mobile browsers */
+        /* FIXED LAYOUT: Use absolute positioning to ensure full fit */
         body { 
             font-family: 'Outfit', sans-serif; 
             background-color: var(--bg-dark); 
             color: #f8fafc; 
-            height: 100dvh; /* dynamic viewport height */
+            height: 100vh; 
             width: 100vw;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            position: relative;
         }
         
         ::-webkit-scrollbar { width: 4px; }
@@ -52,7 +51,6 @@
         .mode-badge { font-size: 9px; padding: 2px 4px; border-radius: 4px; margin-left: 5px; text-transform: uppercase; font-weight: bold; }
         .badge-work { background: #f59e0b; color: black; }
 
-        /* Privacy Mode Blur */
         .blur-content { filter: blur(8px); transition: filter 0.3s; cursor: pointer; user-select: none; }
         .blur-content:hover { filter: blur(0); }
         .privacy-lock { position: absolute; top: -8px; right: -8px; background: #0f172a; border-radius: 50%; padding: 2px; font-size: 12px; color: #f43f5e; }
@@ -63,21 +61,25 @@
         .recording-pulse { animation: pulse-red 1.5s infinite; }
         @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); } }
 
-        /* Mobile Adjustments */
+        /* Dropdown Animation */
+        .dropdown-menu { transform-origin: top right; transition: all 0.2s ease-out; }
+        .dropdown-menu.hidden { opacity: 0; transform: scale(0.95); pointer-events: none; }
+        .dropdown-menu.show { opacity: 1; transform: scale(1); pointer-events: auto; }
+
         @media (max-width: 640px) {
             .chat-bubble { font-size: 0.9rem; padding: 8px 12px; }
-            #input-tools button span { display: none; } /* Hide text labels in tools on mobile */
+            #input-tools button span { display: none; }
             #input-tools button i { font-size: 1.2rem; }
-            #messages-container { padding-bottom: 10px; }
         }
     </style>
 </head>
-<body> <!-- Body is flex container handled in CSS -->
+<body class="bg-[#0f172a] text-white">
 
-    <!-- SPLASH SCREEN (Visible initially) -->
+    <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f172a]">
         <div class="flex justify-center mb-6 animate-pulse">
-            <div class="w-24 h-24 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-rose-500/50">
+            <img src="logo.png" alt="Kix Chat Logo" class="w-24 h-24 rounded-3xl shadow-2xl shadow-rose-500/50 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="hidden w-24 h-24 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-3xl items-center justify-center shadow-2xl shadow-rose-500/50">
                 <i class="ph-fill ph-chat-teardrop-text text-5xl text-white"></i>
             </div>
         </div>
@@ -90,11 +92,12 @@
         <p class="absolute bottom-10 text-slate-600 text-xs font-medium">from Sithuliya</p>
     </div>
 
-    <!-- LOGIN SCREEN (Hidden by default) -->
+    <!-- LOGIN SCREEN -->
     <div id="login-screen" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0f172a] p-6">
         <div class="text-center max-w-sm w-full space-y-6 fade-in">
             <div class="flex justify-center mb-4">
-                <div class="w-20 h-20 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-rose-500/30">
+                <img src="logo.png" alt="Kix Chat Logo" class="w-20 h-20 rounded-2xl shadow-2xl shadow-rose-500/30 object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="hidden w-20 h-20 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-2xl items-center justify-center shadow-2xl shadow-rose-500/30">
                     <i class="ph-fill ph-chat-teardrop-text text-4xl text-white"></i>
                 </div>
             </div>
@@ -107,126 +110,136 @@
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER -->
-    <div id="app-interface" class="hidden flex-1 flex h-full w-full relative overflow-hidden">
+    <!-- MAIN APP WRAPPER (Flex Column to ensure footer sticks) -->
+    <div id="app-interface" class="hidden absolute inset-0 flex flex-col w-full h-full overflow-hidden">
         
-        <!-- SIDEBAR (Chat List) -->
-        <div class="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/30 flex flex-col z-20 h-full" id="sidebar">
-            
-            <!-- Header -->
-            <div class="p-4 border-b border-slate-700/30 bg-[#1e293b] shrink-0 space-y-3">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <img id="my-avatar" src="" class="w-9 h-9 rounded-full border border-slate-600">
-                        <div class="min-w-0">
-                            <h2 class="font-bold text-sm truncate max-w-[120px]">Chats</h2>
-                            <div class="flex items-center gap-1 text-[10px] text-green-400">
-                                <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
+        <div class="flex flex-1 h-full overflow-hidden">
+            <!-- SIDEBAR -->
+            <div class="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/30 flex flex-col z-20 h-full" id="sidebar">
+                <!-- Header -->
+                <div class="p-4 border-b border-slate-700/30 bg-[#1e293b] shrink-0 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <img id="my-avatar" src="" class="w-9 h-9 rounded-full border border-slate-600">
+                            <div class="min-w-0">
+                                <h2 class="font-bold text-sm truncate max-w-[120px]">Chats</h2>
+                                <div class="flex items-center gap-1 text-[10px] text-green-400">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="showAddFriendModal()" class="w-9 h-9 rounded-full bg-slate-700 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-colors" title="New Chat">
+                            <i class="ph-bold ph-plus"></i>
+                        </button>
+                    </div>
+                    <!-- Mode Toggle -->
+                    <div class="bg-slate-800 p-1 rounded-lg flex text-xs font-medium">
+                        <button id="btn-mode-personal" onclick="switchMode('personal')" class="flex-1 py-1.5 rounded-md bg-slate-600 text-white shadow transition-all">Personal</button>
+                        <button id="btn-mode-work" onclick="switchMode('work')" class="flex-1 py-1.5 rounded-md text-slate-400 hover:text-white transition-all">Work</button>
+                    </div>
+                </div>
+                <!-- Chat List -->
+                <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                    <div class="text-center text-slate-500 text-xs mt-10">Loading conversations...</div>
+                </div>
+            </div>
+
+            <!-- CHAT AREA -->
+            <div class="flex-1 flex flex-col bg-[#0f172a] relative hidden md:flex h-full w-full overflow-hidden" id="chat-area">
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                    <i class="ph-duotone ph-chats-circle text-6xl mb-4 text-slate-700"></i>
+                    <p>Select a conversation</p>
+                </div>
+
+                <!-- Active Chat Interface (Flex Column) -->
+                <div id="active-chat-interface" class="hidden flex-col h-full w-full relative">
+                    
+                    <!-- Chat Header -->
+                    <div class="h-16 border-b border-slate-700/30 flex items-center justify-between px-3 bg-[#1e293b]/90 backdrop-blur-md shrink-0 z-10 w-full relative">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <button onclick="backToSidebar()" class="md:hidden text-slate-400 p-1"><i class="ph-bold ph-arrow-left text-xl"></i></button>
+                            <img id="chat-header-img" src="" class="w-8 h-8 rounded-full bg-slate-700 shrink-0">
+                            <div class="min-w-0">
+                                <h3 id="chat-header-name" class="font-bold text-sm text-white truncate">User</h3>
+                                <span id="chat-category-label" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">Personal</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3 text-slate-400 shrink-0 relative">
+                            <button onclick="showAISummary()" class="hover:text-rose-400" title="AI Summary"><i class="ph-bold ph-sparkle text-xl"></i></button>
+                            <!-- UPDATED: 3 Dots Menu -->
+                            <div class="relative">
+                                <button onclick="toggleChatMenu()" class="hover:text-white focus:outline-none"><i class="ph-bold ph-dots-three-vertical text-xl"></i></button>
+                                <!-- Dropdown -->
+                                <div id="chat-menu-dropdown" class="dropdown-menu hidden absolute right-0 top-full mt-2 w-48 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl z-50">
+                                    <button onclick="clearChat()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-700 rounded-t-xl text-slate-300 flex items-center gap-2"><i class="ph-bold ph-broom"></i> Clear History</button>
+                                    <button onclick="blockUser()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-700 text-slate-300 flex items-center gap-2"><i class="ph-bold ph-user-minus"></i> Block User</button>
+                                    <div class="border-t border-slate-700"></div>
+                                    <button onclick="toggleChatMenu()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-700 rounded-b-xl text-red-400">Close</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <button onclick="showAddFriendModal()" class="w-9 h-9 rounded-full bg-slate-700 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-colors" title="New Chat">
-                        <i class="ph-bold ph-plus"></i>
-                    </button>
-                </div>
 
-                <!-- Mode Toggle -->
-                <div class="bg-slate-800 p-1 rounded-lg flex text-xs font-medium">
-                    <button id="btn-mode-personal" onclick="switchMode('personal')" class="flex-1 py-1.5 rounded-md bg-slate-600 text-white shadow transition-all">Personal</button>
-                    <button id="btn-mode-work" onclick="switchMode('work')" class="flex-1 py-1.5 rounded-md text-slate-400 hover:text-white transition-all">Work</button>
-                </div>
-            </div>
-
-            <!-- Chat List -->
-            <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
-                <div class="text-center text-slate-500 text-xs mt-10">Loading conversations...</div>
-            </div>
-        </div>
-
-        <!-- CHAT AREA (Mobile: Hidden by default, Desktop: Visible) -->
-        <div class="flex-1 flex flex-col bg-[#0f172a] relative hidden md:flex h-full w-full overflow-hidden" id="chat-area">
-            
-            <!-- Empty State -->
-            <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
-                <i class="ph-duotone ph-chats-circle text-6xl mb-4 text-slate-700"></i>
-                <p>Select a conversation</p>
-            </div>
-
-            <!-- Active Chat Interface -->
-            <div id="active-chat-interface" class="hidden flex-col h-full w-full relative">
-                
-                <!-- Chat Header -->
-                <div class="h-16 border-b border-slate-700/30 flex items-center justify-between px-3 bg-[#1e293b]/90 backdrop-blur-md shrink-0 z-10 w-full">
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <button onclick="backToSidebar()" class="md:hidden text-slate-400 p-1"><i class="ph-bold ph-arrow-left text-xl"></i></button>
-                        <img id="chat-header-img" src="" class="w-8 h-8 rounded-full bg-slate-700 shrink-0">
-                        <div class="min-w-0">
-                            <h3 id="chat-header-name" class="font-bold text-sm text-white truncate">User</h3>
-                            <span id="chat-category-label" class="text-[9px] px-1.5 py-0.5 rounded bg-slate-700 text-slate-300">Personal</span>
-                        </div>
-                    </div>
-                    <div class="flex gap-3 text-slate-400 shrink-0">
-                        <button onclick="showAISummary()" class="hover:text-rose-400" title="AI Summary"><i class="ph-bold ph-sparkle text-xl"></i></button>
-                        <button class="hover:text-white"><i class="ph-bold ph-dots-three-vertical text-xl"></i></button>
-                    </div>
-                </div>
-
-                <!-- Messages Container -->
-                <div id="messages-container" class="flex-1 overflow-y-auto p-3 space-y-3 flex flex-col min-h-0 w-full">
-                    <!-- Messages go here -->
-                </div>
-
-                <!-- Input Area (Fixed Bottom) -->
-                <div class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 relative z-20 w-full safe-pb">
-                    
-                    <!-- Tools / Preview -->
-                    <div class="flex gap-2 mb-2 px-1 overflow-x-auto no-scrollbar" id="input-tools">
-                        <button id="privacy-toggle" onclick="togglePrivacy()" class="text-slate-400 hover:text-rose-500 flex items-center gap-1 text-xs transition-colors whitespace-nowrap">
-                            <i class="ph-bold ph-lock-open" id="privacy-icon"></i> <span id="privacy-text">Public</span>
-                        </button>
-                        <div id="schedule-info" class="hidden text-xs text-yellow-400 flex items-center gap-1 bg-yellow-400/10 px-2 rounded whitespace-nowrap">
-                            <i class="ph-fill ph-clock"></i> <span id="schedule-time-display"></span>
-                            <button onclick="cancelSchedule()" class="hover:text-white ml-1"><i class="ph-bold ph-x"></i></button>
-                        </div>
+                    <!-- Messages Container (Flex Grow) -->
+                    <div id="messages-container" class="flex-1 overflow-y-auto p-3 space-y-3 flex flex-col min-h-0 w-full">
+                        <!-- Messages go here -->
                     </div>
 
-                    <!-- Sticker Picker -->
-                    <div id="sticker-picker" class="hidden absolute bottom-full left-2 mb-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-64 grid grid-cols-4 gap-2 z-50 animate-bounce-in origin-bottom-left">
-                         <button onclick="sendSticker('👻')" class="text-3xl hover:bg-white/10 p-2 rounded">👻</button>
-                        <button onclick="sendSticker('🔥')" class="text-3xl hover:bg-white/10 p-2 rounded">🔥</button>
-                        <button onclick="sendSticker('❤️')" class="text-3xl hover:bg-white/10 p-2 rounded">❤️</button>
-                        <button onclick="sendSticker('😂')" class="text-3xl hover:bg-white/10 p-2 rounded">😂</button>
-                        <button onclick="sendSticker('👍')" class="text-3xl hover:bg-white/10 p-2 rounded">👍</button>
-                        <button onclick="sendSticker('🚀')" class="text-3xl hover:bg-white/10 p-2 rounded">🚀</button>
-                        <button onclick="sendSticker('🎉')" class="text-3xl hover:bg-white/10 p-2 rounded">🎉</button>
-                        <button onclick="sendSticker('💯')" class="text-3xl hover:bg-white/10 p-2 rounded">💯</button>
-                    </div>
-
-                    <!-- Image Preview -->
-                    <div id="image-preview-container" class="hidden mb-2 p-2 bg-slate-800 rounded-lg w-fit relative">
-                        <img id="image-preview" src="" class="h-14 rounded border border-slate-600">
-                        <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button>
-                    </div>
-
-                    <!-- Main Input Bar -->
-                    <div class="flex items-center gap-2 w-full">
-                        <button onclick="toggleStickerPicker()" class="p-2 text-slate-400 hover:text-yellow-400 transition-colors shrink-0" title="Stickers"><i class="ph-fill ph-smiley text-2xl"></i></button>
+                    <!-- Input Area (Fixed Bottom - Shrink 0) -->
+                    <div class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 relative z-20 w-full safe-pb">
                         
-                        <label class="p-2 text-slate-400 hover:text-rose-500 cursor-pointer transition-colors shrink-0" title="Image"><i class="ph-bold ph-image text-2xl"></i>
-                            <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
-                        </label>
-
-                        <button id="mic-btn" onclick="toggleSpeech()" class="p-2 text-slate-400 hover:text-green-400 transition-colors shrink-0" title="Voice"><i class="ph-bold ph-microphone text-2xl"></i></button>
-
-                        <div class="flex-1 relative min-w-0">
-                            <input id="message-input" type="text" class="w-full bg-[#0f172a] border border-slate-600 rounded-full px-4 py-2.5 text-sm text-white focus:border-rose-500 outline-none transition-all placeholder-slate-500" placeholder="Type...">
+                        <!-- Tools -->
+                        <div class="flex gap-2 mb-2 px-1 overflow-x-auto no-scrollbar" id="input-tools">
+                            <button id="privacy-toggle" onclick="togglePrivacy()" class="text-slate-400 hover:text-rose-500 flex items-center gap-1 text-xs transition-colors whitespace-nowrap">
+                                <i class="ph-bold ph-lock-open" id="privacy-icon"></i> <span id="privacy-text">Public</span>
+                            </button>
+                            <div id="schedule-info" class="hidden text-xs text-yellow-400 flex items-center gap-1 bg-yellow-400/10 px-2 rounded whitespace-nowrap">
+                                <i class="ph-fill ph-clock"></i> <span id="schedule-time-display"></span>
+                                <button onclick="cancelSchedule()" class="hover:text-white ml-1"><i class="ph-bold ph-x"></i></button>
+                            </div>
                         </div>
-                        
-                        <button onclick="promptSchedule()" class="p-2 text-slate-400 hover:text-yellow-400 transition-colors shrink-0" title="Schedule"><i class="ph-bold ph-clock text-2xl"></i></button>
 
-                        <button onclick="sendMessage()" id="send-btn" class="w-10 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0">
-                            <i class="ph-fill ph-paper-plane-right text-lg"></i>
-                        </button>
+                        <!-- Sticker Picker -->
+                        <div id="sticker-picker" class="hidden absolute bottom-full left-2 mb-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-64 grid grid-cols-4 gap-2 z-50 animate-bounce-in">
+                            <button onclick="sendSticker('👻')" class="text-3xl hover:bg-white/10 p-2 rounded">👻</button>
+                            <button onclick="sendSticker('🔥')" class="text-3xl hover:bg-white/10 p-2 rounded">🔥</button>
+                            <button onclick="sendSticker('❤️')" class="text-3xl hover:bg-white/10 p-2 rounded">❤️</button>
+                            <button onclick="sendSticker('😂')" class="text-3xl hover:bg-white/10 p-2 rounded">😂</button>
+                            <button onclick="sendSticker('👍')" class="text-3xl hover:bg-white/10 p-2 rounded">👍</button>
+                            <button onclick="sendSticker('🚀')" class="text-3xl hover:bg-white/10 p-2 rounded">🚀</button>
+                            <button onclick="sendSticker('🎉')" class="text-3xl hover:bg-white/10 p-2 rounded">🎉</button>
+                            <button onclick="sendSticker('💯')" class="text-3xl hover:bg-white/10 p-2 rounded">💯</button>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div id="image-preview-container" class="hidden mb-2 p-2 bg-slate-800 rounded-lg w-fit relative">
+                            <img id="image-preview" src="" class="h-14 rounded border border-slate-600">
+                            <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button>
+                        </div>
+
+                        <!-- Main Input Bar -->
+                        <div class="flex items-center gap-2 w-full">
+                            <button onclick="toggleStickerPicker()" class="p-2 text-slate-400 hover:text-yellow-400 transition-colors shrink-0"><i class="ph-fill ph-smiley text-2xl"></i></button>
+                            
+                            <label class="p-2 text-slate-400 hover:text-rose-500 cursor-pointer transition-colors shrink-0"><i class="ph-bold ph-image text-2xl"></i>
+                                <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                            </label>
+
+                            <button id="mic-btn" onclick="toggleSpeech()" class="p-2 text-slate-400 hover:text-green-400 transition-colors shrink-0"><i class="ph-bold ph-microphone text-2xl"></i></button>
+
+                            <div class="flex-1 relative min-w-0">
+                                <input id="message-input" type="text" class="w-full bg-[#0f172a] border border-slate-600 rounded-full px-4 py-2.5 text-sm text-white focus:border-rose-500 outline-none transition-all placeholder-slate-500" placeholder="Type a message...">
+                            </div>
+                            
+                            <button onclick="promptSchedule()" class="p-2 text-slate-400 hover:text-yellow-400 transition-colors shrink-0"><i class="ph-bold ph-clock text-2xl"></i></button>
+
+                            <button onclick="sendMessage()" id="send-btn" class="w-10 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 shrink-0">
+                                <i class="ph-fill ph-paper-plane-right text-lg"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -281,30 +294,67 @@
         onAuthStateChanged(auth, async (user) => {
             const splash = document.getElementById('splash-screen');
             const login = document.getElementById('login-screen');
-            const app = document.getElementById('app-interface');
+            const appInterface = document.getElementById('app-interface');
 
             if (user) {
-                // User is logged in: Hide splash, show app directly
                 currentUser = user;
                 document.getElementById('my-avatar').src = user.photoURL;
-                
                 await setDoc(doc(db, "users", user.uid), {
                     uid: user.uid, email: user.email, displayName: user.displayName, 
                     photoURL: user.photoURL, lastSeen: serverTimestamp()
                 }, { merge: true });
 
-                // UI Switch
                 splash.classList.add('hidden');
                 login.classList.add('hidden');
-                app.classList.remove('hidden');
+                appInterface.classList.remove('hidden');
 
                 loadChats();
                 initSpeech();
             } else {
-                // No user: Hide splash, show login
                 splash.classList.add('hidden');
-                app.classList.add('hidden');
+                appInterface.classList.add('hidden');
                 login.classList.remove('hidden');
+            }
+        });
+
+        // MENU LOGIC (UPDATED)
+        window.toggleChatMenu = () => {
+            const menu = document.getElementById('chat-menu-dropdown');
+            if(menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => menu.classList.add('show'), 10);
+            } else {
+                menu.classList.remove('show');
+                setTimeout(() => menu.classList.add('hidden'), 200);
+            }
+        };
+
+        window.clearChat = () => {
+            Swal.fire({
+                title: 'Clear Chat?', text: "This will just hide messages for you (Mock).", icon: 'warning',
+                background: '#1e293b', color: '#fff', showCancelButton: true
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    document.getElementById('messages-container').innerHTML = '<div class="text-center mt-10 text-slate-500">History Cleared</div>';
+                    toggleChatMenu();
+                }
+            });
+        };
+
+        window.blockUser = () => {
+            Swal.fire({
+                title: 'Block User', text: "User will be blocked.", icon: 'error',
+                background: '#1e293b', color: '#fff'
+            });
+            toggleChatMenu();
+        };
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('chat-menu-dropdown');
+            const btn = document.querySelector('button[onclick="toggleChatMenu()"]');
+            if(menu && !menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+                toggleChatMenu();
             }
         });
 
@@ -379,7 +429,6 @@
             document.getElementById('empty-state').classList.add('hidden');
             document.getElementById('active-chat-interface').classList.remove('hidden');
             
-            // Mobile: Full screen chat
             if(window.innerWidth < 768) {
                 document.getElementById('sidebar').classList.add('hidden');
                 document.getElementById('chat-area').classList.remove('hidden');
