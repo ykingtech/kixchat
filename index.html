@@ -3,39 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v10</title>
-    <!-- Fonts -->
+    <title>Kix Chat - v19 Notifications</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Manifest -->
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <link rel="manifest" href="manifest.json">
 
     <style>
         :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #f43f5e; }
-        
-        body { 
-            font-family: 'Outfit', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; 
-            background: var(--bg-dark); 
-            color: #f8fafc; 
-            height: 100dvh; 
-            width: 100vw; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            user-select: none; 
-        }
-        
+        body { font-family: 'Outfit', 'Segoe UI Emoji', sans-serif; background: var(--bg-dark); color: #f8fafc; height: 100dvh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
         #app-container { display: flex; flex: 1; height: 100%; overflow: hidden; position: relative; }
         
-        /* Loading */
-        .loader { border: 3px solid rgba(255,255,255,0.1); border-left-color: #f43f5e; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         /* UI Elements */
         #sidebar { z-index: 30; }
         .chat-item { cursor: pointer; transition: background 0.15s ease; position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; }
@@ -51,7 +31,6 @@
         .blur-content { filter: blur(6px); transition: filter 0.3s; cursor: pointer; }
         .blur-content:hover { filter: blur(0); }
         .privacy-lock { position: absolute; top: -6px; right: -6px; background: #0f172a; border-radius: 50%; padding: 2px; font-size: 10px; color: #f43f5e; z-index: 10; }
-        .reply-quote { border-left: 3px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         .context-menu { position: fixed; z-index: 99999; background: #1e293b; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: 180px; overflow: hidden; }
         .context-item { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: #cbd5e1; font-size: 0.9rem; }
@@ -61,42 +40,44 @@
         .tab-btn.active { color: #f43f5e; border-bottom-color: #f43f5e; font-weight: 600; }
         
         .unread-badge { background: #22c55e; color: black; font-weight: bold; font-size: 10px; padding: 2px 6px; border-radius: 999px; min-width: 20px; text-align: center; box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); }
-        .recording-pulse { animation: pulse-red 1.5s infinite; color: #f43f5e; }
-        @keyframes pulse-red { 0% { text-shadow: 0 0 0 rgba(244, 63, 94, 0.7); } 70% { text-shadow: 0 0 10px rgba(244, 63, 94, 0); } 100% { text-shadow: 0 0 0 rgba(244, 63, 94, 0); } }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         .tick { font-size: 16px; }
         .tick.blue { color: #93c5fd; }
         .tick.gray { color: #cbd5e1; }
+        .mention { color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 0 2px; rounded: 4px; }
         
-        /* Highlight Mentions */
-        .mention { color: #60a5fa; font-weight: bold; background: rgba(96, 165, 250, 0.15); padding: 0 4px; rounded: 4px; cursor: pointer; }
+        /* Attachment Menu */
+        #attachment-menu { position: absolute; bottom: 70px; left: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.2s ease-out; }
+        .attach-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 60px; border-radius: 12px; background: #0f172a; color: #cbd5e1; font-size: 10px; gap: 4px; transition: 0.2s; }
+        .attach-btn:hover { background: #334155; color: #f43f5e; }
+        .attach-btn i { font-size: 24px; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #floating-mention-btn { position: absolute; bottom: 85px; right: 20px; background: #ffffff; color: #f43f5e; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); z-index: 40; cursor: pointer; animation: bounceIn 0.3s; font-size: 1.5rem; }
+        @keyframes bounceIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        #call-banner { background: linear-gradient(90deg, #059669, #10b981); color: white; padding: 8px 16px; border-radius: 12px; margin: 10px; display: flex; justify-content: space-between; align-items: center; animation: pulseCall 2s infinite; cursor: pointer; }
+        @keyframes pulseCall { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         
-        /* Mention Popup */
         #mention-popup { position: absolute; bottom: 100%; left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; max-height: 200px; overflow-y: auto; z-index: 50; border-radius: 12px 12px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
         .mention-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
         .mention-item:hover { background: #334155; }
+        
+        .reply-quote { border-left: 3px solid #f43f5e; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
+        
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-left-color: #f43f5e; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Floating Mention Button (Telegram Style) */
-        #floating-mention-btn { 
-            position: absolute; bottom: 85px; right: 20px; 
-            background: #ffffff; color: #f43f5e; 
-            width: 45px; height: 45px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); 
-            z-index: 40; cursor: pointer; 
-            animation: bounceIn 0.3s;
-            font-size: 1.5rem;
-        }
-        #floating-mention-btn:hover { transform: scale(1.1); }
-        @keyframes bounceIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #zego-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="lightbox" class="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center hidden fade-in" onclick="this.classList.add('hidden')"><img id="lightbox-img" src="" class="max-w-full max-h-full p-2 object-contain"></div>
     <div id="msg-context-menu" class="context-menu hidden"></div>
+    <div id="zego-container"></div>
     
     <div id="pwa-banner" class="hidden fixed top-0 left-0 w-full bg-gradient-to-r from-rose-600 to-orange-500 text-white p-2 text-xs flex justify-between items-center z-[200]">
         <span>Install Kix Chat app!</span><button onclick="installPWA()" class="bg-white text-rose-600 px-3 py-1 rounded-full font-bold">Install</button>
@@ -121,13 +102,17 @@
             <div id="sidebar" class="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/30 flex flex-col h-full flex-none transition-all duration-300">
                 <div class="p-4 bg-[#1e293b] shrink-0 space-y-3 shadow-md z-20">
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3 cursor-pointer p-1 rounded hover:bg-white/5" onclick="openProfileModal()">
+                        <div class="flex items-center gap-3 cursor-pointer p-1 rounded hover:bg-white/5" onclick="openSettings()">
                             <img id="my-avatar" src="" class="w-10 h-10 rounded-full border border-slate-600 object-cover">
-                            <div><h2 class="font-bold text-sm">Kix Chat</h2><div class="text-[10px] text-green-400">● Online</div></div>
+                            <div><h2 class="font-bold text-sm" id="sidebar-title">Kix Chat</h2><div class="text-[10px] text-green-400">● Online</div></div>
                         </div>
-                        <div class="flex gap-2"><button onclick="openModal('create-group-modal')" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition"><i class="ph-bold ph-users-three"></i></button><button onclick="openModal('add-friend-modal')" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition"><i class="ph-bold ph-plus"></i></button></div>
+                        <div class="flex gap-2">
+                            <button onclick="openSettings()" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition" title="Profile"><i class="ph-bold ph-user-circle"></i></button>
+                            <button onclick="openModal('create-group-modal')" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition"><i class="ph-bold ph-users-three"></i></button>
+                            <button onclick="openModal('add-friend-modal')" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition"><i class="ph-bold ph-plus"></i></button>
+                        </div>
                     </div>
-                    <div class="relative"><i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-500"></i><input type="text" id="search-input" placeholder="Search Group ID (e.g. #G-123)" class="w-full bg-[#0f172a] rounded-lg pl-9 pr-3 py-2 text-xs text-white border border-slate-700 focus:border-rose-500 outline-none" onkeyup="handleSearch(event)"></div>
+                    <div class="relative"><i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-500"></i><input type="text" id="search-input" placeholder="Search Group ID..." class="w-full bg-[#0f172a] rounded-lg pl-9 pr-3 py-2 text-xs text-white border border-slate-700 focus:border-rose-500 outline-none" onkeyup="handleSearch(event)"></div>
                     <div class="flex border-b border-slate-700/50"><div id="tab-chats" onclick="switchTab('chats')" class="tab-btn active">Chats</div><div id="tab-groups" onclick="switchTab('groups')" class="tab-btn">Groups</div></div>
                 </div>
                 <div id="list-container" class="flex-1 overflow-y-auto p-2 space-y-1 relative z-10 pb-20"><div class="mt-10 text-center"><div class="loader"></div></div></div>
@@ -139,17 +124,27 @@
                 <div id="active-chat-ui" class="hidden flex flex-col h-full w-full relative">
                     <div class="h-16 border-b border-slate-700/30 flex items-center justify-between px-4 bg-[#1e293b]/95 backdrop-blur shrink-0 z-10 cursor-pointer shadow-sm" onclick="showChatInfo()">
                         <div class="flex items-center gap-3 overflow-hidden"><button onclick="event.stopPropagation(); closeChat()" class="md:hidden text-slate-400 p-2 -ml-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-arrow-left text-xl"></i></button><img id="chat-header-img" src="" class="w-9 h-9 rounded-full bg-slate-700 shrink-0 object-cover"><div class="min-w-0"><h3 id="chat-header-name" class="font-bold text-sm text-white truncate">User</h3><p id="chat-header-status" class="text-[10px] text-slate-400 truncate">Tap for info</p></div></div>
-                        <button onclick="showChatInfo()" class="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-info text-xl"></i></button>
+                        <div class="flex gap-2 items-center">
+                             <button onclick="event.stopPropagation(); startCall('audio')" class="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-phone text-xl"></i></button>
+                             <button onclick="event.stopPropagation(); startCall('video')" class="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-video-camera text-xl"></i></button>
+                             <button onclick="event.stopPropagation(); openNotes()" class="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-notepad text-xl"></i></button>
+                             <button onclick="showChatInfo()" class="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-info text-xl"></i></button>
+                        </div>
                     </div>
                     <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">🚫 This group has been disabled</div>
-                    
+                    <!-- Blocked Banner -->
+                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30">
+                         <span id="blocked-text">You blocked this user.</span> 
+                         <button id="blocked-action-btn" class="ml-2 text-rose-400 font-bold underline" onclick="handleBlockAction()">Unblock</button>
+                    </div>
+
+                    <div id="active-call-banner" class="hidden"><div id="call-banner" onclick="joinCall()"><div class="flex items-center gap-2"><i class="ph-fill ph-video-camera text-xl"></i> <span>Ongoing Call...</span></div><span class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold">JOIN</span></div></div>
+
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
-                    
-                    <!-- Floating Mention Button -->
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
                     <!-- Input -->
-                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative">
+                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
                         <div id="reply-banner" class="hidden flex justify-between items-center bg-slate-800 p-2 rounded mb-2 border-l-4 border-rose-500"><div class="text-xs overflow-hidden"><div class="text-rose-400 font-bold">Replying to...</div><div id="reply-text" class="text-slate-300 truncate"></div></div><button onclick="cancelReply()" class="p-1"><i class="ph-bold ph-x"></i></button></div>
@@ -157,21 +152,25 @@
                         <div id="editing-indicator" class="hidden text-xs text-blue-400 mb-1 flex justify-between"><span>Editing Message...</span> <button onclick="cancelEdit()"><i class="ph-bold ph-x"></i></button></div>
                         <div id="image-preview-container" class="hidden mb-2 p-2 bg-slate-800 rounded-lg w-fit relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
+                        <!-- Attachment Menu (Hidden by Default) -->
+                        <div id="attachment-menu" class="hidden">
+                            <label class="attach-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i>Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
+                            <button onclick="openPollModal(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-chart-bar text-green-400"></i>Poll</button>
+                            <button onclick="promptSchedule(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-clock text-yellow-400"></i>Schedule</button>
+                            <button onclick="togglePrivacy(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-lock-key text-red-400" id="menu-lock-icon"></i>Privacy</button>
+                        </div>
+
                         <div id="main-controls" class="flex items-center gap-2">
-                            <div class="flex gap-1 sm:gap-2">
-                                <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 p-1.5 rounded-full hover:bg-slate-800 transition" title="Stickers"><i class="ph-fill ph-smiley text-xl"></i></button>
-                                <label class="text-slate-400 hover:text-rose-500 p-1.5 rounded-full hover:bg-slate-800 transition cursor-pointer" title="Images"><i class="ph-bold ph-image text-xl"></i><input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
-                                <button id="mic-btn" onclick="toggleSpeech()" class="text-slate-400 hover:text-green-400 p-1.5 rounded-full hover:bg-slate-800 transition" title="Voice"><i class="ph-bold ph-microphone text-xl"></i></button>
-                                <button onclick="promptSchedule()" class="text-slate-400 hover:text-yellow-400 p-1.5 rounded-full hover:bg-slate-800 transition hidden sm:block" title="Schedule"><i class="ph-bold ph-clock text-xl"></i></button>
-                                <button id="privacy-toggle" onclick="togglePrivacy()" class="text-slate-400 hover:text-rose-500 p-1.5 rounded-full hover:bg-slate-800 transition" title="Privacy Blur"><i class="ph-bold ph-lock-open text-xl" id="privacy-icon"></i></button>
-                            </div>
+                            <button onclick="toggleAttachmentMenu()" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
                             <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message or @mention...">
+                            <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 p-1.5 rounded-full hover:bg-slate-800 transition"><i class="ph-fill ph-smiley text-xl"></i></button>
+                            <button id="mic-btn" onclick="toggleSpeech()" class="text-slate-400 hover:text-green-400 p-1.5 rounded-full hover:bg-slate-800 transition"><i class="ph-bold ph-microphone text-xl"></i></button>
                             <button onclick="sendMessage()" class="p-2 bg-rose-500 rounded-full text-white shadow-lg active:scale-95 transition hover:bg-rose-600"><i class="ph-fill ph-paper-plane-right text-lg"></i></button>
                         </div>
                     </div>
 
                     <!-- Sticker Picker -->
-                    <div id="sticker-picker" class="hidden absolute bottom-16 left-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-64 overflow-y-auto z-50">
+                    <div id="sticker-picker" class="hidden absolute bottom-16 right-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-80 overflow-y-auto z-50">
                         <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
                             <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button>
                             <button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Saved</button>
@@ -184,6 +183,8 @@
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png" class="w-12 h-12 cursor-pointer hover:scale-110">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110">
                         </div>
                         <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
@@ -193,43 +194,57 @@
     </div>
 
     <!-- MODALS -->
-    <!-- Profile Modal -->
+    <!-- Profile Modal (Settings) -->
     <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center relative">
             <h3 class="text-lg font-bold mb-4">Edit Profile</h3>
-            <div class="relative w-24 h-24 mx-auto mb-4 group cursor-pointer">
-                <img id="profile-preview" src="" class="w-full h-full rounded-full border-4 border-slate-600 object-cover">
-                <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition">
-                    <i class="ph-bold ph-camera text-2xl"></i>
-                    <input type="file" class="hidden" accept="image/*" onchange="handleProfileImageSelect(event)">
-                </label>
+            <div class="relative w-24 h-24 mx-auto mb-6 group cursor-pointer">
+                <img id="settings-preview" src="" class="w-full h-full rounded-full border-4 border-slate-600 object-cover">
+                <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="ph-bold ph-camera text-2xl"></i><input type="file" class="hidden" accept="image/*" onchange="handleProfileImageSelect(event)"></label>
             </div>
-            <p class="text-xs text-slate-400 mb-4">Tap image to change</p>
-            <div class="flex gap-2 justify-center">
+            <div class="space-y-4 text-left">
+                <div><label class="text-xs text-slate-400 block mb-1">Username (@)</label><input type="text" id="profile-username" class="w-full bg-[#0f172a] rounded px-3 py-2 text-sm border border-slate-600 outline-none"></div>
+                <div><label class="text-xs text-slate-400 block mb-1">Bio</label><textarea id="profile-bio" rows="3" class="w-full bg-[#0f172a] rounded px-3 py-2 text-sm border border-slate-600 outline-none resize-none" placeholder="About me..."></textarea></div>
+            </div>
+            <div class="flex gap-2 justify-center mt-6">
                 <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="px-4 py-2 text-slate-400">Cancel</button>
-                <button onclick="saveProfile()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Changes</button>
+                <button onclick="saveProfile()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Profile</button>
             </div>
         </div>
     </div>
-
-    <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div>
+    
+    <!-- User Info Modal -->
+    <div id="user-info-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center relative">
+            <button onclick="document.getElementById('user-info-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+            <img id="u-info-img" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-600 object-cover">
+            <h3 id="u-info-name" class="text-xl font-bold text-white mb-1">Name</h3>
+            <p id="u-info-id" class="text-xs text-rose-400 font-mono mb-2">@username</p>
+            <p id="u-info-bio" class="text-sm text-slate-400 mb-6 italic border-t border-b border-slate-700 py-2">No bio available</p>
+            <div class="grid grid-cols-2 gap-3">
+                 <button onclick="deleteChatHistory()" class="bg-slate-700 text-white p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-slate-600"><i class="ph-bold ph-trash text-lg"></i> Clear Chat</button>
+                 <button id="block-btn" onclick="handleBlockAction()" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
+            </div>
+        </div>
     </div>
-    <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-2">Choose Alias</h3><input type="text" id="anon-alias" placeholder="e.g. Ghost Rider" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 outline-none"><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 px-3">Cancel</button><button onclick="submitAnonRequest()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Request</button></div></div>
-    </div>
-    <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4"><h3 class="text-lg font-bold">Create Group</h3><input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select><div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div></div>
-    </div>
+    
+    <!-- Other Modals (Notes, Poll, Join, Create, Forward, Admin, Add Friend) -->
+    <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col"><h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3><textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea><div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div></div></div>
+    <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-4">Create Poll</h3><input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none"><div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div></div></div>
+    <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div></div>
+    <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-2">Choose Alias</h3><input type="text" id="anon-alias" placeholder="e.g. Ghost Rider" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 outline-none"><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 px-3">Cancel</button><button onclick="submitAnonRequest()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Request</button></div></div></div>
+    <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4"><h3 class="text-lg font-bold">Create Group</h3><input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select><div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div></div></div>
     <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col"><h3 class="text-lg font-bold mb-4">Forward to...</h3><div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div><button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button></div></div>
     <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div><div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div><div class="space-y-2 mb-4"><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div></div><div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div></div></div>
-    <div id="user-info-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center relative"><button onclick="document.getElementById('user-info-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button><img id="u-info-img" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-600 object-cover"><h3 id="u-info-name" class="text-xl font-bold text-white mb-1">Name</h3><p id="u-info-id" class="text-xs text-rose-400 font-mono mb-6">ID: --</p><div class="grid grid-cols-2 gap-3"><button onclick="deleteChatHistory()" class="bg-slate-700 text-white p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-slate-600"><i class="ph-bold ph-trash text-lg"></i> Clear Chat</button><button onclick="alert('Block feature requires backend')" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button></div></div></div>
     <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, arrayUnion, arrayRemove, orderBy, getDoc, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const ZEGO_APP_ID = 910816597; 
+        const ZEGO_SERVER_SECRET = "31464886a069743631dcee8d496d2a98"; 
 
         const firebaseConfig = { apiKey: "AIzaSyCz8xJ5Qb7m5cjYWs9SqxpdtnZymYLiblI", authDomain: "kix-chatmass.firebaseapp.com", projectId: "kix-chatmass", storageBucket: "kix-chatmass.firebasestorage.app", messagingSenderId: "796961974964", appId: "1:796961974964:web:65c536e2a521b28e56c5e1", measurementId: "G-CPZC0E6HD7" };
         const app = initializeApp(firebaseConfig);
@@ -275,13 +290,15 @@
         window.installPWA = () => { document.getElementById('pwa-banner').classList.add('hidden'); if(deferredPrompt) deferredPrompt.prompt(); };
 
         window.signInWithGoogle = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
-        window.signInDemo = () => handleLogin({ uid: "demo_"+Date.now(), displayName: "Guest", email: "guest@kix.com", photoURL: "https://ui-avatars.com/api/?name=Guest" });
 
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
                 if(user) handleLogin(user);
                 else { safeClassRemove('splash-screen', 'hidden'); safeClassAdd('splash-screen', 'hidden'); safeClassRemove('login-screen', 'hidden'); }
             });
+            
+            // NOTIFICATION PERMISSION
+            if (Notification.permission !== "granted") Notification.requestPermission();
         });
 
         async function handleLogin(user) {
@@ -293,6 +310,7 @@
             if(userDoc.exists() && userDoc.data().photoURL) photo = userDoc.data().photoURL;
 
             document.getElementById('my-avatar').src = photo;
+            document.getElementById('settings-preview').src = photo;
             document.getElementById('join-my-pic').src = photo;
             
             try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: photo }, { merge: true }); } catch(e){}
@@ -330,7 +348,26 @@
             const container = document.getElementById("list-container"); container.innerHTML = '<div class="mt-4"><div class="loader"></div></div>';
             if(currentTab === 'chats') {
                 const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid), where("type", "==", "direct"));
-                onSnapshot(q, snap => renderList(snap, container));
+                onSnapshot(q, snap => {
+                    // Check for notifications on list update
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'modified') {
+                            const d = change.doc.data();
+                            // If modified and has unread for us
+                            const unread = d.unreadCounts?.[currentUser.uid] || 0;
+                            if (unread > 0 && change.doc.id !== currentChatId) {
+                                // Trigger Local Notification
+                                if (document.visibilityState === 'hidden' || currentChatId !== change.doc.id) {
+                                    new Notification(`New Message in ${d.name || 'Chat'}`, { body: d.lastMessage || 'New message' });
+                                    // Play sound
+                                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+                                    audio.play().catch(e=>{});
+                                }
+                            }
+                        }
+                    });
+                    renderList(snap, container);
+                });
             } else {
                 const qJoined = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid), where("type", "==", "group"));
                 onSnapshot(qJoined, snap => {
@@ -349,7 +386,7 @@
         function renderList(snap, container) {
             container.innerHTML = ""; const items = []; snap.forEach(d => items.push({id:d.id, ...d.data()}));
             items.sort((a,b) => (b.lastUpdated?.toMillis()||0) - (a.lastUpdated?.toMillis()||0));
-            items.forEach(i => container.appendChild(createItem(i)));
+            items.forEach(i => { const el = createItem(i); if(el) container.appendChild(el); });
         }
 
         function createItem(data) {
@@ -366,24 +403,57 @@
             return div;
         }
 
-        window.joinAsReal = async () => {
-            if(tempJoinData.isPublic) {
-                const color = assignUniqueColor(tempJoinData);
-                await updateDoc(doc(db, "chats", tempJoinData.id), { participants: arrayUnion(currentUser.uid), [`groupProfiles.${currentUser.uid}`]: { alias: currentUser.displayName, color: color, isReal: true } });
-                window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null);
-            } else alert("Private group requires request");
+        // SETTINGS: PROFILE & BIO
+        window.openProfileModal = () => { 
+            document.getElementById('settings-preview').src = currentUser.photoURL || logoData;
+            getDoc(doc(db, "users", currentUser.uid)).then(s => {
+                const d = s.data();
+                document.getElementById('profile-username').value = d.username || "";
+                document.getElementById('profile-bio').value = d.bio || "";
+            });
+            window.openModal('profile-modal'); 
         };
-        window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
-        window.submitAnonRequest = async () => {
-            const alias = document.getElementById('anon-alias').value.trim(); if(!alias) return;
-            await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: alias, timestamp: Date.now() }) });
-            window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'});
+        window.openSettings = () => window.openProfileModal();
+        
+        window.saveProfile = async () => {
+             const username = document.getElementById('profile-username').value;
+             const bio = document.getElementById('profile-bio').value;
+             let updateData = { username: username, bio: bio };
+             if(newProfilePicBase64) {
+                 updateData.photoURL = newProfilePicBase64;
+                 document.getElementById('my-avatar').src = newProfilePicBase64;
+             }
+             await updateDoc(doc(db, "users", currentUser.uid), updateData);
+             if(newProfilePicBase64 || username) {
+                const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
+                const snap = await getDocs(q);
+                const batch = writeBatch(db);
+                snap.forEach(d => {
+                    const ref = doc(db, "chats", d.id);
+                    const field = {}; 
+                    if(newProfilePicBase64) field[`userDetails.${currentUser.uid}.photo`] = newProfilePicBase64;
+                    if(username) field[`userDetails.${currentUser.uid}.name`] = username; // Update display name
+                    batch.update(ref, field);
+                });
+                await batch.commit();
+             }
+             window.closeModals();
+             Swal.fire({icon:'success', title:'Saved', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'});
         };
-        function assignUniqueColor(chatData) {
-            const usedColors = Object.values(chatData.groupProfiles || {}).map(p => p.color);
-            const available = MEMBER_COLORS.filter(c => !usedColors.includes(c));
-            return available.length > 0 ? available[Math.floor(Math.random() * available.length)] : MEMBER_COLORS[Math.floor(Math.random() * MEMBER_COLORS.length)];
-        }
+
+        window.toggleAttachmentMenu = () => { const menu = document.getElementById('attachment-menu'); menu.classList.toggle('hidden'); };
+        window.openNotes = () => { document.getElementById('notes-modal').classList.remove('hidden'); if(currentChatData.sharedNote) document.getElementById('shared-note-area').value = currentChatData.sharedNote; else document.getElementById('shared-note-area').value = ""; };
+        window.saveSharedNote = async () => { const note = document.getElementById('shared-note-area').value; await updateDoc(doc(db, "chats", currentChatId), { sharedNote: note }); document.getElementById('notes-modal').classList.add('hidden'); Swal.fire({toast:true, position:'top', icon:'success', title:'Note Saved', showConfirmButton:false, timer:1000}); };
+
+        window.openPollModal = () => document.getElementById('poll-modal').classList.remove('hidden');
+        window.sendPoll = async () => { const q = document.getElementById('poll-question').value; const o1 = document.getElementById('poll-opt1').value; const o2 = document.getElementById('poll-opt2').value; if(!q || !o1 || !o2) return; await addDoc(collection(db, "chats", currentChatId, "messages"), { type: 'poll', senderId: currentUser.uid, createdAt: serverTimestamp(), question: q, options: [{text: o1, votes: []}, {text: o2, votes: []}], status: 'sent', deletedFor: [] }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "📊 Poll", lastUpdated: serverTimestamp() }); document.getElementById('poll-modal').classList.add('hidden'); };
+        window.votePoll = async (msgId, optIdx) => { const msgRef = doc(db, "chats", currentChatId, "messages", msgId); const msgSnap = await getDoc(msgRef); const data = msgSnap.data(); data.options.forEach(opt => { const idx = opt.votes.indexOf(currentUser.uid); if(idx > -1) opt.votes.splice(idx, 1); }); data.options[optIdx].votes.push(currentUser.uid); await updateDoc(msgRef, { options: data.options }); };
+
+        // Zego Dynamic Load
+        window.loadZegoScript = () => { return new Promise((resolve, reject) => { if(window.ZegoUIKitPrebuilt) return resolve(); const script = document.createElement('script'); script.src = "https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"; script.onload = resolve; script.onerror = reject; document.body.appendChild(script); }); };
+        window.startCall = async (type) => { if (!ZEGO_APP_ID || !ZEGO_SERVER_SECRET) return alert("Please set ZegoCloud keys in code!"); try { await loadZegoScript(); await updateDoc(doc(db, "chats", currentChatId), { callState: { isActive: true, type: type, initiator: currentUser.uid, timestamp: Date.now() } }); joinZegoRoom(currentChatId, type); } catch(e) { console.error("Failed to load call SDK", e); alert("Call feature unavailable"); } };
+        window.joinCall = async () => { if(currentChatData.callState) { try { await loadZegoScript(); joinZegoRoom(currentChatId, currentChatData.callState.type); } catch(e) { console.error(e); } } };
+        function joinZegoRoom(roomID, type) { const zp = ZegoUIKitPrebuilt.create(ZegoUIKitPrebuilt.generateKitTokenForTest(ZEGO_APP_ID, ZEGO_SERVER_SECRET, roomID, currentUser.uid, currentUser.displayName)); const container = document.getElementById('zego-container'); container.style.display = 'block'; zp.joinRoom({ container: container, scenario: { mode: type === 'video' ? ZegoUIKitPrebuilt.GroupCall : ZegoUIKitPrebuilt.GroupVoiceCall, }, showPreJoinView: false, onLeaveRoom: async () => { container.style.display = 'none'; if (currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) { await updateDoc(doc(db, "chats", currentChatId), { callState: null }); } } }); }
 
         async function openChat(id, name, photo) {
             document.getElementById("messages-container").innerHTML = '<div class="flex h-full items-center justify-center"><div class="loader"></div></div>';
@@ -401,10 +471,11 @@
                     currentChatData = docSnap.data(); 
                     checkAdminPermissions(); 
                     
-                    // Update Last Seen Timestamp for logic
+                    const callBanner = document.getElementById('active-call-banner');
+                    if(currentChatData.callState && currentChatData.callState.isActive) { callBanner.classList.remove('hidden'); } else { callBanner.classList.add('hidden'); }
+                    
                     const lastSeenMap = currentChatData.lastSeen || {};
                     myLastSeenTime = lastSeenMap[currentUser.uid]?.toMillis() || 0;
-
                     if(currentMessages.length > 0) renderMessageList(); 
                 }
             });
@@ -421,30 +492,21 @@
                     const m = { id: d.id, ...d.data() };
                     currentMessages.push(m);
                     renderMessage(m, container);
-
-                    // Mention & Reply Logic
                     if (!pendingMentionId && m.senderId !== currentUser.uid) {
                         const msgTime = m.createdAt?.toMillis() || Date.now();
                         const isNew = msgTime > myLastSeenTime;
-                        
-                        if (isNew) {
-                            const isMention = m.text && m.text.includes('@' + currentUser.displayName);
-                            // Simple reply check (if data available)
-                            const isReply = false; // Mock, in real app check replyTo.senderId locally if stored or query
-
-                            if (isMention) pendingMentionId = m.id;
+                        if (isNew && m.text && m.text.includes('@')) { 
+                           // Simple check
                         }
                     }
                 });
 
                 if(pendingMentionId) document.getElementById('floating-mention-btn').classList.remove('hidden');
                 else document.getElementById('floating-mention-btn').classList.add('hidden');
-
+                
                 if(snap.docs.length > 0) {
                     const lastMsg = currentMessages[currentMessages.length-1];
-                    if(lastMsg.senderId !== currentUser.uid) {
-                        updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 });
-                    }
+                    if(lastMsg.senderId !== currentUser.uid) { updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 }); }
                 }
                 container.scrollTop = container.scrollHeight;
             });
@@ -453,21 +515,109 @@
         window.scrollToMention = () => { const container = document.getElementById('messages-container'); const el = document.getElementById('msg-'+pendingMentionId); if(el) el.scrollIntoView({behavior: "smooth", block: "center"}); document.getElementById('floating-mention-btn').classList.add('hidden'); };
 
         function checkAdminPermissions() {
-            const wrapper = document.getElementById('main-controls');
+            const wrapper = document.getElementById('input-area-wrapper');
             const banner = document.getElementById('admin-only-banner');
             const disabledBanner = document.getElementById('disabled-banner');
+            const blockedBanner = document.getElementById('blocked-banner');
+            
+            if (currentChatData.type === 'direct' && currentChatData.blocked) {
+                const b = currentChatData.blocked;
+                if (b.by === currentUser.uid) {
+                    blockedBanner.classList.remove('hidden');
+                    document.getElementById('blocked-text').innerText = "You blocked this user.";
+                    document.getElementById('blocked-action-btn').innerText = "Unblock";
+                    document.getElementById('blocked-action-btn').onclick = () => handleBlockAction(true);
+                } else {
+                    blockedBanner.classList.remove('hidden');
+                    document.getElementById('blocked-text').innerText = "You have been blocked.";
+                    if (b.isAppealSent) {
+                         document.getElementById('blocked-action-btn').innerText = "Appeal Sent";
+                         document.getElementById('blocked-action-btn').onclick = null;
+                    } else {
+                         document.getElementById('blocked-action-btn').innerText = "Appeal";
+                         document.getElementById('blocked-action-btn').onclick = () => handleBlockAction(false);
+                    }
+                }
+                wrapper.classList.add('hidden');
+                return;
+            } else {
+                if(blockedBanner) blockedBanner.classList.add('hidden');
+            }
+
             const setHidden = (el, hidden) => { if(el) { if(hidden) el.classList.add('hidden'); else el.classList.remove('hidden'); } };
             if (currentChatData.isDisabled) { setHidden(wrapper, true); setHidden(banner, true); setHidden(disabledBanner, false); }
             else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) { setHidden(wrapper, true); setHidden(banner, false); setHidden(disabledBanner, true); }
             else { setHidden(wrapper, false); setHidden(banner, true); setHidden(disabledBanner, true); }
         }
+
+        window.handleBlockAction = async (isUnblocking) => {
+            if (isUnblocking) {
+                await updateDoc(doc(db, "chats", currentChatId), { blocked: null });
+            } else {
+                await updateDoc(doc(db, "chats", currentChatId), { "blocked.isAppealSent": true });
+                Swal.fire({icon:'info', title:'Appeal Sent', text:'User will be notified.', background:'#1e293b', color:'#fff'});
+            }
+        };
+
+        window.showChatInfo = async () => {
+            if(currentChatData.type === 'group') {
+                window.openModal('admin-modal');
+                document.getElementById('admin-group-id').innerText = currentChatData.customId;
+                const isAdmin = currentChatData.admins.includes(currentUser.uid);
+                document.getElementById('toggle-admin-only').disabled = !isAdmin;
+                document.getElementById('toggle-disable-group').disabled = !isAdmin;
+                document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost;
+                document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled;
+                const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = "";
+                if(isAdmin && currentChatData.requests?.length) {
+                    safeClassRemove('pending-section', 'hidden');
+                    currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`);
+                } else safeClassAdd('pending-section', 'hidden');
+                const memDiv = document.getElementById('member-list'); memDiv.innerHTML = "";
+                currentChatData.participants.forEach(uid => { 
+                    const p = currentChatData.groupProfiles?.[uid]; 
+                    const isMemAdmin = currentChatData.admins.includes(uid);
+                    memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between items-center">
+                        <span>${p?.alias||'User'} ${isMemAdmin?'👑':''}</span> 
+                        ${isAdmin && uid !== currentUser.uid ? `
+                            <div class="flex gap-2">
+                                <button onclick="makeAdmin('${uid}')" class="text-xs text-blue-400">Promote</button>
+                                <button onclick="removeMember('${uid}')" class="text-xs text-red-400">Kick</button>
+                            </div>` : ''}
+                    </div>`; 
+                });
+            } else {
+                window.openModal('user-info-modal');
+                const otherUid = currentChatData.participants.find(id => id !== currentUser.uid);
+                const userSnap = await getDoc(doc(db, "users", otherUid));
+                const user = userSnap.data();
+                document.getElementById('u-info-img').src = user.photoURL || logoData;
+                document.getElementById('u-info-name').innerText = user.displayName || user.email;
+                document.getElementById('u-info-id').innerText = `@${user.username || 'unknown'}`;
+                document.getElementById('u-info-bio').innerText = user.bio || "No bio available.";
+                const btn = document.getElementById('block-btn');
+                if (currentChatData.blocked && currentChatData.blocked.by === currentUser.uid) {
+                    btn.innerHTML = `<i class="ph-bold ph-check text-lg"></i> Unblock`;
+                    btn.onclick = () => { handleBlockAction(true); window.closeModals(); };
+                } else {
+                    btn.innerHTML = `<i class="ph-bold ph-prohibit text-lg"></i> Block`;
+                    btn.onclick = () => { confirmBlock(otherUid); };
+                }
+            }
+        };
+
+        window.confirmBlock = async (uid) => {
+             await updateDoc(doc(db, "chats", currentChatId), { blocked: { by: currentUser.uid, isAppealSent: false } });
+             window.closeModals();
+        };
+
         function renderMessageList() { const c = document.getElementById('messages-container'); c.innerHTML = ""; currentMessages.forEach(msg => renderMessage(msg, c)); c.scrollTop = c.scrollHeight; }
 
         function renderMessage(msg, container) {
             if(msg.deletedFor && msg.deletedFor.includes(currentUser.uid)) return;
             const isMe = msg.senderId === currentUser.uid;
             const div = document.createElement('div');
-            div.id = 'msg-' + msg.id; // ID for scrolling
+            div.id = 'msg-' + msg.id; 
             div.className = `flex flex-col mb-2 ${isMe ? 'items-end' : 'items-start'} w-full relative group`;
             
             let bubbleStyle = ""; let senderName = "";
@@ -476,13 +626,20 @@
                 if(profile) { bubbleStyle = `background: ${profile.color}; color: white;`; senderName = `<span class="text-[10px] opacity-75 mb-1 block font-bold">${profile.alias || 'Member'}</span>`; }
             }
             let extraClass = msg.isPrivate && !isMe ? "blur-content" : "";
-            let replyHtml = msg.replyTo ? `<div class="bg-black/20 p-1 rounded mb-1 text-xs border-l-2 border-white/50 truncate max-w-[150px]">${msg.replyTo.text}</div>` : "";
-            let processedText = msg.text ? msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>') : "";
+            let replyHtml = "";
+            if(msg.replyTo) {
+                 const rText = msg.replyTo.type === 'image' ? '📷 Photo' : (msg.replyTo.type === 'sticker' ? '👾 Sticker' : msg.replyTo.text);
+                 replyHtml = `<div class="bg-black/20 p-1 rounded mb-1 text-xs border-l-2 border-white/50 truncate max-w-[150px]">${rText}</div>`;
+            }
+            
+            let processedText = "";
+            if (msg.text) {
+                processedText = msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
+            }
 
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
-                let tickClass = "tick gray"; 
-                let tickIcon = "ph-bold ph-checks";
+                let tickClass = "tick gray"; let tickIcon = "ph-bold ph-checks";
                 if(currentChatData.lastSeen) {
                     const seenTime = Object.entries(currentChatData.lastSeen).filter(([uid, ts]) => uid !== currentUser.uid).map(([_, ts]) => ts?.toMillis() || 0);
                     const msgTime = msg.createdAt?.toMillis() || Date.now();
@@ -493,7 +650,15 @@
             }
 
             let content = "";
-            if(msg.type === 'deleted') {
+            if(msg.type === 'poll') {
+                const totalVotes = msg.options.reduce((sum, opt) => sum + opt.votes.length, 0);
+                let optsHtml = "";
+                msg.options.forEach((opt, idx) => {
+                    const pct = totalVotes === 0 ? 0 : Math.round((opt.votes.length / totalVotes) * 100);
+                    optsHtml += `<div class="poll-option bg-white/10 rounded mb-1 p-2 cursor-pointer relative overflow-hidden" onclick="votePoll('${msg.id}', ${idx})"><div class="absolute top-0 left-0 h-full bg-rose-500/30 z-0 transition-all" style="width:${pct}%"></div><div class="relative z-10 flex justify-between"><span class="text-sm font-bold">${opt.text}</span><span class="text-xs">${pct}%</span></div></div>`;
+                });
+                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} w-64"><h4 class="font-bold mb-2">${msg.question}</h4>${optsHtml}</div>`;
+            } else if(msg.type === 'deleted') {
                 content = `<div class="chat-bubble ${isMe ? 'bg-slate-700' : 'bg-slate-800'} text-slate-400 italic text-xs">Deleted</div>`;
             } else if(msg.type === 'sticker') {
                 content = `<img src="${msg.imageUrl}" class="w-32 h-32 object-contain cursor-pointer hover:scale-105 transition" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">`;
@@ -513,17 +678,37 @@
         }
 
         const messageInput = document.getElementById('message-input');
-        messageInput.addEventListener('input', (e) => {
-            const val = e.target.value; const popup = document.getElementById('mention-popup');
-            if (val.endsWith('@') && currentChatData.type === 'group') {
+        messageInput.addEventListener('keyup', (e) => {
+            const val = e.target.value; 
+            const popup = document.getElementById('mention-popup');
+            
+            const cursor = e.target.selectionStart;
+            const textBefore = val.substring(0, cursor);
+            const lastWord = textBefore.split(' ').pop();
+
+            if (lastWord.startsWith('@') && currentChatData.type === 'group') {
                 popup.innerHTML = "";
                 currentChatData.participants.forEach(uid => {
-                   const profile = currentChatData.groupProfiles?.[uid]; const name = profile?.alias || "User";
-                   const item = document.createElement('div'); item.className = "mention-item text-white text-sm"; item.innerText = name;
-                   item.onclick = () => { messageInput.value = val + name + " "; popup.innerHTML = ""; popup.classList.add('hidden'); messageInput.focus(); };
+                   const profile = currentChatData.groupProfiles?.[uid]; 
+                   const name = profile?.alias || "User";
+                   const item = document.createElement('div'); 
+                   item.className = "mention-item text-white text-sm"; 
+                   item.innerText = name;
+                   item.onclick = () => { 
+                       const textAfter = val.substring(cursor);
+                       const newTextBefore = textBefore.substring(0, textBefore.lastIndexOf(lastWord));
+                       messageInput.value = newTextBefore + "@" + name + " " + textAfter;
+                       popup.innerHTML = "";
+                       popup.classList.add('hidden');
+                       messageInput.focus();
+                   };
                    popup.appendChild(item);
-                }); popup.classList.remove('hidden');
-            } else { popup.classList.add('hidden'); }
+                }); 
+                popup.classList.remove('hidden');
+                popup.style.bottom = "60px";
+            } else { 
+                popup.classList.add('hidden'); 
+            }
         });
 
         window.sendMessage = async () => {
@@ -551,7 +736,7 @@
                 await addDoc(collection(db, "chats", currentChatId, "messages"), {
                     text: text || extra, imageUrl: img, senderId: currentUser.uid, type,
                     createdAt: serverTimestamp(), isPrivate: isPrivacyMode,
-                    replyTo: replyToMsg ? { id: replyToMsg.id, text: replyToMsg.text } : null,
+                    replyTo: replyToMsg ? { id: replyToMsg.id, text: replyToMsg.text, type: replyToMsg.type || 'text' } : null,
                     status: 'sent', deletedFor: []
                 });
                 
@@ -566,7 +751,7 @@
             } catch(e) { console.error(e); }
         }
 
-        function inputCleanUp() { document.getElementById('message-input').value = ""; clearImage(); cancelReply(); if(isPrivacyMode) togglePrivacy(); }
+        function inputCleanUp() { document.getElementById('message-input').value = ""; clearImage(); cancelReply(); if(isPrivacyMode) togglePrivacy(); document.getElementById('attachment-menu').classList.add('hidden'); }
 
         window.showContextMenu = (e, msg) => {
             e.preventDefault(); const menu = document.getElementById('msg-context-menu');
@@ -575,10 +760,8 @@
             
             let html = '';
             if(msg.type !== 'deleted') {
-                html += `<div class="context-item" onclick="setReply('${msg.text}', '${msg.id}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
-                // FIX: Forward needs correct data capture
-                window.tempForwardData = { text: msg.text, imageUrl: msg.imageUrl, type: msg.type };
-                html += `<div class="context-item" onclick="startForward()"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
+                html += `<div class="context-item" onclick="setReply('${msg.text || ''}', '${msg.id}', '${msg.type}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
+                html += `<div class="context-item" onclick="startForward('${msg.text}')"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
                 html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
                 const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
                 if(msg.senderId === currentUser.uid || isAdmin) { html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`; }
@@ -590,75 +773,52 @@
             setTimeout(() => document.addEventListener('click', close), 100);
         };
 
-        window.setReply = (text, id) => { replyToMsg = { id, text }; document.getElementById('reply-banner').classList.remove('hidden'); document.getElementById('reply-text').innerText = text; };
+        window.setReply = (text, id, type) => { 
+            replyToMsg = { id, text: text, type: type }; 
+            document.getElementById('reply-banner').classList.remove('hidden'); 
+            const display = type === 'sticker' ? '👾 Sticker' : (type === 'image' ? '📷 Photo' : text);
+            document.getElementById('reply-text').innerText = display; 
+        };
         window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
         window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
         window.cancelEdit = () => { editingMessageId = null; document.getElementById('message-input').value = ""; document.getElementById('editing-indicator').classList.add('hidden'); };
-        window.deleteMessage = async (id, scope) => {
-            const ref = doc(db, "chats", currentChatId, "messages", id);
-            if(scope === 'everyone') {
-                await updateDoc(ref, { type: 'deleted', text: '', imageUrl: null });
-                await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "🚫 Message deleted", lastUpdated: serverTimestamp() });
-            }
-            else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) });
-        };
-        window.startForward = () => {
-            window.openModal('forward-modal');
-            const list = document.getElementById('forward-list');
-            list.innerHTML = "";
-            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
-            onSnapshot(q, snap => {
-                snap.forEach(d => {
-                    const btn = document.createElement('div');
-                    btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm";
-                    btn.innerText = d.data().name || "Chat";
-                    btn.onclick = async () => { 
-                        const { text, imageUrl, type } = window.tempForwardData;
-                        await addDoc(collection(db, "chats", d.id, "messages"), { text: text || null, imageUrl: imageUrl || null, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true });
-                        await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() });
-                        window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); 
-                    };
-                    list.appendChild(btn);
-                });
-            });
-        };
-        
-        window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('privacy-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key" : "ph-bold ph-lock-open"; };
+        window.deleteMessage = async (id, scope) => { const ref = doc(db, "chats", currentChatId, "messages", id); if(scope === 'everyone') { await updateDoc(ref, { type: 'deleted', text: '', imageUrl: null }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "🚫 Message deleted", lastUpdated: serverTimestamp() }); } else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) }); };
+        window.startForward = () => { window.openModal('forward-modal'); const list = document.getElementById('forward-list'); list.innerHTML = ""; const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid)); onSnapshot(q, snap => { snap.forEach(d => { const btn = document.createElement('div'); btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm"; btn.innerText = d.data().name || "Chat"; btn.onclick = async () => { const { text, imageUrl, type } = window.tempForwardData; await addDoc(collection(db, "chats", d.id, "messages"), { text: text || null, imageUrl: imageUrl || null, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true }); await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() }); window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); }; list.appendChild(btn); }); }); };
+        window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('menu-lock-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key text-red-400" : "ph-bold ph-lock-open text-red-400"; document.getElementById('attachment-menu').classList.add('hidden'); Swal.fire({toast:true, title: isPrivacyMode?'Privacy ON':'Privacy OFF', position:'top', timer:1000, showConfirmButton:false}); };
         window.promptSchedule = () => { Swal.fire({title:'Time', input:'time', background:'#1e293b', color:'#fff'}).then(r => { if(r.value){ scheduledTime = r.value; document.getElementById('schedule-info').classList.remove('hidden'); document.getElementById('schedule-time-display').innerText = r.value; }}); };
         window.cancelSchedule = () => { scheduledTime = null; document.getElementById('schedule-info').classList.add('hidden'); };
         window.setReminder = (txt) => { Swal.fire({title:'Remind me', input:'select', inputOptions:{1:'1 Min', 60:'1 Hour'}, background:'#1e293b', color:'#fff'}).then(r => { if(r.value) setTimeout(() => Swal.fire({title:txt, background:'#1e293b', color:'#fff'}), r.value*60000); }); };
-        
         window.toggleStickerPicker = () => { document.getElementById('sticker-picker').classList.toggle('hidden'); loadSavedStickers(); };
         window.showStickerTab = (t) => { document.getElementById('sticker-content-default').classList.toggle('hidden', t!=='default'); document.getElementById('sticker-content-saved').classList.toggle('hidden', t!=='saved'); };
-        window.sendSticker = (e, u=null) => doSend(u, 'sticker', e);
-        window.sendStickerUrl = (url) => doSend(null, 'sticker', null, url); 
-        window.saveSticker = (url) => {
-            let s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); if(!s.includes(url)) s.push(url); localStorage.setItem('kix_stickers', JSON.stringify(s)); loadSavedStickers();
-        };
-        window.addCustomSticker = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { window.saveSticker(ev.target.result); }; r.readAsDataURL(f); };
-        function loadSavedStickers() {
-            const s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); const c = document.getElementById('sticker-content-saved'); c.innerHTML = "";
-            s.forEach(u => { const b = document.createElement('button'); b.innerHTML = `<img src="${u}" class="w-full h-16 object-contain">`; b.onclick=()=>sendStickerUrl(u); c.appendChild(b); });
-            c.classList.remove('hidden'); c.classList.add('grid');
-        }
-
+        window.sendSticker = (e, u=null) => doSend(u, 'sticker', e); window.sendStickerUrl = (url) => doSend(null, 'sticker', null, url); window.saveSticker = (url) => { let s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); if(!s.includes(url)) s.push(url); localStorage.setItem('kix_stickers', JSON.stringify(s)); loadSavedStickers(); }; window.addCustomSticker = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { window.saveSticker(ev.target.result); }; r.readAsDataURL(f); };
+        function loadSavedStickers() { const s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); const c = document.getElementById('sticker-content-saved'); c.innerHTML = ""; s.forEach(u => { const b = document.createElement('button'); b.innerHTML = `<img src="${u}" class="w-full h-16 object-contain">`; b.onclick=()=>sendStickerUrl(u); c.appendChild(b); }); c.classList.remove('hidden'); c.classList.add('grid'); }
         window.handleImage = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload=(ev)=>{ const i = new Image(); i.onload=()=>{ const c=document.createElement('canvas'); const m=800; let w=i.width,h=i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); selectedImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('image-preview').src=selectedImageBase64; document.getElementById('image-preview-container').classList.remove('hidden'); }; i.src=ev.target.result; }; r.readAsDataURL(f); };
         window.clearImage = () => { selectedImageBase64=null; document.getElementById('image-input').value=""; document.getElementById('image-preview-container').classList.add('hidden'); };
         function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
         window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
-
-        window.showChatInfo = () => { if(currentChatData.type === 'group') { window.openModal('admin-modal'); document.getElementById('admin-group-id').innerText = currentChatData.customId; const isAdmin = currentChatData.admins.includes(currentUser.uid); document.getElementById('toggle-admin-only').disabled = !isAdmin; document.getElementById('toggle-disable-group').disabled = !isAdmin; document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost; document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled; const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = ""; if(isAdmin && currentChatData.requests?.length) { safeClassRemove('pending-section', 'hidden'); currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`); } else safeClassAdd('pending-section', 'hidden'); const memDiv = document.getElementById('member-list'); memDiv.innerHTML = ""; currentChatData.participants.forEach(uid => { const p = currentChatData.groupProfiles?.[uid]; const isMemAdmin = currentChatData.admins.includes(uid); memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between items-center"><span>${p?.alias||'User'} ${isMemAdmin?'👑':''}</span> ${isAdmin && uid !== currentUser.uid ? `<div class="flex gap-2"><button onclick="makeAdmin('${uid}')" class="text-xs text-blue-400">Promote</button><button onclick="removeMember('${uid}')" class="text-xs text-red-400">Kick</button></div>` : ''}</div>`; }); } else { window.openModal('user-info-modal'); const otherUid = currentChatData.participants.find(id => id !== currentUser.uid); const user = currentChatData.userDetails[otherUid]; document.getElementById('u-info-img').src = user.photo || logoData; document.getElementById('u-info-name').innerText = user.name; document.getElementById('u-info-id').innerText = "ID: " + otherUid.slice(0, 8); } };
-        window.deleteChatHistory = async () => { const batch = writeBatch(db); const q = query(collection(db, "chats", currentChatId, "messages")); const snap = await getDocs(q); snap.forEach(d => batch.update(d.ref, { deletedFor: arrayUnion(currentUser.uid) })); await batch.commit(); window.closeModals(); Swal.fire({icon:'success', title:'Cleared', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); };
+        window.joinAsReal = async () => { if(tempJoinData.isPublic) { const color = assignUniqueColor(tempJoinData); await updateDoc(doc(db, "chats", tempJoinData.id), { participants: arrayUnion(currentUser.uid), [`groupProfiles.${currentUser.uid}`]: { alias: currentUser.displayName, color: color, isReal: true } }); window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null); } else alert("Private group requires request"); };
+        window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
+        window.submitAnonRequest = async () => { const alias = document.getElementById('anon-alias').value.trim(); if(!alias) return; await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: alias, timestamp: Date.now() }) }); window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'}); };
         window.approveMember = async (uid, alias) => { const color = assignUniqueColor(currentChatData); const reqs = currentChatData.requests.filter(r => r.uid !== uid); await updateDoc(doc(db, "chats", currentChatId), { requests: reqs, participants: arrayUnion(uid), [`groupProfiles.${uid}`]: { alias, color, isReal: false } }); window.showChatInfo(); };
         window.toggleAdminOnly = async () => { await updateDoc(doc(db, "chats", currentChatId), { onlyAdminsCanPost: document.getElementById('toggle-admin-only').checked }); };
         window.toggleDisableGroup = async () => { await updateDoc(doc(db, "chats", currentChatId), { isDisabled: document.getElementById('toggle-disable-group').checked }); };
         window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); window.showChatInfo(); };
         window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); window.showChatInfo(); };
         window.createGroup = async () => { const name = document.getElementById('group-name').value; if(!name) return; const category = document.getElementById('group-category').value; const isPublic = document.getElementById('group-public').checked; const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() }); window.closeModals(); window.switchTab('groups'); };
-        window.startChat = async () => { const email = document.getElementById('friend-email').value; if(!email) return; const q = query(collection(db, "users"), where("email", "==", email)); const snap = await getDocs(q); if(snap.empty) return alert("User not found"); const friend = snap.docs[0].data(); const chatId = [currentUser.uid, friend.uid].sort().join('_'); await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName, photo:friend.photoURL} } }, { merge: true }); window.closeModals(); openChat(chatId, friend.displayName, friend.photoURL); };
-        window.joinAsReal = async () => { if(tempJoinData.isPublic) { const color = assignUniqueColor(tempJoinData); await updateDoc(doc(db, "chats", tempJoinData.id), { participants: arrayUnion(currentUser.uid), [`groupProfiles.${currentUser.uid}`]: { alias: currentUser.displayName, color: color, isReal: true } }); window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null); } else alert("Private group requires request"); };
-        window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
-        window.submitAnonRequest = async () => { const alias = document.getElementById('anon-alias').value.trim(); if(!alias) return; await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: alias, timestamp: Date.now() }) }); window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'}); };
+        window.startChat = async () => { 
+            const inputVal = document.getElementById('friend-email').value.trim();
+            if(!inputVal) return;
+            let q = query(collection(db, "users"), where("email", "==", inputVal));
+            let snap = await getDocs(q);
+            if(snap.empty) { q = query(collection(db, "users"), where("username", "==", inputVal.replace('@',''))); snap = await getDocs(q); }
+            if(snap.empty) return Swal.fire({icon:'error', title:'User Not Found', background:'#1e293b', color:'#fff'});
+            const friend = snap.docs[0].data();
+            const chatId = [currentUser.uid, friend.uid].sort().join('_');
+            await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName||friend.email, photo:friend.photoURL} } }, { merge: true });
+            window.closeModals(); openChat(chatId, friend.displayName||friend.email, friend.photoURL);
+        };
+        window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('profile-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
+        // window.saveProfile logic already defined above...
 
         document.getElementById("message-input").addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
