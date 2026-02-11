@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v20</title>
+    <title>Kix Chat - Final v21</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -21,7 +21,7 @@
         :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #f43f5e; }
         
         body { 
-            font-family: 'Outfit', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; 
+            font-family: 'Outfit', 'Segoe UI Emoji', sans-serif; 
             background: var(--bg-dark); 
             color: #f8fafc; 
             height: 100dvh; 
@@ -67,7 +67,9 @@
         .tick { font-size: 16px; }
         .tick.blue { color: #93c5fd; }
         .tick.gray { color: #cbd5e1; }
-        .mention { color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 0 2px; rounded: 4px; }
+        
+        /* Mentions */
+        .mention { color: #fcd34d; font-weight: bold; background: rgba(251, 191, 36, 0.2); padding: 0 4px; rounded: 4px; cursor: pointer; }
         
         /* Attachment Menu */
         #attachment-menu { position: absolute; bottom: 70px; left: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.2s ease-out; }
@@ -76,14 +78,17 @@
         .attach-btn i { font-size: 24px; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* Floating Mention Button */
         #floating-mention-btn { position: absolute; bottom: 85px; right: 20px; background: #ffffff; color: #f43f5e; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); z-index: 40; cursor: pointer; animation: bounceIn 0.3s; font-size: 1.5rem; }
+        #floating-mention-btn:hover { transform: scale(1.1); }
         @keyframes bounceIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         #call-banner { background: linear-gradient(90deg, #059669, #10b981); color: white; padding: 8px 16px; border-radius: 12px; margin: 10px; display: flex; justify-content: space-between; align-items: center; animation: pulseCall 2s infinite; cursor: pointer; }
         @keyframes pulseCall { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         
+        /* Mention Popup */
         #mention-popup { position: absolute; bottom: 100%; left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; max-height: 200px; overflow-y: auto; z-index: 50; border-radius: 12px 12px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
-        .mention-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .mention-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; color: #f1f5f9; }
         .mention-item:hover { background: #334155; }
         
         .reply-quote { border-left: 3px solid #f43f5e; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
@@ -142,7 +147,9 @@
             <!-- Chat Area -->
             <div id="chat-area" class="flex-1 flex flex-col bg-[#0f172a] relative hidden md:flex h-full min-w-0">
                 <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500"><i class="ph-duotone ph-chats-circle text-6xl mb-4"></i><p>Select a chat</p></div>
+                
                 <div id="active-chat-ui" class="hidden flex flex-col h-full w-full relative">
+                    <!-- Header -->
                     <div class="h-16 border-b border-slate-700/30 flex items-center justify-between px-4 bg-[#1e293b]/95 backdrop-blur shrink-0 z-10 cursor-pointer shadow-sm" onclick="showChatInfo()">
                         <div class="flex items-center gap-3 overflow-hidden"><button onclick="event.stopPropagation(); closeChat()" class="md:hidden text-slate-400 p-2 -ml-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-arrow-left text-xl"></i></button><img id="chat-header-img" src="" class="w-9 h-9 rounded-full bg-slate-700 shrink-0 object-cover"><div class="min-w-0"><h3 id="chat-header-name" class="font-bold text-sm text-white truncate">User</h3><p id="chat-header-status" class="text-[10px] text-slate-400 truncate">Tap for info</p></div></div>
                         <div class="flex gap-2 items-center">
@@ -153,10 +160,11 @@
                         </div>
                     </div>
                     <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">🚫 This group has been disabled</div>
+                    
                     <!-- Blocked Banner -->
-                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30">
+                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4">
                          <span id="blocked-text">You blocked this user.</span> 
-                         <button id="blocked-action-btn" class="ml-2 text-rose-400 font-bold underline" onclick="handleBlockAction()">Unblock</button>
+                         <button id="blocked-action-btn" class="text-rose-400 font-bold underline cursor-pointer">Unblock</button>
                     </div>
 
                     <div id="active-call-banner" class="hidden"><div id="call-banner" onclick="joinCall()"><div class="flex items-center gap-2"><i class="ph-fill ph-video-camera text-xl"></i> <span>Ongoing Call...</span></div><span class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold">JOIN</span></div></div>
@@ -173,7 +181,7 @@
                         <div id="editing-indicator" class="hidden text-xs text-blue-400 mb-1 flex justify-between"><span>Editing Message...</span> <button onclick="cancelEdit()"><i class="ph-bold ph-x"></i></button></div>
                         <div id="image-preview-container" class="hidden mb-2 p-2 bg-slate-800 rounded-lg w-fit relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
-                        <!-- Attachment Menu (Hidden by Default) -->
+                        <!-- Attachment Menu (Fixed) -->
                         <div id="attachment-menu" class="hidden">
                             <label class="attach-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i>Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
                             <button onclick="openPollModal(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-chart-bar text-green-400"></i>Poll</button>
@@ -182,14 +190,13 @@
                         </div>
 
                         <div id="main-controls" class="flex items-center gap-2">
-                            <button onclick="toggleAttachmentMenu()" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
+                            <button id="attach-toggle-btn" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
                             <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message or @mention...">
                             <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 p-1.5 rounded-full hover:bg-slate-800 transition"><i class="ph-fill ph-smiley text-xl"></i></button>
                             <button id="mic-btn" onclick="toggleSpeech()" class="text-slate-400 hover:text-green-400 p-1.5 rounded-full hover:bg-slate-800 transition"><i class="ph-bold ph-microphone text-xl"></i></button>
                             <button onclick="sendMessage()" class="p-2 bg-rose-500 rounded-full text-white shadow-lg active:scale-95 transition hover:bg-rose-600"><i class="ph-fill ph-paper-plane-right text-lg"></i></button>
                         </div>
                     </div>
-
                     <!-- Sticker Picker -->
                     <div id="sticker-picker" class="hidden absolute bottom-16 right-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-80 overflow-y-auto z-50">
                         <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
@@ -246,12 +253,12 @@
             <p id="u-info-bio" class="text-sm text-slate-400 mb-6 italic border-t border-b border-slate-700 py-2">No bio available</p>
             <div class="grid grid-cols-2 gap-3">
                  <button onclick="deleteChatHistory()" class="bg-slate-700 text-white p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-slate-600"><i class="ph-bold ph-trash text-lg"></i> Clear Chat</button>
-                 <button id="block-btn" onclick="handleBlockAction()" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
+                 <button id="block-btn" onclick="" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
             </div>
         </div>
     </div>
     
-    <!-- Other Modals (Notes, Poll, Join, Create, Forward, Admin, Add Friend) -->
+    <!-- Other Modals -->
     <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col"><h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3><textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea><div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div></div></div>
     <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-4">Create Poll</h3><input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none"><div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div></div></div>
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div></div>
@@ -313,42 +320,32 @@
         window.installPWA = () => { document.getElementById('pwa-banner').classList.add('hidden'); if(deferredPrompt) deferredPrompt.prompt(); };
 
         window.signInWithGoogle = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
-        window.logout = () => {
-            signOut(auth).then(() => {
-                window.closeModals();
-            }).catch((error) => {
-                console.error("Sign out error", error);
-            });
-        };
+        window.logout = () => { signOut(auth).then(() => window.closeModals()).catch(e => console.error(e)); };
 
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
                 if(user) handleLogin(user);
-                else { 
-                    safeClassRemove('splash-screen', 'hidden'); 
-                    safeClassAdd('splash-screen', 'hidden'); 
-                    safeClassRemove('login-screen', 'hidden');
-                    safeClassAdd('app-interface', 'hidden'); // Ensure app is hidden on logout
+                else { safeClassRemove('splash-screen', 'hidden'); safeClassAdd('splash-screen', 'hidden'); safeClassRemove('login-screen', 'hidden'); safeClassAdd('app-interface', 'hidden'); }
+            });
+            // Click outside to close attachment menu
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('attachment-menu');
+                const btn = document.getElementById('attach-toggle-btn');
+                if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add('hidden');
                 }
             });
-            if (Notification.permission !== "granted") Notification.requestPermission();
         });
 
         async function handleLogin(user) {
             currentUser = user;
             safeClassAdd('splash-screen', 'hidden'); safeClassAdd('login-screen', 'hidden'); safeClassRemove('app-interface', 'hidden');
-            
             const userDoc = await getDoc(doc(db, "users", user.uid));
             let photo = user.photoURL;
-            if(userDoc.exists()) {
-                const d = userDoc.data();
-                if(d.photoURL) photo = d.photoURL;
-            }
-
+            if(userDoc.exists() && userDoc.data().photoURL) photo = userDoc.data().photoURL;
             document.getElementById('my-avatar').src = photo;
             document.getElementById('settings-preview').src = photo;
             document.getElementById('join-my-pic').src = photo;
-            
             try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: photo }, { merge: true }); } catch(e){}
             loadLists(); loadSavedStickers(); initSpeech();
         }
@@ -392,8 +389,6 @@
                             if (unread > 0 && change.doc.id !== currentChatId) {
                                 if (document.visibilityState === 'hidden' || currentChatId !== change.doc.id) {
                                     new Notification(`New Message in ${d.name || 'Chat'}`, { body: d.lastMessage || 'New message' });
-                                    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
-                                    audio.play().catch(e=>{});
                                 }
                             }
                         }
@@ -464,7 +459,7 @@
                     const ref = doc(db, "chats", d.id);
                     const field = {}; 
                     if(newProfilePicBase64) field[`userDetails.${currentUser.uid}.photo`] = newProfilePicBase64;
-                    if(username) field[`userDetails.${currentUser.uid}.name`] = username; // Update display name
+                    if(username) field[`userDetails.${currentUser.uid}.name`] = username;
                     batch.update(ref, field);
                 });
                 await batch.commit();
@@ -552,12 +547,14 @@
             
             if (currentChatData.type === 'direct' && currentChatData.blocked) {
                 const b = currentChatData.blocked;
+                // If I blocked them
                 if (b.by === currentUser.uid) {
                     blockedBanner.classList.remove('hidden');
                     document.getElementById('blocked-text').innerText = "You blocked this user.";
                     document.getElementById('blocked-action-btn').innerText = "Unblock";
                     document.getElementById('blocked-action-btn').onclick = () => handleBlockAction(true);
                 } else {
+                    // If they blocked me
                     blockedBanner.classList.remove('hidden');
                     document.getElementById('blocked-text').innerText = "You have been blocked.";
                     if (b.isAppealSent) {
@@ -594,15 +591,18 @@
                 window.openModal('admin-modal');
                 document.getElementById('admin-group-id').innerText = currentChatData.customId;
                 const isAdmin = currentChatData.admins.includes(currentUser.uid);
+                
                 document.getElementById('toggle-admin-only').disabled = !isAdmin;
                 document.getElementById('toggle-disable-group').disabled = !isAdmin;
                 document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost;
                 document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled;
+
                 const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = "";
                 if(isAdmin && currentChatData.requests?.length) {
                     safeClassRemove('pending-section', 'hidden');
                     currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`);
                 } else safeClassAdd('pending-section', 'hidden');
+
                 const memDiv = document.getElementById('member-list'); memDiv.innerHTML = "";
                 currentChatData.participants.forEach(uid => { 
                     const p = currentChatData.groupProfiles?.[uid]; 
@@ -621,10 +621,12 @@
                 const otherUid = currentChatData.participants.find(id => id !== currentUser.uid);
                 const userSnap = await getDoc(doc(db, "users", otherUid));
                 const user = userSnap.data();
+                
                 document.getElementById('u-info-img').src = user.photoURL || logoData;
                 document.getElementById('u-info-name').innerText = user.displayName || user.email;
                 document.getElementById('u-info-id').innerText = `@${user.username || 'unknown'}`;
                 document.getElementById('u-info-bio').innerText = user.bio || "No bio available.";
+                
                 const btn = document.getElementById('block-btn');
                 if (currentChatData.blocked && currentChatData.blocked.by === currentUser.uid) {
                     btn.innerHTML = `<i class="ph-bold ph-check text-lg"></i> Unblock`;
@@ -835,7 +837,18 @@
         window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); window.showChatInfo(); };
         window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); window.showChatInfo(); };
         window.createGroup = async () => { const name = document.getElementById('group-name').value; if(!name) return; const category = document.getElementById('group-category').value; const isPublic = document.getElementById('group-public').checked; const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() }); window.closeModals(); window.switchTab('groups'); };
-        window.startChat = async () => { const email = document.getElementById('friend-email').value; if(!email) return; const q = query(collection(db, "users"), where("email", "==", email)); const snap = await getDocs(q); if(snap.empty) return alert("User not found"); const friend = snap.docs[0].data(); const chatId = [currentUser.uid, friend.uid].sort().join('_'); await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName, photo:friend.photoURL} } }, { merge: true }); window.closeModals(); openChat(chatId, friend.displayName, friend.photoURL); };
+        window.startChat = async () => { 
+            const inputVal = document.getElementById('friend-email').value.trim();
+            if(!inputVal) return;
+            let q = query(collection(db, "users"), where("email", "==", inputVal));
+            let snap = await getDocs(q);
+            if(snap.empty) { q = query(collection(db, "users"), where("username", "==", inputVal.replace('@',''))); snap = await getDocs(q); }
+            if(snap.empty) return Swal.fire({icon:'error', title:'User Not Found', background:'#1e293b', color:'#fff'});
+            const friend = snap.docs[0].data();
+            const chatId = [currentUser.uid, friend.uid].sort().join('_');
+            await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName||friend.email, photo:friend.photoURL} } }, { merge: true });
+            window.closeModals(); openChat(chatId, friend.displayName||friend.email, friend.photoURL);
+        };
         window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('profile-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
         // window.saveProfile logic already defined above...
 
