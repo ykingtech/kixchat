@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Calls Enabled</title>
+    <title>Kix Chat - Final v15</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -12,8 +12,6 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- ZEGOCLOUD SDK -->
-    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <!-- Manifest -->
     <link rel="manifest" href="manifest.json">
 
@@ -195,6 +193,24 @@
                     <!-- Sticker Picker (Hidden) -->
                     <div id="sticker-picker" class="hidden absolute bottom-16 right-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-80 overflow-y-auto z-50">
                         <!-- Same as before -->
+                        <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
+                            <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button>
+                            <button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Saved</button>
+                            <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
+                        </div>
+                        <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                        </div>
+                        <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
                 </div>
             </div>
@@ -217,6 +233,37 @@
         </div>
     </div>
     <!-- Include other modals (Notes, Poll, Ghost, Join, Create, Forward, Admin, Add Friend) from v13 here -->
+    <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col">
+            <h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3>
+            <textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea>
+            <div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div>
+        </div>
+    </div>
+    
+    <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
+            <h3 class="text-lg font-bold mb-4">Create Poll</h3>
+            <input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
+            <input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
+            <input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none">
+            <div class="flex gap-2 justify-end">
+                <button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button>
+                <button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="ghost-pin-modal" class="hidden fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-8 rounded-2xl text-center border border-rose-500/30">
+            <h3 class="text-xl font-bold mb-4 text-rose-500"><i class="ph-bold ph-ghost"></i> Ghost Mode</h3>
+            <input type="password" id="ghost-pin-input" placeholder="Enter PIN" class="w-full bg-[#0f172a] p-3 text-center text-xl tracking-widest rounded-lg border border-slate-600 outline-none mb-4">
+            <div class="flex gap-2 justify-center">
+                <button onclick="document.getElementById('ghost-pin-modal').classList.add('hidden')" class="text-slate-400 px-4">Cancel</button>
+                <button onclick="verifyGhostPin()" class="bg-rose-500 px-6 py-2 rounded-lg text-white">Enter</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -259,25 +306,44 @@
 
         // [Standard Functions from v13: generateAppLogo, PWA, Auth, Navigation, Lists, Chat Items...]
         // (Copy ALL Logic from v13 script block here - omitted for brevity in response, ensure full copy)
+        // DYNAMIC SCRIPT LOADER (For Zego)
+        window.loadZegoScript = () => {
+            return new Promise((resolve, reject) => {
+                if(window.ZegoUIKitPrebuilt) return resolve();
+                const script = document.createElement('script');
+                script.src = "https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js";
+                script.onload = resolve;
+                script.onerror = reject;
+                document.body.appendChild(script);
+            });
+        };
 
         // --- CALL LOGIC ---
         
         window.startCall = async (type) => {
             if (!ZEGO_APP_ID || !ZEGO_SERVER_SECRET) return alert("Please set ZegoCloud keys in code!");
             // Update Firebase to signal call
-            await updateDoc(doc(db, "chats", currentChatId), {
-                callState: {
-                    isActive: true,
-                    type: type,
-                    initiator: currentUser.uid,
-                    timestamp: Date.now()
-                }
-            });
-            joinZegoRoom(currentChatId, type);
+            try {
+                await loadZegoScript();
+                await updateDoc(doc(db, "chats", currentChatId), {
+                    callState: {
+                        isActive: true,
+                        type: type,
+                        initiator: currentUser.uid,
+                        timestamp: Date.now()
+                    }
+                });
+                joinZegoRoom(currentChatId, type);
+            } catch(e) { console.error("Failed to load call SDK", e); alert("Call feature unavailable"); }
         };
 
-        window.joinCall = () => {
-             if(currentChatData.callState) joinZegoRoom(currentChatId, currentChatData.callState.type);
+        window.joinCall = async () => {
+             if(currentChatData.callState) {
+                 try {
+                     await loadZegoScript();
+                     joinZegoRoom(currentChatId, currentChatData.callState.type);
+                 } catch(e) { console.error(e); }
+             }
         };
 
         function joinZegoRoom(roomID, type) {
