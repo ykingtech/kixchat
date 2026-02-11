@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v6</title>
+    <title>Kix Chat - Final Fix</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -32,6 +32,18 @@
         
         #app-container { display: flex; flex: 1; height: 100%; overflow: hidden; position: relative; }
         
+        /* Loading Spinner */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.1);
+            border-left-color: #f43f5e;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
         /* Sidebar */
         #sidebar { z-index: 30; }
         .chat-item { 
@@ -116,11 +128,7 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f172a]">
         <div class="flex justify-center mb-6 animate-pulse">
-            <!-- Loading Fallback -->
-            <div id="splash-loader" class="w-24 h-24 rounded-3xl bg-gradient-to-tr from-rose-500 to-orange-500 flex items-center justify-center shadow-2xl">
-                <i class="ph-fill ph-chat-teardrop-text text-5xl text-white"></i>
-            </div>
-            <img id="splash-logo" class="hidden w-24 h-24 rounded-3xl shadow-2xl object-cover">
+            <img id="splash-logo" class="w-24 h-24 rounded-3xl shadow-2xl object-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
         </div>
         <h1 class="text-2xl font-bold text-white tracking-widest mb-2">KIX CHAT</h1>
         <div class="flex gap-2 mt-4">
@@ -166,7 +174,9 @@
                         <div id="tab-groups" onclick="switchTab('groups')" class="tab-btn">Groups</div>
                     </div>
                 </div>
-                <div id="list-container" class="flex-1 overflow-y-auto p-2 space-y-1 relative z-10 pb-20"></div>
+                <div id="list-container" class="flex-1 overflow-y-auto p-2 space-y-1 relative z-10 pb-20">
+                    <div class="mt-10 text-center"><div class="loader"></div></div>
+                </div>
             </div>
 
             <!-- CHAT AREA -->
@@ -215,6 +225,7 @@
 
                         <!-- Main Controls -->
                         <div id="main-controls" class="flex items-center gap-2">
+                            <!-- Toggle Tools -->
                             <div class="flex gap-1 sm:gap-2">
                                 <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 p-1.5 rounded-full hover:bg-slate-800 transition" title="Stickers"><i class="ph-fill ph-smiley text-xl"></i></button>
                                 <label class="text-slate-400 hover:text-rose-500 p-1.5 rounded-full hover:bg-slate-800 transition cursor-pointer" title="Images"><i class="ph-bold ph-image text-xl"></i><input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
@@ -236,15 +247,15 @@
                             <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
                         </div>
                         <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
-                            <!-- High Quality Stickers via URL -->
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/ghost.png')" src="https://img.icons8.com/3d-fluency/94/ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/fire-element.png')" src="https://img.icons8.com/3d-fluency/94/fire-element.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/like--v2.png')" src="https://img.icons8.com/3d-fluency/94/like--v2.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/lol.png')" src="https://img.icons8.com/3d-fluency/94/lol.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/thumb-up.png')" src="https://img.icons8.com/3d-fluency/94/thumb-up.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/party-popper.png')" src="https://img.icons8.com/3d-fluency/94/party-popper.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/rocket.png')" src="https://img.icons8.com/3d-fluency/94/rocket.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://img.icons8.com/3d-fluency/94/poo.png')" src="https://img.icons8.com/3d-fluency/94/poo.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <!-- Reliable Sticker URLs -->
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442436.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442436.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442442.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442442.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442448.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442448.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442456.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442456.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442459.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442459.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442466.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442466.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442484.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442484.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442502.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442502.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                         </div>
                         <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
@@ -254,6 +265,7 @@
     </div>
 
     <!-- MODALS -->
+    <!-- Join Options -->
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center">
             <h3 class="text-lg font-bold mb-2">Join Group</h3>
@@ -272,6 +284,7 @@
         </div>
     </div>
 
+    <!-- Anon Input -->
     <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
             <h3 class="text-lg font-bold mb-2">Choose Alias</h3>
@@ -280,6 +293,7 @@
         </div>
     </div>
 
+    <!-- Create Group -->
     <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4">
             <h3 class="text-lg font-bold">Create Group</h3>
@@ -292,6 +306,7 @@
         </div>
     </div>
 
+    <!-- Forward Modal -->
     <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col">
             <h3 class="text-lg font-bold mb-4">Forward to...</h3>
@@ -300,6 +315,7 @@
         </div>
     </div>
 
+    <!-- Admin Modal -->
     <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div>
@@ -313,6 +329,7 @@
         </div>
     </div>
 
+    <!-- Add Friend -->
     <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
             <input type="email" id="friend-email" placeholder="Email..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4">
@@ -350,28 +367,24 @@
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
-        // GENERIC LOGO DRAW
         function generateAppLogo() {
             const c = document.createElement('canvas'); c.width = 512; c.height = 512; const ctx = c.getContext('2d');
             const g = ctx.createLinearGradient(0, 512, 512, 0); g.addColorStop(0, '#f43f5e'); g.addColorStop(1, '#f97316');
-            ctx.fillStyle = g;
-            // Draw Rounded Rect manually to avoid compat issues
-            ctx.beginPath(); ctx.moveTo(60, 0); ctx.lineTo(452, 0); ctx.quadraticCurveTo(512, 0, 512, 60); ctx.lineTo(512, 452); ctx.quadraticCurveTo(512, 512, 452, 512); ctx.lineTo(60, 512); ctx.quadraticCurveTo(0, 512, 0, 452); ctx.lineTo(0, 60); ctx.quadraticCurveTo(0, 0, 60, 0); ctx.closePath();
-            ctx.fill();
+            ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(0, 0, 512, 512, 120); ctx.fill();
             ctx.fillStyle = 'white'; ctx.translate(256, 256); ctx.beginPath(); ctx.arc(0, -20, 140, 0, Math.PI * 2); ctx.moveTo(80, 80); ctx.lineTo(140, 140); ctx.lineTo(0, 120); ctx.fill();
             ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.rect(-70, -50, 140, 20); ctx.rect(-70, 0, 140, 20); ctx.rect(-70, 50, 80, 20); ctx.fill();
             return c.toDataURL();
         }
         const logoData = generateAppLogo();
         document.getElementById('splash-logo').src = logoData;
-        document.getElementById('splash-logo').classList.remove('hidden'); document.getElementById('splash-loader').classList.add('hidden');
         document.getElementById('login-logo').src = logoData;
 
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-banner').classList.remove('hidden'); });
         window.installPWA = () => { document.getElementById('pwa-banner').classList.add('hidden'); if(deferredPrompt) deferredPrompt.prompt(); };
 
         window.signInWithGoogle = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
-        
+        window.signInDemo = () => handleLogin({ uid: "demo_"+Date.now(), displayName: "Guest", email: "guest@kix.com", photoURL: "https://ui-avatars.com/api/?name=Guest" });
+
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
                 if(user) handleLogin(user);
@@ -416,7 +429,8 @@
         }
 
         function loadLists() {
-            const container = document.getElementById("list-container"); container.innerHTML = "";
+            const container = document.getElementById("list-container"); container.innerHTML = '<div class="mt-4"><div class="loader"></div></div>';
+            
             if(currentTab === 'chats') {
                 const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid), where("type", "==", "direct"));
                 onSnapshot(q, snap => renderList(snap, container));
@@ -450,7 +464,8 @@
             }
             const iconHtml = photo ? `<img src="${photo}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white"><i class="ph-bold ph-${data.type==='group'?'users-three':'user'}"></i></div>`;
             const unread = data.unreadCounts?.[currentUser.uid] || 0;
-            div.innerHTML = `${iconHtml}<div class="flex-1 min-w-0 pointer-events-none"><div class="flex justify-between"><h4 class="font-medium text-sm text-white truncate">${name}</h4>${!data.joined && data.type === 'group' ? '<span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 rounded">JOIN</span>' : ''}</div><div class="flex justify-between items-center"><p class="text-xs text-slate-400 truncate flex-1">${data.lastMessage || 'Tap to view'}</p>${unread > 0 ? `<div class="unread-badge ml-2">${unread}</div>` : ''}</div></div>`;
+            
+            div.innerHTML = `${iconHtml}<div class="flex-1 min-w-0 pointer-events-none"><div class="flex justify-between"><h4 class="font-medium text-sm text-white truncate">${name}</h4>${!data.joined && data.type === 'group' ? '<span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 rounded">JOIN</span>' : ''}</div><div class="flex justify-between items-center"><p class="text-xs text-slate-400 truncate flex-1">${data.lastMessage || 'Tap to view'}</p>${unread>0?`<div class="unread-badge ml-2">${unread}</div>`:''}</div></div>`;
             div.onclick = (e) => { e.preventDefault(); if(data.type === 'group' && !data.joined) { tempJoinData = data; document.getElementById('join-group-name').innerText = data.name; window.openModal('join-options-modal'); } else openChat(data.id, name, photo); };
             return div;
         }
@@ -475,21 +490,21 @@
         }
 
         async function openChat(id, name, photo) {
-            document.getElementById("messages-container").innerHTML = '<div class="flex h-full items-center justify-center"><div class="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div></div>';
+            document.getElementById("messages-container").innerHTML = '<div class="flex h-full items-center justify-center"><div class="loader"></div></div>';
             currentChatId = id;
             safeClassAdd('empty-state', 'hidden'); safeClassRemove('active-chat-ui', 'hidden');
             if(window.innerWidth < 768) { safeClassAdd('sidebar', 'hidden'); safeClassRemove('chat-area', 'hidden'); }
             document.getElementById('chat-header-name').innerText = name;
             document.getElementById('chat-header-img').src = photo || logoData;
             
-            // CLEAR UNREAD
             updateDoc(doc(db, "chats", id), { [`unreadCounts.${currentUser.uid}`]: 0 });
 
             if(unsubscribeChatData) unsubscribeChatData();
             unsubscribeChatData = onSnapshot(doc(db, "chats", id), (docSnap) => {
-                currentChatData = docSnap.data();
-                checkAdminPermissions();
-                if(currentMessages.length > 0) renderMessageList(); // Refresh ticks
+                if(docSnap.exists()) {
+                    currentChatData = docSnap.data();
+                    checkAdminPermissions();
+                }
             });
 
             if(unsubscribeMessages) unsubscribeMessages();
@@ -503,7 +518,6 @@
                     currentMessages.push(m);
                     renderMessage(m, container);
                 });
-                
                 if(snap.docs.length > 0) {
                     const lastMsg = currentMessages[currentMessages.length-1];
                     if(lastMsg.senderId !== currentUser.uid) {
@@ -518,16 +532,11 @@
             const wrapper = document.getElementById('main-controls');
             const banner = document.getElementById('admin-only-banner');
             const disabledBanner = document.getElementById('disabled-banner');
-            if (currentChatData.isDisabled) { wrapper.classList.add('hidden'); banner.classList.add('hidden'); disabledBanner.classList.remove('hidden'); }
-            else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) { wrapper.classList.add('hidden'); banner.classList.remove('hidden'); disabledBanner.classList.add('hidden'); }
-            else { wrapper.classList.remove('hidden'); banner.classList.add('hidden'); disabledBanner.classList.add('hidden'); }
-        }
+            const setHidden = (el, hidden) => { if(el) { if(hidden) el.classList.add('hidden'); else el.classList.remove('hidden'); } };
 
-        function renderMessageList() {
-            const container = document.getElementById('messages-container');
-            container.innerHTML = "";
-            currentMessages.forEach(msg => renderMessage(msg, container));
-            container.scrollTop = container.scrollHeight;
+            if (currentChatData.isDisabled) { setHidden(wrapper, true); setHidden(banner, true); setHidden(disabledBanner, false); }
+            else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) { setHidden(wrapper, true); setHidden(banner, false); setHidden(disabledBanner, true); }
+            else { setHidden(wrapper, false); setHidden(banner, true); setHidden(disabledBanner, true); }
         }
 
         function renderMessage(msg, container) {
@@ -547,13 +556,13 @@
 
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
-                let tickClass = "tick-delivered"; 
+                let tickClass = "tick gray"; 
                 let tickIcon = "ph-bold ph-checks";
                 if(currentChatData.lastSeen) {
                     const seenTime = Object.entries(currentChatData.lastSeen).filter(([uid, ts]) => uid !== currentUser.uid).map(([_, ts]) => ts?.toMillis() || 0);
                     const msgTime = msg.createdAt?.toMillis() || Date.now();
                     const maxSeen = Math.max(0, ...seenTime);
-                    if(maxSeen > msgTime) { tickClass = "tick-read"; }
+                    if(maxSeen > msgTime) tickClass = "tick blue";
                 }
                 statusIcon = `<i class="${tickIcon} ${tickClass}"></i>`;
             }
@@ -673,7 +682,7 @@
         window.toggleStickerPicker = () => { document.getElementById('sticker-picker').classList.toggle('hidden'); loadSavedStickers(); };
         window.showStickerTab = (t) => { document.getElementById('sticker-content-default').classList.toggle('hidden', t!=='default'); document.getElementById('sticker-content-saved').classList.toggle('hidden', t!=='saved'); };
         window.sendSticker = (e, u=null) => doSend(u, 'sticker', e);
-        window.sendStickerUrl = (url) => doSend(null, 'sticker', null, url); // Special for images
+        window.sendStickerUrl = (url) => doSend(null, 'sticker', null, url); 
         window.saveSticker = (url) => {
             let s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); if(!s.includes(url)) s.push(url); localStorage.setItem('kix_stickers', JSON.stringify(s)); loadSavedStickers();
         };
