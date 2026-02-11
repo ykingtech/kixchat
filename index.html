@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final Fix</title>
+    <title>Kix Chat - Final v8</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -242,20 +242,24 @@
                     <!-- Sticker Picker -->
                     <div id="sticker-picker" class="hidden absolute bottom-16 left-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-64 overflow-y-auto z-50">
                         <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
-                            <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">Stickers</button>
+                            <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button>
                             <button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Saved</button>
                             <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
                         </div>
                         <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
-                            <!-- Reliable Sticker URLs -->
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442436.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442436.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442442.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442442.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442448.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442448.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442456.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442456.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442459.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442459.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442466.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442466.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442484.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442484.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                            <img onclick="sendStickerUrl('https://cdn-icons-png.flaticon.com/512/9442/9442502.png')" src="https://cdn-icons-png.flaticon.com/512/9442/9442502.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <!-- 3D Emojis from Reliable CDN -->
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Rocket.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Rocket.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Money-Mouth%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Money-Mouth%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                            <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                         </div>
                         <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
@@ -265,6 +269,20 @@
     </div>
 
     <!-- MODALS -->
+    <!-- User Info Modal -->
+    <div id="user-info-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center relative">
+            <button onclick="document.getElementById('user-info-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
+            <img id="u-info-img" src="" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-slate-600 object-cover">
+            <h3 id="u-info-name" class="text-xl font-bold text-white mb-1">Name</h3>
+            <p id="u-info-id" class="text-xs text-rose-400 font-mono mb-6">ID: --</p>
+            <div class="grid grid-cols-2 gap-3">
+                 <button onclick="deleteChatHistory()" class="bg-slate-700 text-white p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-slate-600"><i class="ph-bold ph-trash text-lg"></i> Clear Chat</button>
+                 <button onclick="alert('Block feature requires backend')" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Join Options -->
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center">
@@ -698,14 +716,91 @@
         function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
         window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
 
-        window.showChatInfo = () => { if(currentChatData.type === 'group') { window.openModal('admin-modal'); document.getElementById('admin-group-id').innerText = currentChatData.customId; const isAdmin = currentChatData.admins.includes(currentUser.uid); document.getElementById('toggle-admin-only').disabled = !isAdmin; document.getElementById('toggle-disable-group').disabled = !isAdmin; document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost; document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled; const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = ""; if(isAdmin && currentChatData.requests?.length) { safeClassRemove('pending-section', 'hidden'); currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`); } else safeClassAdd('pending-section', 'hidden'); const memDiv = document.getElementById('member-list'); memDiv.innerHTML = ""; currentChatData.participants.forEach(uid => { const p = currentChatData.groupProfiles?.[uid]; const isMemAdmin = currentChatData.admins.includes(uid); memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between items-center"><span>${p?.alias||'User'} ${isMemAdmin?'👑':''}</span> ${isAdmin && uid !== currentUser.uid ? `<div class="flex gap-2"><button onclick="makeAdmin('${uid}')" class="text-xs text-blue-400">Promote</button><button onclick="removeMember('${uid}')" class="text-xs text-red-400">Kick</button></div>` : ''}</div>`; }); } };
-        window.approveMember = async (uid, alias) => { const color = assignUniqueColor(currentChatData); const reqs = currentChatData.requests.filter(r => r.uid !== uid); await updateDoc(doc(db, "chats", currentChatId), { requests: reqs, participants: arrayUnion(uid), [`groupProfiles.${uid}`]: { alias, color, isReal: false } }); window.showChatInfo(); };
+        window.showChatInfo = () => {
+            if(currentChatData.type === 'group') {
+                window.openModal('admin-modal');
+                document.getElementById('admin-group-id').innerText = currentChatData.customId;
+                const isAdmin = currentChatData.admins.includes(currentUser.uid);
+                
+                document.getElementById('toggle-admin-only').disabled = !isAdmin;
+                document.getElementById('toggle-disable-group').disabled = !isAdmin;
+                document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost;
+                document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled;
+
+                const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = "";
+                if(isAdmin && currentChatData.requests?.length) {
+                    safeClassRemove('pending-section', 'hidden');
+                    currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`);
+                } else safeClassAdd('pending-section', 'hidden');
+
+                const memDiv = document.getElementById('member-list'); memDiv.innerHTML = "";
+                currentChatData.participants.forEach(uid => { 
+                    const p = currentChatData.groupProfiles?.[uid]; 
+                    const isMemAdmin = currentChatData.admins.includes(uid);
+                    memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between items-center">
+                        <span>${p?.alias||'User'} ${isMemAdmin?'👑':''}</span> 
+                        ${isAdmin && uid !== currentUser.uid ? `
+                            <div class="flex gap-2">
+                                <button onclick="makeAdmin('${uid}')" class="text-xs text-blue-400">Promote</button>
+                                <button onclick="removeMember('${uid}')" class="text-xs text-red-400">Kick</button>
+                            </div>` : ''}
+                    </div>`; 
+                });
+            } else {
+                // Direct User Info
+                window.openModal('user-info-modal');
+                const otherUid = currentChatData.participants.find(id => id !== currentUser.uid);
+                const user = currentChatData.userDetails[otherUid];
+                document.getElementById('u-info-img').src = user.photo || logoData;
+                document.getElementById('u-info-name').innerText = user.name;
+                document.getElementById('u-info-id').innerText = "ID: " + otherUid.slice(0, 8);
+            }
+        };
+
+        window.deleteChatHistory = async () => {
+            const batch = writeBatch(db);
+            const q = query(collection(db, "chats", currentChatId, "messages"));
+            const snap = await getDocs(q);
+            snap.forEach(d => batch.update(d.ref, { deletedFor: arrayUnion(currentUser.uid) }));
+            await batch.commit();
+            window.closeModals();
+            Swal.fire({icon:'success', title:'Cleared', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'});
+        };
+
+        window.approveMember = async (uid, alias) => {
+            const color = assignUniqueColor(currentChatData);
+            const reqs = currentChatData.requests.filter(r => r.uid !== uid);
+            await updateDoc(doc(db, "chats", currentChatId), { requests: reqs, participants: arrayUnion(uid), [`groupProfiles.${uid}`]: { alias, color, isReal: false } });
+            window.showChatInfo();
+        };
         window.toggleAdminOnly = async () => { await updateDoc(doc(db, "chats", currentChatId), { onlyAdminsCanPost: document.getElementById('toggle-admin-only').checked }); };
         window.toggleDisableGroup = async () => { await updateDoc(doc(db, "chats", currentChatId), { isDisabled: document.getElementById('toggle-disable-group').checked }); };
         window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); window.showChatInfo(); };
-        window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); window.showChatInfo(); };
-        window.createGroup = async () => { const name = document.getElementById('group-name').value; if(!name) return; const category = document.getElementById('group-category').value; const isPublic = document.getElementById('group-public').checked; const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() }); window.closeModals(); window.switchTab('groups'); };
-        window.startChat = async () => { const email = document.getElementById('friend-email').value; if(!email) return; const q = query(collection(db, "users"), where("email", "==", email)); const snap = await getDocs(q); if(snap.empty) return alert("User not found"); const friend = snap.docs[0].data(); const chatId = [currentUser.uid, friend.uid].sort().join('_'); await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName, photo:friend.photoURL} } }, { merge: true }); window.closeModals(); openChat(chatId, friend.displayName, friend.photoURL); };
+        window.removeMember = async (uid) => { 
+            await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); 
+            window.showChatInfo(); 
+        };
+
+        window.createGroup = async () => {
+            const name = document.getElementById('group-name').value;
+            if(!name) return;
+            const category = document.getElementById('group-category').value;
+            const isPublic = document.getElementById('group-public').checked;
+            const customId = "#G-" + Math.floor(1000 + Math.random() * 9000);
+            await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() });
+            window.closeModals(); window.switchTab('groups');
+        };
+
+        window.startChat = async () => {
+            const email = document.getElementById('friend-email').value; if(!email) return;
+            const q = query(collection(db, "users"), where("email", "==", email));
+            const snap = await getDocs(q); if(snap.empty) return alert("User not found");
+            const friend = snap.docs[0].data();
+            const chatId = [currentUser.uid, friend.uid].sort().join('_');
+            await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName, photo:friend.photoURL} } }, { merge: true });
+            window.closeModals(); openChat(chatId, friend.displayName, friend.photoURL);
+        };
+
         document.getElementById("message-input").addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
 </body>
