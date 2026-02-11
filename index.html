@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v21</title>
+    <title>Kix Chat - Final v22</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- ZEGOCLOUD SDK -->
+    <!-- ZEGOCLOUD -->
     <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <!-- Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -34,7 +34,7 @@
         
         #app-container { display: flex; flex: 1; height: 100%; overflow: hidden; position: relative; }
         
-        /* UI Elements */
+        /* Sidebar */
         #sidebar { z-index: 30; }
         .chat-item { cursor: pointer; transition: background 0.15s ease; position: relative; z-index: 10; -webkit-tap-highlight-color: transparent; }
         .chat-item:active { background-color: rgba(255, 255, 255, 0.1); }
@@ -58,9 +58,6 @@
         .tab-btn.active { color: #f43f5e; border-bottom-color: #f43f5e; font-weight: 600; }
         
         .unread-badge { background: #22c55e; color: black; font-weight: bold; font-size: 10px; padding: 2px 6px; border-radius: 999px; min-width: 20px; text-align: center; box-shadow: 0 0 5px rgba(34, 197, 94, 0.5); }
-        .recording-pulse { animation: pulse-red 1.5s infinite; color: #f43f5e; }
-        @keyframes pulse-red { 0% { text-shadow: 0 0 0 rgba(244, 63, 94, 0.7); } 70% { text-shadow: 0 0 10px rgba(244, 63, 94, 0); } 100% { text-shadow: 0 0 0 rgba(244, 63, 94, 0); } }
-        
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -71,24 +68,21 @@
         /* Mentions */
         .mention { color: #fcd34d; font-weight: bold; background: rgba(251, 191, 36, 0.2); padding: 0 4px; rounded: 4px; cursor: pointer; }
         
-        /* Attachment Menu */
-        #attachment-menu { position: absolute; bottom: 70px; left: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.2s ease-out; }
-        .attach-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 60px; border-radius: 12px; background: #0f172a; color: #cbd5e1; font-size: 10px; gap: 4px; transition: 0.2s; }
-        .attach-btn:hover { background: #334155; color: #f43f5e; }
-        .attach-btn i { font-size: 24px; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        /* Action Bar (Top of Input) */
+        #action-bar { display: flex; gap: 10px; padding: 8px 12px; background: #1e293b; overflow-x: auto; border-bottom: 1px solid #334155; }
+        .action-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #0f172a; border-radius: 20px; font-size: 0.75rem; color: #cbd5e1; cursor: pointer; transition: 0.2s; white-space: nowrap; border: 1px solid #334155; }
+        .action-btn:hover { background: #334155; color: white; border-color: #f43f5e; }
+        .action-btn i { font-size: 1.1rem; }
+        
         /* Floating Mention Button */
-        #floating-mention-btn { position: absolute; bottom: 85px; right: 20px; background: #ffffff; color: #f43f5e; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); z-index: 40; cursor: pointer; animation: bounceIn 0.3s; font-size: 1.5rem; }
-        #floating-mention-btn:hover { transform: scale(1.1); }
+        #floating-mention-btn { position: absolute; bottom: 100px; right: 20px; background: #ffffff; color: #f43f5e; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); z-index: 40; cursor: pointer; animation: bounceIn 0.3s; font-size: 1.5rem; }
         @keyframes bounceIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         #call-banner { background: linear-gradient(90deg, #059669, #10b981); color: white; padding: 8px 16px; border-radius: 12px; margin: 10px; display: flex; justify-content: space-between; align-items: center; animation: pulseCall 2s infinite; cursor: pointer; }
         @keyframes pulseCall { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
         
-        /* Mention Popup */
-        #mention-popup { position: absolute; bottom: 100%; left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; max-height: 200px; overflow-y: auto; z-index: 50; border-radius: 12px 12px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
-        .mention-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; color: #f1f5f9; }
+        #mention-popup { position: absolute; bottom: 100%; left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; max-height: 200px; overflow-y: auto; z-index: 50; border-radius: 12px 12px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.5); }
+        .mention-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; color: #f1f5f9; border-bottom: 1px solid #334155; }
         .mention-item:hover { background: #334155; }
         
         .reply-quote { border-left: 3px solid #f43f5e; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 5px; }
@@ -149,7 +143,6 @@
                 <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500"><i class="ph-duotone ph-chats-circle text-6xl mb-4"></i><p>Select a chat</p></div>
                 
                 <div id="active-chat-ui" class="hidden flex flex-col h-full w-full relative">
-                    <!-- Header -->
                     <div class="h-16 border-b border-slate-700/30 flex items-center justify-between px-4 bg-[#1e293b]/95 backdrop-blur shrink-0 z-10 cursor-pointer shadow-sm" onclick="showChatInfo()">
                         <div class="flex items-center gap-3 overflow-hidden"><button onclick="event.stopPropagation(); closeChat()" class="md:hidden text-slate-400 p-2 -ml-2 rounded-full hover:bg-slate-700"><i class="ph-bold ph-arrow-left text-xl"></i></button><img id="chat-header-img" src="" class="w-9 h-9 rounded-full bg-slate-700 shrink-0 object-cover"><div class="min-w-0"><h3 id="chat-header-name" class="font-bold text-sm text-white truncate">User</h3><p id="chat-header-status" class="text-[10px] text-slate-400 truncate">Tap for info</p></div></div>
                         <div class="flex gap-2 items-center">
@@ -160,45 +153,42 @@
                         </div>
                     </div>
                     <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">🚫 This group has been disabled</div>
-                    
-                    <!-- Blocked Banner -->
-                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4">
-                         <span id="blocked-text">You blocked this user.</span> 
-                         <button id="blocked-action-btn" class="text-rose-400 font-bold underline cursor-pointer">Unblock</button>
-                    </div>
+                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4"><span id="blocked-text">You blocked this user.</span><button id="blocked-action-btn" class="text-rose-400 font-bold underline cursor-pointer">Unblock</button></div>
 
                     <div id="active-call-banner" class="hidden"><div id="call-banner" onclick="joinCall()"><div class="flex items-center gap-2"><i class="ph-fill ph-video-camera text-xl"></i> <span>Ongoing Call...</span></div><span class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold">JOIN</span></div></div>
 
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
-                    <!-- Input -->
-                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
+                    <!-- Action Bar (Above Input) -->
+                    <div id="input-area-wrapper" class="p-0 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
-                        <div id="reply-banner" class="hidden flex justify-between items-center bg-slate-800 p-2 rounded mb-2 border-l-4 border-rose-500"><div class="text-xs overflow-hidden"><div class="text-rose-400 font-bold">Replying to...</div><div id="reply-text" class="text-slate-300 truncate"></div></div><button onclick="cancelReply()" class="p-1"><i class="ph-bold ph-x"></i></button></div>
-                        <div id="schedule-info" class="hidden text-xs text-yellow-400 flex items-center gap-1 bg-yellow-400/10 px-2 py-1 rounded mb-2 w-fit"><i class="ph-fill ph-clock"></i> Scheduled: <span id="schedule-time-display"></span> <button onclick="cancelSchedule()"><i class="ph-bold ph-x"></i></button></div>
-                        <div id="editing-indicator" class="hidden text-xs text-blue-400 mb-1 flex justify-between"><span>Editing Message...</span> <button onclick="cancelEdit()"><i class="ph-bold ph-x"></i></button></div>
-                        <div id="image-preview-container" class="hidden mb-2 p-2 bg-slate-800 rounded-lg w-fit relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
+                        <div id="reply-banner" class="hidden flex justify-between items-center bg-slate-800 p-2 border-l-4 border-rose-500 m-2 rounded"><div class="text-xs overflow-hidden"><div class="text-rose-400 font-bold">Replying to...</div><div id="reply-text" class="text-slate-300 truncate"></div></div><button onclick="cancelReply()" class="p-1"><i class="ph-bold ph-x"></i></button></div>
+                        <div id="schedule-info" class="hidden text-xs text-yellow-400 flex items-center gap-1 bg-yellow-400/10 px-2 py-1 rounded w-fit m-2"><i class="ph-fill ph-clock"></i> Scheduled: <span id="schedule-time-display"></span> <button onclick="cancelSchedule()"><i class="ph-bold ph-x"></i></button></div>
+                        <div id="editing-indicator" class="hidden text-xs text-blue-400 mb-1 flex justify-between px-2"><span>Editing Message...</span> <button onclick="cancelEdit()"><i class="ph-bold ph-x"></i></button></div>
+                        
+                        <div id="image-preview-container" class="hidden p-2 bg-slate-800 border-t border-slate-600 relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute top-1 left-16 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
-                        <!-- Attachment Menu (Fixed) -->
-                        <div id="attachment-menu" class="hidden">
-                            <label class="attach-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i>Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
-                            <button onclick="openPollModal(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-chart-bar text-green-400"></i>Poll</button>
-                            <button onclick="promptSchedule(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-clock text-yellow-400"></i>Schedule</button>
-                            <button onclick="togglePrivacy(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-lock-key text-red-400" id="menu-lock-icon"></i>Privacy</button>
+                        <!-- Action Bar Row -->
+                        <div id="action-bar" class="flex gap-2 px-3 pt-2 pb-1 overflow-x-auto border-b border-slate-700/50">
+                            <label class="action-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i> Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
+                            <div class="action-btn" onclick="openPollModal()"><i class="ph-bold ph-chart-bar text-green-400"></i> Poll</div>
+                            <div class="action-btn" onclick="promptSchedule()"><i class="ph-bold ph-clock text-yellow-400"></i> Schedule</div>
+                            <div class="action-btn" onclick="togglePrivacy()"><i class="ph-bold ph-lock-key text-red-400" id="menu-lock-icon"></i> Privacy</div>
                         </div>
 
-                        <div id="main-controls" class="flex items-center gap-2">
-                            <button id="attach-toggle-btn" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
-                            <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message or @mention...">
+                        <!-- Main Input Row -->
+                        <div id="main-controls" class="flex items-center gap-2 p-2 bg-[#1e293b]">
                             <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 p-1.5 rounded-full hover:bg-slate-800 transition"><i class="ph-fill ph-smiley text-xl"></i></button>
+                            <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message or @mention...">
                             <button id="mic-btn" onclick="toggleSpeech()" class="text-slate-400 hover:text-green-400 p-1.5 rounded-full hover:bg-slate-800 transition"><i class="ph-bold ph-microphone text-xl"></i></button>
                             <button onclick="sendMessage()" class="p-2 bg-rose-500 rounded-full text-white shadow-lg active:scale-95 transition hover:bg-rose-600"><i class="ph-fill ph-paper-plane-right text-lg"></i></button>
                         </div>
                     </div>
+
                     <!-- Sticker Picker -->
-                    <div id="sticker-picker" class="hidden absolute bottom-16 right-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-80 overflow-y-auto z-50">
+                    <div id="sticker-picker" class="hidden absolute bottom-16 left-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-80 overflow-y-auto z-50">
                         <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
                             <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button>
                             <button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Saved</button>
@@ -253,12 +243,12 @@
             <p id="u-info-bio" class="text-sm text-slate-400 mb-6 italic border-t border-b border-slate-700 py-2">No bio available</p>
             <div class="grid grid-cols-2 gap-3">
                  <button onclick="deleteChatHistory()" class="bg-slate-700 text-white p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-slate-600"><i class="ph-bold ph-trash text-lg"></i> Clear Chat</button>
-                 <button id="block-btn" onclick="" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
+                 <button id="block-btn" onclick="handleBlockAction()" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
             </div>
         </div>
     </div>
     
-    <!-- Other Modals -->
+    <!-- Other Modals (Notes, Poll, Join, Create, Forward, Admin, Add Friend) -->
     <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col"><h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3><textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea><div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div></div></div>
     <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-4">Create Poll</h3><input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none"><div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div></div></div>
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div></div>
@@ -266,7 +256,7 @@
     <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4"><h3 class="text-lg font-bold">Create Group</h3><input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select><div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div></div></div>
     <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col"><h3 class="text-lg font-bold mb-4">Forward to...</h3><div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div><button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button></div></div>
     <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div><div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div><div class="space-y-2 mb-4"><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div></div><div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div></div></div>
-    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
+    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email or @username..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -327,14 +317,7 @@
                 if(user) handleLogin(user);
                 else { safeClassRemove('splash-screen', 'hidden'); safeClassAdd('splash-screen', 'hidden'); safeClassRemove('login-screen', 'hidden'); safeClassAdd('app-interface', 'hidden'); }
             });
-            // Click outside to close attachment menu
-            document.addEventListener('click', (e) => {
-                const menu = document.getElementById('attachment-menu');
-                const btn = document.getElementById('attach-toggle-btn');
-                if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
-            });
+            if (Notification.permission !== "granted") Notification.requestPermission();
         });
 
         async function handleLogin(user) {
@@ -837,18 +820,7 @@
         window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); window.showChatInfo(); };
         window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); window.showChatInfo(); };
         window.createGroup = async () => { const name = document.getElementById('group-name').value; if(!name) return; const category = document.getElementById('group-category').value; const isPublic = document.getElementById('group-public').checked; const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() }); window.closeModals(); window.switchTab('groups'); };
-        window.startChat = async () => { 
-            const inputVal = document.getElementById('friend-email').value.trim();
-            if(!inputVal) return;
-            let q = query(collection(db, "users"), where("email", "==", inputVal));
-            let snap = await getDocs(q);
-            if(snap.empty) { q = query(collection(db, "users"), where("username", "==", inputVal.replace('@',''))); snap = await getDocs(q); }
-            if(snap.empty) return Swal.fire({icon:'error', title:'User Not Found', background:'#1e293b', color:'#fff'});
-            const friend = snap.docs[0].data();
-            const chatId = [currentUser.uid, friend.uid].sort().join('_');
-            await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName||friend.email, photo:friend.photoURL} } }, { merge: true });
-            window.closeModals(); openChat(chatId, friend.displayName||friend.email, friend.photoURL);
-        };
+        window.startChat = async () => { const email = document.getElementById('friend-email').value; if(!email) return; const q = query(collection(db, "users"), where("email", "==", email)); const snap = await getDocs(q); if(snap.empty) return alert("User not found"); const friend = snap.docs[0].data(); const chatId = [currentUser.uid, friend.uid].sort().join('_'); await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName, photo:friend.photoURL} } }, { merge: true }); window.closeModals(); openChat(chatId, friend.displayName, friend.photoURL); };
         window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('profile-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
         // window.saveProfile logic already defined above...
 
