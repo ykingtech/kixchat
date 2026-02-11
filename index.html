@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v12</title>
+    <title>Kix Chat - Final v13</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -70,9 +70,9 @@
         .tick.gray { color: #cbd5e1; }
         .mention { color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 0 2px; rounded: 4px; }
         
-        /* New Attachment Menu */
+        /* Attachment Menu */
         #attachment-menu { position: absolute; bottom: 70px; left: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 0.2s ease-out; }
-        .attach-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: #0f172a; color: #cbd5e1; font-size: 10px; gap: 4px; transition: 0.2s; }
+        .attach-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 70px; height: 60px; border-radius: 12px; background: #0f172a; color: #cbd5e1; font-size: 10px; gap: 4px; transition: 0.2s; }
         .attach-btn:hover { background: #334155; color: #f43f5e; }
         .attach-btn i { font-size: 24px; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -141,7 +141,7 @@
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
-                    <!-- Input Area -->
+                    <!-- Input -->
                     <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
@@ -155,10 +155,10 @@
                             <label class="attach-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i>Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
                             <button onclick="openPollModal(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-chart-bar text-green-400"></i>Poll</button>
                             <button onclick="promptSchedule(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-clock text-yellow-400"></i>Schedule</button>
-                            <button onclick="togglePrivacy(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-lock-key text-red-400" id="menu-lock-icon"></i>Privacy</button>
+                            <button onclick="togglePrivacy(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-lock-open text-red-400" id="menu-lock-icon"></i>Privacy</button>
                         </div>
 
-                        <!-- Main Controls -->
+                        <!-- Main Controls (Optimized) -->
                         <div id="main-controls" class="flex items-center gap-2">
                             <button onclick="toggleAttachmentMenu()" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
                             
@@ -170,7 +170,7 @@
                         </div>
                     </div>
 
-                    <!-- Sticker Picker (Enhanced) -->
+                    <!-- Sticker Picker -->
                     <div id="sticker-picker" class="hidden absolute bottom-16 right-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-80 overflow-y-auto z-50">
                         <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
                             <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button>
@@ -178,7 +178,7 @@
                             <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
                         </div>
                         <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
-                             <!-- Expanded 3D Emoji Set -->
+                             <!-- Expanded 3D Emoji Set (CDN) -->
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png" class="w-12 h-12 cursor-pointer hover:scale-110">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png" class="w-12 h-12 cursor-pointer hover:scale-110">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png" class="w-12 h-12 cursor-pointer hover:scale-110">
@@ -209,29 +209,13 @@
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 relative text-center">
             <button onclick="document.getElementById('settings-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="ph-bold ph-x text-xl"></i></button>
             <h3 class="text-xl font-bold mb-6">Settings</h3>
-            
             <div class="relative w-24 h-24 mx-auto mb-6 group cursor-pointer">
                 <img id="settings-preview" src="" class="w-full h-full rounded-full border-4 border-slate-600 object-cover">
-                <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition">
-                    <i class="ph-bold ph-camera text-2xl"></i><input type="file" class="hidden" accept="image/*" onchange="handleProfileImageSelect(event)">
-                </label>
+                <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition"><i class="ph-bold ph-camera text-2xl"></i><input type="file" class="hidden" accept="image/*" onchange="handleProfileImageSelect(event)"></label>
             </div>
-            
             <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Set Security PIN (Ghost Mode)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="settings-pin" placeholder="0000" maxlength="4" class="flex-1 bg-[#0f172a] rounded px-3 py-2 text-center text-lg tracking-widest border border-slate-600 outline-none">
-                        <button onclick="savePin()" class="bg-rose-500 text-white px-4 rounded text-sm">Save</button>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-slate-400 block mb-1">Auto-Reply</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="auto-reply-text" placeholder="I'm busy..." class="flex-1 bg-[#0f172a] rounded px-3 py-2 text-sm border border-slate-600 outline-none">
-                        <button onclick="saveAutoReply()" class="bg-blue-600 text-white px-4 rounded text-sm">Set</button>
-                    </div>
-                </div>
+                <div><label class="text-xs text-slate-400 block mb-1">Set Security PIN (Ghost Mode)</label><div class="flex gap-2"><input type="text" id="settings-pin" placeholder="0000" maxlength="4" class="flex-1 bg-[#0f172a] rounded px-3 py-2 text-center text-lg tracking-widest border border-slate-600 outline-none"><button onclick="savePin()" class="bg-rose-500 text-white px-4 rounded text-sm">Save</button></div></div>
+                <div><label class="text-xs text-slate-400 block mb-1">Auto-Reply</label><div class="flex gap-2"><input type="text" id="auto-reply-text" placeholder="I'm busy..." class="flex-1 bg-[#0f172a] rounded px-3 py-2 text-sm border border-slate-600 outline-none"><button onclick="saveAutoReply()" class="bg-blue-600 text-white px-4 rounded text-sm">Set</button></div></div>
             </div>
         </div>
     </div>
@@ -252,10 +236,7 @@
             <input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
             <input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
             <input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none">
-            <div class="flex gap-2 justify-end">
-                <button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button>
-                <button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button>
-            </div>
+            <div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div>
         </div>
     </div>
 
@@ -264,10 +245,7 @@
         <div class="bg-[#1e293b] p-8 rounded-2xl text-center border border-rose-500/30">
             <h3 class="text-xl font-bold mb-4 text-rose-500"><i class="ph-bold ph-ghost"></i> Ghost Mode</h3>
             <input type="password" id="ghost-pin-input" placeholder="Enter PIN" class="w-full bg-[#0f172a] p-3 text-center text-xl tracking-widest rounded-lg border border-slate-600 outline-none mb-4">
-            <div class="flex gap-2 justify-center">
-                <button onclick="document.getElementById('ghost-pin-modal').classList.add('hidden')" class="text-slate-400 px-4">Cancel</button>
-                <button onclick="verifyGhostPin()" class="bg-rose-500 px-6 py-2 rounded-lg text-white">Enter</button>
-            </div>
+            <div class="flex gap-2 justify-center"><button onclick="document.getElementById('ghost-pin-modal').classList.add('hidden')" class="text-slate-400 px-4">Cancel</button><button onclick="verifyGhostPin()" class="bg-rose-500 px-6 py-2 rounded-lg text-white">Enter</button></div>
         </div>
     </div>
 
@@ -549,6 +527,8 @@
             });
         }
 
+        window.scrollToMention = () => { const container = document.getElementById('messages-container'); const el = document.getElementById('msg-'+pendingMentionId); if(el) el.scrollIntoView({behavior: "smooth", block: "center"}); document.getElementById('floating-mention-btn').classList.add('hidden'); };
+
         function checkAdminPermissions() {
             const wrapper = document.getElementById('main-controls');
             const banner = document.getElementById('admin-only-banner');
@@ -558,6 +538,7 @@
             else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) { setHidden(wrapper, true); setHidden(banner, false); setHidden(disabledBanner, true); }
             else { setHidden(wrapper, false); setHidden(banner, true); setHidden(disabledBanner, true); }
         }
+        function renderMessageList() { const c = document.getElementById('messages-container'); c.innerHTML = ""; currentMessages.forEach(msg => renderMessage(msg, c)); c.scrollTop = c.scrollHeight; }
 
         function renderMessage(msg, container) {
             if(msg.deletedFor && msg.deletedFor.includes(currentUser.uid)) return;
@@ -609,6 +590,9 @@
 
             div.innerHTML = content;
             div.oncontextmenu = (e) => showContextMenu(e, msg);
+            let pressTimer;
+            div.ontouchstart = (e) => { pressTimer = setTimeout(() => showContextMenu(e, msg), 800); };
+            div.ontouchend = () => clearTimeout(pressTimer);
             container.appendChild(div);
         }
 
@@ -616,7 +600,7 @@
         window.scrollToMention = () => { const el = document.getElementById('msg-'+pendingMentionId); if(el) el.scrollIntoView({behavior: "smooth", block: "center"}); document.getElementById('floating-mention-btn').classList.add('hidden'); };
         window.sendMessage = async () => {
             const input = document.getElementById('message-input'); const text = input.value.trim(); if(!text && !selectedImageBase64) return;
-            if(scheduledTime) { /* ... schedule logic ... */ }
+            if(scheduledTime) { const [h, m] = scheduledTime.split(':'); const target = new Date(); target.setHours(h, m, 0, 0); let diff = target - new Date(); if(diff < 0) diff += 86400000; setTimeout(() => doSend(text, selectedImageBase64 ? 'image' : 'text'), diff); Swal.fire({icon:'success', title:'Scheduled', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'}); cancelSchedule(); input.value = ""; clearImage(); return; }
             if(editingMessageId) { await updateDoc(doc(db, "chats", currentChatId, "messages", editingMessageId), { text, isEdited: true }); cancelEdit(); return; }
             doSend(text, selectedImageBase64 ? 'image' : 'text');
         };
@@ -638,6 +622,7 @@
         window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
         window.cancelEdit = () => { editingMessageId = null; document.getElementById('message-input').value = ""; document.getElementById('editing-indicator').classList.add('hidden'); };
         window.deleteMessage = async (id, scope) => { const ref = doc(db, "chats", currentChatId, "messages", id); if(scope === 'everyone') { await updateDoc(ref, { type: 'deleted', text: '', imageUrl: null }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "🚫 Message deleted", lastUpdated: serverTimestamp() }); } else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) }); };
+        window.startForward = () => { window.openModal('forward-modal'); const list = document.getElementById('forward-list'); list.innerHTML = ""; const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid)); onSnapshot(q, snap => { snap.forEach(d => { const btn = document.createElement('div'); btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm"; btn.innerText = d.data().name || "Chat"; btn.onclick = async () => { const { text, imageUrl, type } = window.tempForwardData; await addDoc(collection(db, "chats", d.id, "messages"), { text: text || null, imageUrl: imageUrl || null, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true }); await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() }); window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); }; list.appendChild(btn); }); }); };
         
         window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('menu-lock-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key text-red-400" : "ph-bold ph-lock-open text-red-400"; document.getElementById('attachment-menu').classList.add('hidden'); Swal.fire({toast:true, title: isPrivacyMode?'Privacy ON':'Privacy OFF', position:'top', timer:1000, showConfirmButton:false}); };
         window.promptSchedule = () => { Swal.fire({title:'Time', input:'time', background:'#1e293b', color:'#fff'}).then(r => { if(r.value){ scheduledTime = r.value; document.getElementById('schedule-info').classList.remove('hidden'); document.getElementById('schedule-time-display').innerText = r.value; }}); };
