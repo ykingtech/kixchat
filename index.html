@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final</title>
+    <title>Kix Chat - Final v2</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -39,7 +39,8 @@
         
         .reply-quote { border-left: 3px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .context-menu { position: absolute; z-index: 1000; background: #1e293b; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 180px; overflow: hidden; }
+        /* Fixed Context Menu Z-Index */
+        .context-menu { position: fixed; z-index: 99999; background: #1e293b; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: 180px; overflow: hidden; }
         .context-item { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: #cbd5e1; font-size: 0.9rem; }
         .context-item:hover { background: #334155; color: white; }
         
@@ -55,6 +56,8 @@
         .tick { font-size: 14px; margin-left: 4px; }
         .tick.blue { color: #60a5fa; }
         .tick.gray { color: #94a3b8; }
+
+        .mention { color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 0 2px; rounded: 4px; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -90,13 +93,11 @@
     <!-- LOGIN -->
     <div id="login-screen" class="hidden absolute inset-0 z-[90] flex flex-col items-center justify-center bg-[#0f172a] p-6">
         <div class="text-center w-full max-w-sm">
-            <!-- App Logo (Generated) -->
             <img id="login-logo" class="w-20 h-20 rounded-2xl mx-auto mb-6 shadow-2xl object-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
             <h1 class="text-3xl font-bold mb-8">Kix Chat</h1>
             <button onclick="signInWithGoogle()" class="w-full bg-white text-black font-medium py-3 rounded-xl flex items-center justify-center gap-3 shadow-lg mb-4 hover:bg-gray-100">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5"> Sign in with Google
             </button>
-            <button onclick="signInDemo()" class="w-full bg-slate-800 text-slate-300 font-medium py-3 rounded-xl border border-slate-700 hover:bg-slate-700">Guest / Demo Login</button>
         </div>
     </div>
 
@@ -144,12 +145,20 @@
                                 <p id="chat-header-status" class="text-[10px] text-slate-400 truncate">Tap for info</p>
                             </div>
                         </div>
+                        <button onclick="showChatInfo()" class="text-slate-400 hover:text-white"><i class="ph-bold ph-info"></i></button>
                     </div>
+                    
+                    <!-- Disabled Banner -->
+                    <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">
+                        🚫 This group has been disabled by admin
+                    </div>
+
                     <!-- Messages -->
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20"></div>
+                    
                     <!-- Input -->
-                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20">
-                        <!-- Admin Warning -->
+                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 transition-all duration-300">
+                        <!-- Admin Only Warning -->
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
                         
                         <!-- Extra Panels -->
@@ -170,23 +179,24 @@
                         <div id="main-controls" class="flex items-center gap-2">
                             <!-- Toggle Tools -->
                             <div class="flex gap-2">
-                                <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 transition"><i class="ph-fill ph-smiley text-xl"></i></button>
-                                <label class="text-slate-400 hover:text-rose-500 cursor-pointer transition"><i class="ph-bold ph-image text-xl"></i><input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
-                                <button id="mic-btn" onclick="toggleSpeech()" class="text-slate-400 hover:text-green-400 transition"><i class="ph-bold ph-microphone text-xl"></i></button>
-                                <button onclick="promptSchedule()" class="text-slate-400 hover:text-yellow-400 transition"><i class="ph-bold ph-clock text-xl"></i></button>
-                                <button id="privacy-toggle" onclick="togglePrivacy()" class="text-slate-400 hover:text-rose-500 transition"><i class="ph-bold ph-lock-open text-xl" id="privacy-icon"></i></button>
+                                <button onclick="toggleStickerPicker()" class="text-slate-400 hover:text-yellow-400 transition" title="Stickers"><i class="ph-fill ph-smiley text-xl"></i></button>
+                                <label class="text-slate-400 hover:text-rose-500 cursor-pointer transition" title="Images"><i class="ph-bold ph-image text-xl"></i><input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
+                                <button id="mic-btn" onclick="toggleSpeech()" class="text-slate-400 hover:text-green-400 transition" title="Voice"><i class="ph-bold ph-microphone text-xl"></i></button>
+                                <button onclick="promptSchedule()" class="text-slate-400 hover:text-yellow-400 transition" title="Schedule"><i class="ph-bold ph-clock text-xl"></i></button>
+                                <button id="privacy-toggle" onclick="togglePrivacy()" class="text-slate-400 hover:text-rose-500 transition" title="Privacy Blur"><i class="ph-bold ph-lock-open text-xl" id="privacy-icon"></i></button>
                             </div>
 
-                            <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message...">
+                            <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message or @mention...">
                             <button onclick="sendMessage()" class="p-2 bg-rose-500 rounded-full text-white shadow-lg active:scale-95 transition"><i class="ph-fill ph-paper-plane-right text-lg"></i></button>
                         </div>
                     </div>
 
                     <!-- Sticker Picker -->
                     <div id="sticker-picker" class="hidden absolute bottom-16 left-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-64 overflow-y-auto z-50">
-                        <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2">
+                        <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
                             <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">Emojis</button>
                             <button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Stickers</button>
+                            <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker from Device"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
                         </div>
                         <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
                             <button onclick="sendSticker('👻')" class="text-2xl hover:bg-white/10 p-1 rounded">👻</button>
@@ -234,7 +244,7 @@
         </div>
     </div>
 
-    <!-- Create Group (More Categories) -->
+    <!-- Create Group -->
     <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4">
             <h3 class="text-lg font-bold">Create Group</h3>
@@ -272,10 +282,16 @@
             <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div>
             <div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div>
             
-            <!-- Only Admins Send Toggle -->
-            <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg mb-4 border border-slate-600">
-                <div class="text-sm text-slate-300">Only Admins Send</div>
-                <input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5">
+            <!-- Settings -->
+            <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600">
+                    <div class="text-sm text-slate-300">Only Admins Send</div>
+                    <input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5">
+                </div>
+                <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600">
+                    <div class="text-sm text-red-300">Disable Group</div>
+                    <input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5">
+                </div>
             </div>
 
             <div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div>
@@ -295,7 +311,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, arrayUnion, orderBy, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, arrayUnion, arrayRemove, orderBy, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCz8xJ5Qb7m5cjYWs9SqxpdtnZymYLiblI", authDomain: "kix-chatmass.firebaseapp.com", projectId: "kix-chatmass", storageBucket: "kix-chatmass.firebasestorage.app", messagingSenderId: "796961974964", appId: "1:796961974964:web:65c536e2a521b28e56c5e1", measurementId: "G-CPZC0E6HD7" };
         const app = initializeApp(firebaseConfig);
@@ -321,57 +337,24 @@
 
         // GENERATE LOGO FUNCTION
         function generateAppLogo() {
-            const c = document.createElement('canvas');
-            c.width = 512; c.height = 512;
-            const ctx = c.getContext('2d');
-            
-            // Gradient
-            const g = ctx.createLinearGradient(0, 512, 512, 0);
-            g.addColorStop(0, '#f43f5e'); g.addColorStop(1, '#f97316');
-            
-            // Background
-            ctx.fillStyle = g;
-            ctx.beginPath();
-            ctx.roundRect(0, 0, 512, 512, 120);
-            ctx.fill();
-            
-            // Icon
-            ctx.fillStyle = 'white';
-            ctx.translate(256, 256);
-            ctx.beginPath();
-            ctx.arc(0, -20, 140, 0, Math.PI * 2);
-            ctx.moveTo(80, 80); ctx.lineTo(140, 140); ctx.lineTo(0, 120);
-            ctx.fill();
-            
-            // Detail
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.beginPath();
-            ctx.roundRect(-70, -50, 140, 20, 10);
-            ctx.roundRect(-70, 0, 140, 20, 10);
-            ctx.roundRect(-70, 50, 80, 20, 10);
-            ctx.fill();
-            
+            const c = document.createElement('canvas'); c.width = 512; c.height = 512; const ctx = c.getContext('2d');
+            const g = ctx.createLinearGradient(0, 512, 512, 0); g.addColorStop(0, '#f43f5e'); g.addColorStop(1, '#f97316');
+            ctx.fillStyle = g; ctx.beginPath(); ctx.roundRect(0, 0, 512, 512, 120); ctx.fill();
+            ctx.fillStyle = 'white'; ctx.translate(256, 256); ctx.beginPath(); ctx.arc(0, -20, 140, 0, Math.PI * 2); ctx.moveTo(80, 80); ctx.lineTo(140, 140); ctx.lineTo(0, 120); ctx.fill();
+            ctx.globalCompositeOperation = 'destination-out'; ctx.beginPath(); ctx.roundRect(-70, -50, 140, 20, 10); ctx.roundRect(-70, 0, 140, 20, 10); ctx.roundRect(-70, 50, 80, 20, 10); ctx.fill();
             return c.toDataURL();
         }
-
-        // INIT LOGO
         const logoData = generateAppLogo();
         document.getElementById('splash-logo').src = logoData;
         document.getElementById('login-logo').src = logoData;
 
         // PWA
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            document.getElementById('pwa-banner').classList.remove('hidden');
-        });
-        window.installPWA = () => {
-            document.getElementById('pwa-banner').classList.add('hidden');
-            if(deferredPrompt) deferredPrompt.prompt();
-        };
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-banner').classList.remove('hidden'); });
+        window.installPWA = () => { document.getElementById('pwa-banner').classList.add('hidden'); if(deferredPrompt) deferredPrompt.prompt(); };
 
+        // AUTH (GOOGLE ONLY)
         window.signInWithGoogle = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
-        window.signInDemo = () => handleLogin({ uid: "demo_"+Date.now(), displayName: "Guest", email: "guest@kix.com", photoURL: "https://ui-avatars.com/api/?name=Guest" });
-
+        
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
                 if(user) handleLogin(user);
@@ -391,9 +374,7 @@
             if(document.getElementById('my-avatar')) document.getElementById('my-avatar').src = user.photoURL;
             if(document.getElementById('join-my-pic')) document.getElementById('join-my-pic').src = user.photoURL;
             try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL }, { merge: true }); } catch(e){}
-            loadLists();
-            loadSavedStickers();
-            initSpeech();
+            loadLists(); loadSavedStickers(); initSpeech();
         }
 
         function safeClassAdd(id, cls) { const el = document.getElementById(id); if(el) el.classList.add(cls); }
@@ -406,12 +387,7 @@
             loadLists();
         };
 
-        window.closeChat = () => {
-            safeClassAdd('chat-area', 'hidden');
-            safeClassRemove('sidebar', 'hidden');
-            currentChatId = null;
-        };
-
+        window.closeChat = () => { safeClassAdd('chat-area', 'hidden'); safeClassRemove('sidebar', 'hidden'); currentChatId = null; };
         window.openModal = (id) => { const el = document.getElementById(id); if(el) el.classList.remove('hidden'); };
         window.closeModals = () => document.querySelectorAll('[id$="-modal"]').forEach(el => el.classList.add('hidden'));
 
@@ -520,7 +496,6 @@
             safeClassRemove('active-chat-ui', 'hidden');
             if(window.innerWidth < 768) { safeClassAdd('sidebar', 'hidden'); safeClassRemove('chat-area', 'hidden'); }
             document.getElementById('chat-header-name').innerText = name;
-            // Use provided photo OR the generated logo if no photo
             document.getElementById('chat-header-img').src = photo || logoData;
             
             const snap = await getDoc(doc(db, "chats", id));
@@ -540,10 +515,16 @@
         function checkAdminPermissions() {
             const wrapper = document.getElementById('main-controls');
             const banner = document.getElementById('admin-only-banner');
-            if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) {
-                wrapper.classList.add('hidden'); banner.classList.remove('hidden');
+            const disabledBanner = document.getElementById('disabled-banner');
+            
+            if (currentChatData.isDisabled) {
+                wrapper.classList.add('hidden');
+                banner.classList.add('hidden');
+                disabledBanner.classList.remove('hidden');
+            } else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) {
+                wrapper.classList.add('hidden'); banner.classList.remove('hidden'); disabledBanner.classList.add('hidden');
             } else {
-                wrapper.classList.remove('hidden'); banner.classList.add('hidden');
+                wrapper.classList.remove('hidden'); banner.classList.add('hidden'); disabledBanner.classList.add('hidden');
             }
         }
 
@@ -560,16 +541,19 @@
             }
             let extraClass = msg.isPrivate && !isMe ? "blur-content" : "";
             let replyHtml = msg.replyTo ? `<div class="bg-black/20 p-1 rounded mb-1 text-xs border-l-2 border-white/50 truncate max-w-[150px]">${msg.replyTo.text}</div>` : "";
-            let content = "";
+            
+            // Mentions Highlighting
+            let processedText = msg.text ? msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>') : "";
 
+            let content = "";
             if(msg.type === 'deleted') {
                 content = `<div class="chat-bubble ${isMe ? 'bg-slate-700' : 'bg-slate-800'} text-slate-400 italic text-xs">Deleted</div>`;
             } else if(msg.type === 'sticker') {
                 content = `<img src="${msg.imageUrl}" class="w-32 h-32 object-contain cursor-pointer hover:scale-105 transition" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">`;
             } else if(msg.imageUrl) {
-                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}">${senderName}${replyHtml}<img src="${msg.imageUrl}" class="rounded-lg max-w-[200px] cursor-pointer" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">${msg.text ? `<p class="mt-1">${msg.text}</p>` : ''}<span class="text-[9px] opacity-70 block text-right mt-1">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''}</span></div>`;
+                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}">${senderName}${replyHtml}<img src="${msg.imageUrl}" class="rounded-lg max-w-[200px] cursor-pointer" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">${processedText ? `<p class="mt-1">${processedText}</p>` : ''}<span class="text-[9px] opacity-70 block text-right mt-1">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''}</span></div>`;
             } else {
-                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}" ondblclick="setReminder('${msg.text}')">${senderName}${replyHtml}<p>${msg.text}</p><span class="text-[9px] opacity-70 block text-right mt-1">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''} ${isMe && msg.status!=='deleted' ? '<i class="ph-bold ph-check"></i>':''}</span></div>`;
+                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}" ondblclick="setReminder('${msg.text}')">${senderName}${replyHtml}<p>${processedText}</p><span class="text-[9px] opacity-70 block text-right mt-1">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''} ${isMe && msg.status!=='deleted' ? '<i class="ph-bold ph-check"></i>':''}</span></div>`;
             }
             
             if(msg.isPrivate && !isMe) content += `<div class="privacy-lock"><i class="ph-fill ph-lock-key"></i></div>`;
@@ -582,13 +566,11 @@
             container.appendChild(div);
         }
 
-        // FEATURE LOGIC
         window.sendMessage = async () => {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if(!text && !selectedImageBase64) return;
 
-            // Handle Schedule
             if(scheduledTime) {
                 const [h, m] = scheduledTime.split(':');
                 const target = new Date(); target.setHours(h, m, 0, 0);
@@ -598,7 +580,6 @@
                 cancelSchedule(); input.value = ""; clearImage(); return;
             }
 
-            // Handle Edit
             if(editingMessageId) {
                 await updateDoc(doc(db, "chats", currentChatId, "messages", editingMessageId), { text, isEdited: true });
                 cancelEdit(); return;
@@ -626,12 +607,15 @@
             if(isPrivacyMode) togglePrivacy();
         }
 
-        // CONTEXT MENU
         window.showContextMenu = (e, msg) => {
             e.preventDefault();
             const menu = document.getElementById('msg-context-menu');
             let x = e.clientX, y = e.clientY;
+            
+            // Smart Positioning (Fix Hidden Menu)
             if(x > window.innerWidth - 180) x -= 180;
+            if(y > window.innerHeight - 150) y -= 150; 
+
             menu.style.left = `${x}px`; menu.style.top = `${y}px`;
             
             let html = '';
@@ -639,10 +623,12 @@
                 html += `<div class="context-item" onclick="setReply('${msg.text}', '${msg.id}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
                 html += `<div class="context-item" onclick="startForward('${msg.text}')"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
                 html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
-                if(msg.senderId === currentUser.uid) {
-                    html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete for Everyone</div>`;
-                    if(msg.type === 'text') html += `<div class="context-item" onclick="startEdit('${msg.id}', '${msg.text.replace(/'/g, "\\'")}')"><i class="ph-bold ph-pencil"></i> Edit</div>`;
+                
+                const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
+                if(msg.senderId === currentUser.uid || isAdmin) {
+                    html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`;
                 }
+                if(msg.senderId === currentUser.uid && msg.type === 'text') html += `<div class="context-item" onclick="startEdit('${msg.id}', '${msg.text.replace(/'/g, "\\'")}')"><i class="ph-bold ph-pencil"></i> Edit</div>`;
                 if(msg.imageUrl || msg.type === 'sticker') html += `<div class="context-item" onclick="saveSticker('${msg.imageUrl}')"><i class="ph-bold ph-star"></i> Save Sticker</div>`;
             }
             menu.innerHTML = html;
@@ -651,7 +637,6 @@
             setTimeout(() => document.addEventListener('click', close), 100);
         };
 
-        // HELPER FUNCTIONS
         window.setReply = (text, id) => { replyToMsg = { id, text }; document.getElementById('reply-banner').classList.remove('hidden'); document.getElementById('reply-text').innerText = text; };
         window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
         window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
@@ -677,18 +662,20 @@
             });
         };
         
-        // Features
         window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('privacy-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key" : "ph-bold ph-lock-open"; };
         window.promptSchedule = () => { Swal.fire({title:'Time', input:'time', background:'#1e293b', color:'#fff'}).then(r => { if(r.value){ scheduledTime = r.value; document.getElementById('schedule-info').classList.remove('hidden'); document.getElementById('schedule-time-display').innerText = r.value; }}); };
         window.cancelSchedule = () => { scheduledTime = null; document.getElementById('schedule-info').classList.add('hidden'); };
         window.setReminder = (txt) => { Swal.fire({title:'Remind me', input:'select', inputOptions:{1:'1 Min', 60:'1 Hour'}, background:'#1e293b', color:'#fff'}).then(r => { if(r.value) setTimeout(() => Swal.fire({title:txt, background:'#1e293b', color:'#fff'}), r.value*60000); }); };
         
-        // Stickers
         window.toggleStickerPicker = () => { document.getElementById('sticker-picker').classList.toggle('hidden'); loadSavedStickers(); };
         window.showStickerTab = (t) => { document.getElementById('sticker-content-default').classList.toggle('hidden', t!=='default'); document.getElementById('sticker-content-saved').classList.toggle('hidden', t!=='saved'); };
-        window.sendSticker = (e, u=null) => doSend(u, 'sticker', e); // Pass emoji as extra if text needed
+        window.sendSticker = (e, u=null) => doSend(u, 'sticker', e);
         window.saveSticker = (url) => {
             let s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); if(!s.includes(url)) s.push(url); localStorage.setItem('kix_stickers', JSON.stringify(s)); loadSavedStickers();
+        };
+        window.addCustomSticker = (e) => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = (ev) => { window.saveSticker(ev.target.result); }; r.readAsDataURL(f);
         };
         function loadSavedStickers() {
             const s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); const c = document.getElementById('sticker-content-saved'); c.innerHTML = "";
@@ -696,7 +683,6 @@
             c.classList.remove('hidden'); c.classList.add('grid');
         }
 
-        // Media
         window.handleImage = (e) => {
             const f = e.target.files[0]; if(!f) return;
             const r = new FileReader(); r.onload=(ev)=>{
@@ -711,26 +697,39 @@
         };
         window.clearImage = () => { selectedImageBase64=null; document.getElementById('image-input').value=""; document.getElementById('image-preview-container').classList.add('hidden'); };
 
-        // Voice
         function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
         window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
 
-        // Admin
         window.showChatInfo = () => {
             if(currentChatData.type === 'group') {
                 window.openModal('admin-modal');
                 document.getElementById('admin-group-id').innerText = currentChatData.customId;
-                document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost || false;
-                document.getElementById('toggle-admin-only').disabled = !currentChatData.admins.includes(currentUser.uid);
+                const isAdmin = currentChatData.admins.includes(currentUser.uid);
                 
+                document.getElementById('toggle-admin-only').disabled = !isAdmin;
+                document.getElementById('toggle-disable-group').disabled = !isAdmin;
+                document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost;
+                document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled;
+
                 const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = "";
-                if(currentChatData.admins.includes(currentUser.uid) && currentChatData.requests?.length) {
+                if(isAdmin && currentChatData.requests?.length) {
                     safeClassRemove('pending-section', 'hidden');
                     currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`);
                 } else safeClassAdd('pending-section', 'hidden');
 
                 const memDiv = document.getElementById('member-list'); memDiv.innerHTML = "";
-                currentChatData.participants.forEach(uid => { const p = currentChatData.groupProfiles?.[uid]; memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between"><span>${p?.alias||'User'}</span> <span class="w-3 h-3 rounded-full" style="background:${p?.color}"></span></div>`; });
+                currentChatData.participants.forEach(uid => { 
+                    const p = currentChatData.groupProfiles?.[uid]; 
+                    const isMemAdmin = currentChatData.admins.includes(uid);
+                    memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between items-center">
+                        <span>${p?.alias||'User'} ${isMemAdmin?'👑':''}</span> 
+                        ${isAdmin && uid !== currentUser.uid ? `
+                            <div class="flex gap-2">
+                                <button onclick="makeAdmin('${uid}')" class="text-xs text-blue-400">Promote</button>
+                                <button onclick="removeMember('${uid}')" class="text-xs text-red-400">Kick</button>
+                            </div>` : ''}
+                    </div>`; 
+                });
             }
         };
         window.approveMember = async (uid, alias) => {
@@ -740,6 +739,12 @@
             window.showChatInfo();
         };
         window.toggleAdminOnly = async () => { await updateDoc(doc(db, "chats", currentChatId), { onlyAdminsCanPost: document.getElementById('toggle-admin-only').checked }); };
+        window.toggleDisableGroup = async () => { await updateDoc(doc(db, "chats", currentChatId), { isDisabled: document.getElementById('toggle-disable-group').checked }); };
+        window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); window.showChatInfo(); };
+        window.removeMember = async (uid) => { 
+            await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); 
+            window.showChatInfo(); 
+        };
 
         window.createGroup = async () => {
             const name = document.getElementById('group-name').value;
