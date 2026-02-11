@@ -4,15 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kix Chat - Final v10</title>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Manifest -->
     <link rel="manifest" href="manifest.json">
 
     <style>
         :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #f43f5e; }
-        body { font-family: 'Outfit', 'Segoe UI Emoji', sans-serif; background: var(--bg-dark); color: #f8fafc; height: 100dvh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
+        
+        body { 
+            font-family: 'Outfit', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; 
+            background: var(--bg-dark); 
+            color: #f8fafc; 
+            height: 100dvh; 
+            width: 100vw; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            user-select: none; 
+        }
+        
         #app-container { display: flex; flex: 1; height: 100%; overflow: hidden; position: relative; }
         
         /* Loading */
@@ -52,16 +69,28 @@
         .tick { font-size: 16px; }
         .tick.blue { color: #93c5fd; }
         .tick.gray { color: #cbd5e1; }
-        .mention { color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 0 2px; rounded: 4px; }
+        
+        /* Highlight Mentions */
+        .mention { color: #60a5fa; font-weight: bold; background: rgba(96, 165, 250, 0.15); padding: 0 4px; rounded: 4px; cursor: pointer; }
         
         /* Mention Popup */
-        #mention-popup { position: absolute; bottom: 100%; left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; max-height: 150px; overflow-y: auto; z-index: 50; border-radius: 12px 12px 0 0; }
-        .mention-item { padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        #mention-popup { position: absolute; bottom: 100%; left: 0; width: 100%; background: #1e293b; border-top: 1px solid #334155; max-height: 200px; overflow-y: auto; z-index: 50; border-radius: 12px 12px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
+        .mention-item { padding: 12px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
         .mention-item:hover { background: #334155; }
 
-        /* Floating Mention Button */
-        #floating-mention-btn { position: absolute; bottom: 80px; right: 20px; background: #fbbf24; color: black; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 40; cursor: pointer; animation: bounceIn 0.3s; }
-        @keyframes bounceIn { from { transform: scale(0); } to { transform: scale(1); } }
+        /* Floating Mention Button (Telegram Style) */
+        #floating-mention-btn { 
+            position: absolute; bottom: 85px; right: 20px; 
+            background: #ffffff; color: #f43f5e; 
+            width: 45px; height: 45px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); 
+            z-index: 40; cursor: pointer; 
+            animation: bounceIn 0.3s;
+            font-size: 1.5rem;
+        }
+        #floating-mention-btn:hover { transform: scale(1.1); }
+        @keyframes bounceIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -92,7 +121,6 @@
             <div id="sidebar" class="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/30 flex flex-col h-full flex-none transition-all duration-300">
                 <div class="p-4 bg-[#1e293b] shrink-0 space-y-3 shadow-md z-20">
                     <div class="flex justify-between items-center">
-                        <!-- Profile Pic Button -->
                         <div class="flex items-center gap-3 cursor-pointer p-1 rounded hover:bg-white/5" onclick="openProfileModal()">
                             <img id="my-avatar" src="" class="w-10 h-10 rounded-full border border-slate-600 object-cover">
                             <div><h2 class="font-bold text-sm">Kix Chat</h2><div class="text-[10px] text-green-400">● Online</div></div>
@@ -116,6 +144,8 @@
                     <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">🚫 This group has been disabled</div>
                     
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
+                    
+                    <!-- Floating Mention Button -->
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
                     <!-- Input -->
@@ -140,8 +170,13 @@
                         </div>
                     </div>
 
+                    <!-- Sticker Picker -->
                     <div id="sticker-picker" class="hidden absolute bottom-16 left-2 bg-[#1e293b] border border-slate-700 rounded-xl shadow-2xl p-3 w-72 h-64 overflow-y-auto z-50">
-                        <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center"><button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button><button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Saved</button><label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label></div>
+                        <div class="flex gap-2 border-b border-slate-700 pb-2 mb-2 items-center">
+                            <button onclick="showStickerTab('default')" class="text-xs text-slate-300 hover:text-white flex-1 transition">3D Emojis</button>
+                            <button onclick="showStickerTab('saved')" class="text-xs text-rose-400 hover:text-rose-300 flex-1 font-bold transition">My Saved</button>
+                            <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
+                        </div>
                         <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png" class="w-12 h-12 cursor-pointer hover:scale-110">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png" class="w-12 h-12 cursor-pointer hover:scale-110">
@@ -217,9 +252,10 @@
         let selectedImageBase64 = null;
         let deferredPrompt;
         let currentMessages = [];
-        let forwardData = null; // Store data for forwarding
+        let forwardData = null; 
         let pendingMentionId = null;
         let newProfilePicBase64 = null;
+        let myLastSeenTime = 0;
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
@@ -252,7 +288,6 @@
             currentUser = user;
             safeClassAdd('splash-screen', 'hidden'); safeClassAdd('login-screen', 'hidden'); safeClassRemove('app-interface', 'hidden');
             
-            // Check Firestore for updated photo
             const userDoc = await getDoc(doc(db, "users", user.uid));
             let photo = user.photoURL;
             if(userDoc.exists() && userDoc.data().photoURL) photo = userDoc.data().photoURL;
@@ -362,7 +397,16 @@
 
             if(unsubscribeChatData) unsubscribeChatData();
             unsubscribeChatData = onSnapshot(doc(db, "chats", id), (docSnap) => {
-                if(docSnap.exists()) { currentChatData = docSnap.data(); checkAdminPermissions(); if(currentMessages.length > 0) renderMessageList(); }
+                if(docSnap.exists()) { 
+                    currentChatData = docSnap.data(); 
+                    checkAdminPermissions(); 
+                    
+                    // Update Last Seen Timestamp for logic
+                    const lastSeenMap = currentChatData.lastSeen || {};
+                    myLastSeenTime = lastSeenMap[currentUser.uid]?.toMillis() || 0;
+
+                    if(currentMessages.length > 0) renderMessageList(); 
+                }
             });
 
             if(unsubscribeMessages) unsubscribeMessages();
@@ -371,21 +415,36 @@
                 const container = document.getElementById('messages-container');
                 container.innerHTML = "";
                 currentMessages = [];
-                let firstUnseen = null;
+                pendingMentionId = null;
+
                 snap.forEach(d => {
                     const m = { id: d.id, ...d.data() };
                     currentMessages.push(m);
                     renderMessage(m, container);
-                    if(!firstUnseen && m.senderId !== currentUser.uid) {
-                        const isMention = m.text && m.text.includes('@' + currentUser.displayName);
-                        if(isMention) firstUnseen = m.id;
+
+                    // Mention & Reply Logic
+                    if (!pendingMentionId && m.senderId !== currentUser.uid) {
+                        const msgTime = m.createdAt?.toMillis() || Date.now();
+                        const isNew = msgTime > myLastSeenTime;
+                        
+                        if (isNew) {
+                            const isMention = m.text && m.text.includes('@' + currentUser.displayName);
+                            // Simple reply check (if data available)
+                            const isReply = false; // Mock, in real app check replyTo.senderId locally if stored or query
+
+                            if (isMention) pendingMentionId = m.id;
+                        }
                     }
                 });
 
-                if(firstUnseen) { pendingMentionId = firstUnseen; document.getElementById('floating-mention-btn').classList.remove('hidden'); } else { document.getElementById('floating-mention-btn').classList.add('hidden'); }
+                if(pendingMentionId) document.getElementById('floating-mention-btn').classList.remove('hidden');
+                else document.getElementById('floating-mention-btn').classList.add('hidden');
+
                 if(snap.docs.length > 0) {
                     const lastMsg = currentMessages[currentMessages.length-1];
-                    if(lastMsg.senderId !== currentUser.uid) { updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 }); }
+                    if(lastMsg.senderId !== currentUser.uid) {
+                        updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 });
+                    }
                 }
                 container.scrollTop = container.scrollHeight;
             });
@@ -422,7 +481,8 @@
 
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
-                let tickClass = "tick gray"; let tickIcon = "ph-bold ph-checks";
+                let tickClass = "tick gray"; 
+                let tickIcon = "ph-bold ph-checks";
                 if(currentChatData.lastSeen) {
                     const seenTime = Object.entries(currentChatData.lastSeen).filter(([uid, ts]) => uid !== currentUser.uid).map(([_, ts]) => ts?.toMillis() || 0);
                     const msgTime = msg.createdAt?.toMillis() || Date.now();
@@ -497,7 +557,9 @@
                 
                 const updates = { lastMessage: type==='image'?'Photo':(type==='sticker'?'Sticker':text), lastUpdated: serverTimestamp() };
                 if(currentChatData && currentChatData.participants) {
-                    currentChatData.participants.forEach(uid => { if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1); });
+                    currentChatData.participants.forEach(uid => {
+                        if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1);
+                    });
                 }
                 await updateDoc(doc(db, "chats", currentChatId), updates);
                 inputCleanUp();
@@ -514,8 +576,7 @@
             let html = '';
             if(msg.type !== 'deleted') {
                 html += `<div class="context-item" onclick="setReply('${msg.text}', '${msg.id}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
-                const fwdContent = msg.type === 'sticker' ? msg.imageUrl : (msg.text || msg.imageUrl);
-                const fwdType = msg.type; 
+                // FIX: Forward needs correct data capture
                 window.tempForwardData = { text: msg.text, imageUrl: msg.imageUrl, type: msg.type };
                 html += `<div class="context-item" onclick="startForward()"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
                 html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
@@ -528,28 +589,11 @@
             const close = () => { menu.classList.add('hidden'); document.removeEventListener('click', close); };
             setTimeout(() => document.addEventListener('click', close), 100);
         };
-        
-        window.startForward = () => {
-            if(!window.tempForwardData) return;
-            window.openModal('forward-modal');
-            const list = document.getElementById('forward-list'); list.innerHTML = "";
-            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
-            onSnapshot(q, snap => {
-                snap.forEach(d => {
-                    const btn = document.createElement('div');
-                    btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm";
-                    btn.innerText = d.data().name || "Chat";
-                    btn.onclick = async () => { 
-                        const { text, imageUrl, type } = window.tempForwardData;
-                        await addDoc(collection(db, "chats", d.id, "messages"), { text: text, imageUrl: imageUrl, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true });
-                        await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() });
-                        window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); 
-                    };
-                    list.appendChild(btn);
-                });
-            });
-        };
 
+        window.setReply = (text, id) => { replyToMsg = { id, text }; document.getElementById('reply-banner').classList.remove('hidden'); document.getElementById('reply-text').innerText = text; };
+        window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
+        window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
+        window.cancelEdit = () => { editingMessageId = null; document.getElementById('message-input').value = ""; document.getElementById('editing-indicator').classList.add('hidden'); };
         window.deleteMessage = async (id, scope) => {
             const ref = doc(db, "chats", currentChatId, "messages", id);
             if(scope === 'everyone') {
@@ -558,65 +602,27 @@
             }
             else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) });
         };
-
-        // PROFILE PICTURE LOGIC
-        window.openProfileModal = () => {
-            document.getElementById('profile-preview').src = currentUser.photoURL || logoData;
-            window.openModal('profile-modal');
-        };
-
-        window.handleProfileImageSelect = (e) => {
-            const file = e.target.files[0]; if(!file) return;
-            const r = new FileReader();
-            r.onload = (ev) => {
-                const i = new Image();
-                i.onload = () => {
-                    const c = document.createElement('canvas');
-                    const m = 300; // Profile pics can be smaller
-                    let w = i.width, h = i.height;
-                    if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}}
-                    c.width=w; c.height=h; 
-                    c.getContext('2d').drawImage(i,0,0,w,h);
-                    newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6);
-                    document.getElementById('profile-preview').src = newProfilePicBase64;
-                };
-                i.src = ev.target.result;
-            };
-            r.readAsDataURL(file);
-        };
-
-        window.saveProfile = async () => {
-            if(!newProfilePicBase64) { window.closeModals(); return; }
-            
-            // 1. Update User Doc
-            await updateDoc(doc(db, "users", currentUser.uid), { photoURL: newProfilePicBase64 });
-            
-            // 2. Update UI
-            document.getElementById('my-avatar').src = newProfilePicBase64;
-            
-            // 3. Batch Update Chats (Expensive op, careful in production)
+        window.startForward = () => {
+            window.openModal('forward-modal');
+            const list = document.getElementById('forward-list');
+            list.innerHTML = "";
             const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
-            const snap = await getDocs(q);
-            const batch = writeBatch(db);
-            
-            snap.forEach(d => {
-                const ref = doc(db, "chats", d.id);
-                // We use dot notation to update map field directly
-                const updateField = {};
-                updateField[`userDetails.${currentUser.uid}.photo`] = newProfilePicBase64;
-                batch.update(ref, updateField);
+            onSnapshot(q, snap => {
+                snap.forEach(d => {
+                    const btn = document.createElement('div');
+                    btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm";
+                    btn.innerText = d.data().name || "Chat";
+                    btn.onclick = async () => { 
+                        const { text, imageUrl, type } = window.tempForwardData;
+                        await addDoc(collection(db, "chats", d.id, "messages"), { text: text || null, imageUrl: imageUrl || null, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true });
+                        await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() });
+                        window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); 
+                    };
+                    list.appendChild(btn);
+                });
             });
-            
-            await batch.commit();
-            window.closeModals();
-            Swal.fire({icon:'success', title:'Profile Updated', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'});
         };
-
-        window.setReply = (text, id) => { replyToMsg = { id, text }; document.getElementById('reply-banner').classList.remove('hidden'); document.getElementById('reply-text').innerText = text; };
-        window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
-        window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
-        window.cancelEdit = () => { editingMessageId = null; document.getElementById('message-input').value = ""; document.getElementById('editing-indicator').classList.add('hidden'); };
-
+        
         window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('privacy-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key" : "ph-bold ph-lock-open"; };
         window.promptSchedule = () => { Swal.fire({title:'Time', input:'time', background:'#1e293b', color:'#fff'}).then(r => { if(r.value){ scheduledTime = r.value; document.getElementById('schedule-info').classList.remove('hidden'); document.getElementById('schedule-time-display').innerText = r.value; }}); };
         window.cancelSchedule = () => { scheduledTime = null; document.getElementById('schedule-info').classList.add('hidden'); };
