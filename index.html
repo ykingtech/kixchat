@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v9</title>
+    <title>Kix Chat - Final v10</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
@@ -92,7 +92,11 @@
             <div id="sidebar" class="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/30 flex flex-col h-full flex-none transition-all duration-300">
                 <div class="p-4 bg-[#1e293b] shrink-0 space-y-3 shadow-md z-20">
                     <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3"><img id="my-avatar" src="" class="w-10 h-10 rounded-full border border-slate-600"><div><h2 class="font-bold text-sm">Kix Chat</h2><div class="text-[10px] text-green-400">● Online</div></div></div>
+                        <!-- Profile Pic Button -->
+                        <div class="flex items-center gap-3 cursor-pointer p-1 rounded hover:bg-white/5" onclick="openProfileModal()">
+                            <img id="my-avatar" src="" class="w-10 h-10 rounded-full border border-slate-600 object-cover">
+                            <div><h2 class="font-bold text-sm">Kix Chat</h2><div class="text-[10px] text-green-400">● Online</div></div>
+                        </div>
                         <div class="flex gap-2"><button onclick="openModal('create-group-modal')" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition"><i class="ph-bold ph-users-three"></i></button><button onclick="openModal('add-friend-modal')" class="p-2 bg-slate-700 rounded-full hover:bg-rose-500 transition"><i class="ph-bold ph-plus"></i></button></div>
                     </div>
                     <div class="relative"><i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-500"></i><input type="text" id="search-input" placeholder="Search Group ID (e.g. #G-123)" class="w-full bg-[#0f172a] rounded-lg pl-9 pr-3 py-2 text-xs text-white border border-slate-700 focus:border-rose-500 outline-none" onkeyup="handleSearch(event)"></div>
@@ -154,6 +158,25 @@
     </div>
 
     <!-- MODALS -->
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center relative">
+            <h3 class="text-lg font-bold mb-4">Edit Profile</h3>
+            <div class="relative w-24 h-24 mx-auto mb-4 group cursor-pointer">
+                <img id="profile-preview" src="" class="w-full h-full rounded-full border-4 border-slate-600 object-cover">
+                <label class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition">
+                    <i class="ph-bold ph-camera text-2xl"></i>
+                    <input type="file" class="hidden" accept="image/*" onchange="handleProfileImageSelect(event)">
+                </label>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">Tap image to change</p>
+            <div class="flex gap-2 justify-center">
+                <button onclick="document.getElementById('profile-modal').classList.add('hidden')" class="px-4 py-2 text-slate-400">Cancel</button>
+                <button onclick="saveProfile()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div>
     </div>
@@ -196,6 +219,7 @@
         let currentMessages = [];
         let forwardData = null; // Store data for forwarding
         let pendingMentionId = null;
+        let newProfilePicBase64 = null;
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
@@ -227,9 +251,16 @@
         async function handleLogin(user) {
             currentUser = user;
             safeClassAdd('splash-screen', 'hidden'); safeClassAdd('login-screen', 'hidden'); safeClassRemove('app-interface', 'hidden');
-            if(document.getElementById('my-avatar')) document.getElementById('my-avatar').src = user.photoURL;
-            if(document.getElementById('join-my-pic')) document.getElementById('join-my-pic').src = user.photoURL;
-            try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL }, { merge: true }); } catch(e){}
+            
+            // Check Firestore for updated photo
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            let photo = user.photoURL;
+            if(userDoc.exists() && userDoc.data().photoURL) photo = userDoc.data().photoURL;
+
+            document.getElementById('my-avatar').src = photo;
+            document.getElementById('join-my-pic').src = photo;
+            
+            try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: photo }, { merge: true }); } catch(e){}
             loadLists(); loadSavedStickers(); initSpeech();
         }
 
@@ -300,6 +331,25 @@
             return div;
         }
 
+        window.joinAsReal = async () => {
+            if(tempJoinData.isPublic) {
+                const color = assignUniqueColor(tempJoinData);
+                await updateDoc(doc(db, "chats", tempJoinData.id), { participants: arrayUnion(currentUser.uid), [`groupProfiles.${currentUser.uid}`]: { alias: currentUser.displayName, color: color, isReal: true } });
+                window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null);
+            } else alert("Private group requires request");
+        };
+        window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
+        window.submitAnonRequest = async () => {
+            const alias = document.getElementById('anon-alias').value.trim(); if(!alias) return;
+            await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: alias, timestamp: Date.now() }) });
+            window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'});
+        };
+        function assignUniqueColor(chatData) {
+            const usedColors = Object.values(chatData.groupProfiles || {}).map(p => p.color);
+            const available = MEMBER_COLORS.filter(c => !usedColors.includes(c));
+            return available.length > 0 ? available[Math.floor(Math.random() * available.length)] : MEMBER_COLORS[Math.floor(Math.random() * MEMBER_COLORS.length)];
+        }
+
         async function openChat(id, name, photo) {
             document.getElementById("messages-container").innerHTML = '<div class="flex h-full items-center justify-center"><div class="loader"></div></div>';
             currentChatId = id;
@@ -326,44 +376,23 @@
                     const m = { id: d.id, ...d.data() };
                     currentMessages.push(m);
                     renderMessage(m, container);
-                    // Check for mention/reply notification
                     if(!firstUnseen && m.senderId !== currentUser.uid) {
                         const isMention = m.text && m.text.includes('@' + currentUser.displayName);
-                        const isReply = m.replyTo && m.replyTo.senderId === currentUser.uid; // Mock check, ideally senderId stored in replyTo
-                        // Since we don't have isRead per message easily here, assume if loaded it's new. 
-                        // Real app would track lastReadTime. Here we simplify: if I see a mention in the active stream that is "new" (e.g. recent), show button.
                         if(isMention) firstUnseen = m.id;
                     }
                 });
 
-                if(firstUnseen) {
-                   pendingMentionId = firstUnseen;
-                   document.getElementById('floating-mention-btn').classList.remove('hidden');
-                } else {
-                   document.getElementById('floating-mention-btn').classList.add('hidden');
-                }
-
+                if(firstUnseen) { pendingMentionId = firstUnseen; document.getElementById('floating-mention-btn').classList.remove('hidden'); } else { document.getElementById('floating-mention-btn').classList.add('hidden'); }
                 if(snap.docs.length > 0) {
                     const lastMsg = currentMessages[currentMessages.length-1];
-                    if(lastMsg.senderId !== currentUser.uid) {
-                        updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 });
-                    }
+                    if(lastMsg.senderId !== currentUser.uid) { updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 }); }
                 }
                 container.scrollTop = container.scrollHeight;
             });
         }
 
-        window.scrollToMention = () => {
-             // Simple scroll for demo. Ideally find element by ID.
-             const container = document.getElementById('messages-container');
-             // In real DOM, find the message div. Since we didn't set IDs on divs, just scroll top for now or bottom.
-             // Improvement: Add IDs to divs in renderMessage.
-             const el = document.getElementById('msg-'+pendingMentionId);
-             if(el) el.scrollIntoView({behavior: "smooth", block: "center"});
-             document.getElementById('floating-mention-btn').classList.add('hidden');
-        };
+        window.scrollToMention = () => { const container = document.getElementById('messages-container'); const el = document.getElementById('msg-'+pendingMentionId); if(el) el.scrollIntoView({behavior: "smooth", block: "center"}); document.getElementById('floating-mention-btn').classList.add('hidden'); };
 
-        // ... [Standard functions: checkAdminPermissions, renderMessageList]
         function checkAdminPermissions() {
             const wrapper = document.getElementById('main-controls');
             const banner = document.getElementById('admin-only-banner');
@@ -389,14 +418,11 @@
             }
             let extraClass = msg.isPrivate && !isMe ? "blur-content" : "";
             let replyHtml = msg.replyTo ? `<div class="bg-black/20 p-1 rounded mb-1 text-xs border-l-2 border-white/50 truncate max-w-[150px]">${msg.replyTo.text}</div>` : "";
-            
-            // Highlight Mentions
             let processedText = msg.text ? msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>') : "";
 
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
-                let tickClass = "tick gray"; 
-                let tickIcon = "ph-bold ph-checks";
+                let tickClass = "tick gray"; let tickIcon = "ph-bold ph-checks";
                 if(currentChatData.lastSeen) {
                     const seenTime = Object.entries(currentChatData.lastSeen).filter(([uid, ts]) => uid !== currentUser.uid).map(([_, ts]) => ts?.toMillis() || 0);
                     const msgTime = msg.createdAt?.toMillis() || Date.now();
@@ -426,32 +452,18 @@
             container.appendChild(div);
         }
 
-        // --- MENTIONS ---
         const messageInput = document.getElementById('message-input');
         messageInput.addEventListener('input', (e) => {
-            const val = e.target.value;
-            const popup = document.getElementById('mention-popup');
+            const val = e.target.value; const popup = document.getElementById('mention-popup');
             if (val.endsWith('@') && currentChatData.type === 'group') {
-                // Show member list
                 popup.innerHTML = "";
                 currentChatData.participants.forEach(uid => {
-                   const profile = currentChatData.groupProfiles?.[uid];
-                   const name = profile?.alias || "User";
-                   const item = document.createElement('div');
-                   item.className = "mention-item text-white text-sm";
-                   item.innerText = name;
-                   item.onclick = () => {
-                       messageInput.value = val + name + " ";
-                       popup.innerHTML = "";
-                       popup.classList.add('hidden');
-                       messageInput.focus();
-                   };
+                   const profile = currentChatData.groupProfiles?.[uid]; const name = profile?.alias || "User";
+                   const item = document.createElement('div'); item.className = "mention-item text-white text-sm"; item.innerText = name;
+                   item.onclick = () => { messageInput.value = val + name + " "; popup.innerHTML = ""; popup.classList.add('hidden'); messageInput.focus(); };
                    popup.appendChild(item);
-                });
-                popup.classList.remove('hidden');
-            } else {
-                popup.classList.add('hidden');
-            }
+                }); popup.classList.remove('hidden');
+            } else { popup.classList.add('hidden'); }
         });
 
         window.sendMessage = async () => {
@@ -459,7 +471,6 @@
             const text = input.value.trim();
             if(!text && !selectedImageBase64) return;
 
-            // ... [Schedule Logic same as before] ...
             if(scheduledTime) {
                 const [h, m] = scheduledTime.split(':'); const target = new Date(); target.setHours(h, m, 0, 0); let diff = target - new Date(); if(diff < 0) diff += 86400000;
                 setTimeout(() => doSend(text, selectedImageBase64 ? 'image' : 'text'), diff);
@@ -486,16 +497,13 @@
                 
                 const updates = { lastMessage: type==='image'?'Photo':(type==='sticker'?'Sticker':text), lastUpdated: serverTimestamp() };
                 if(currentChatData && currentChatData.participants) {
-                    currentChatData.participants.forEach(uid => {
-                        if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1);
-                    });
+                    currentChatData.participants.forEach(uid => { if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1); });
                 }
                 await updateDoc(doc(db, "chats", currentChatId), updates);
                 inputCleanUp();
             } catch(e) { console.error(e); }
         }
 
-        // [Standard Cleanups & Context Menu same as v8 - ensuring forward fix]
         function inputCleanUp() { document.getElementById('message-input').value = ""; clearImage(); cancelReply(); if(isPrivacyMode) togglePrivacy(); }
 
         window.showContextMenu = (e, msg) => {
@@ -506,14 +514,10 @@
             let html = '';
             if(msg.type !== 'deleted') {
                 html += `<div class="context-item" onclick="setReply('${msg.text}', '${msg.id}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
-                // FIX: Pass msg object data for forward
                 const fwdContent = msg.type === 'sticker' ? msg.imageUrl : (msg.text || msg.imageUrl);
                 const fwdType = msg.type; 
-                const fwdExtra = msg.imageUrl; // Store image url separately just in case
-                // We'll store in global vars to keep HTML string clean
                 window.tempForwardData = { text: msg.text, imageUrl: msg.imageUrl, type: msg.type };
                 html += `<div class="context-item" onclick="startForward()"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
-                
                 html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
                 const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
                 if(msg.senderId === currentUser.uid || isAdmin) { html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`; }
@@ -536,18 +540,9 @@
                     btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm";
                     btn.innerText = d.data().name || "Chat";
                     btn.onclick = async () => { 
-                        // Fix: Forward correct data
                         const { text, imageUrl, type } = window.tempForwardData;
-                        await addDoc(collection(db, "chats", d.id, "messages"), { 
-                            text: text, imageUrl: imageUrl, type: type, 
-                            senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true 
-                        });
-                        // Update chat last message correctly
-                        await updateDoc(doc(db, "chats", d.id), { 
-                            lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text),
-                            lastUpdated: serverTimestamp() 
-                        });
-
+                        await addDoc(collection(db, "chats", d.id, "messages"), { text: text, imageUrl: imageUrl, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true });
+                        await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() });
                         window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); 
                     };
                     list.appendChild(btn);
@@ -559,15 +554,64 @@
             const ref = doc(db, "chats", currentChatId, "messages", id);
             if(scope === 'everyone') {
                 await updateDoc(ref, { type: 'deleted', text: '', imageUrl: null });
-                // FIX: Update last message in chat if this was the last one
-                // Simplified: Just set last message to "Deleted"
                 await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "🚫 Message deleted", lastUpdated: serverTimestamp() });
             }
             else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) });
         };
 
-        // [Standard Utils: Reply, Edit, Privacy, Schedule, Reminder, Sticker Utils, Images, Voice, Admin, Create/Join]
-        // ... (These remain largely same logic, ensure showContextMenu uses new startForward)
+        // PROFILE PICTURE LOGIC
+        window.openProfileModal = () => {
+            document.getElementById('profile-preview').src = currentUser.photoURL || logoData;
+            window.openModal('profile-modal');
+        };
+
+        window.handleProfileImageSelect = (e) => {
+            const file = e.target.files[0]; if(!file) return;
+            const r = new FileReader();
+            r.onload = (ev) => {
+                const i = new Image();
+                i.onload = () => {
+                    const c = document.createElement('canvas');
+                    const m = 300; // Profile pics can be smaller
+                    let w = i.width, h = i.height;
+                    if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}}
+                    c.width=w; c.height=h; 
+                    c.getContext('2d').drawImage(i,0,0,w,h);
+                    newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('profile-preview').src = newProfilePicBase64;
+                };
+                i.src = ev.target.result;
+            };
+            r.readAsDataURL(file);
+        };
+
+        window.saveProfile = async () => {
+            if(!newProfilePicBase64) { window.closeModals(); return; }
+            
+            // 1. Update User Doc
+            await updateDoc(doc(db, "users", currentUser.uid), { photoURL: newProfilePicBase64 });
+            
+            // 2. Update UI
+            document.getElementById('my-avatar').src = newProfilePicBase64;
+            
+            // 3. Batch Update Chats (Expensive op, careful in production)
+            const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
+            const snap = await getDocs(q);
+            const batch = writeBatch(db);
+            
+            snap.forEach(d => {
+                const ref = doc(db, "chats", d.id);
+                // We use dot notation to update map field directly
+                const updateField = {};
+                updateField[`userDetails.${currentUser.uid}.photo`] = newProfilePicBase64;
+                batch.update(ref, updateField);
+            });
+            
+            await batch.commit();
+            window.closeModals();
+            Swal.fire({icon:'success', title:'Profile Updated', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'});
+        };
+
         window.setReply = (text, id) => { replyToMsg = { id, text }; document.getElementById('reply-banner').classList.remove('hidden'); document.getElementById('reply-text').innerText = text; };
         window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
         window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
@@ -597,7 +641,6 @@
         function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
         window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
 
-        // [Admin/Create/Join Logic same as v8]
         window.showChatInfo = () => { if(currentChatData.type === 'group') { window.openModal('admin-modal'); document.getElementById('admin-group-id').innerText = currentChatData.customId; const isAdmin = currentChatData.admins.includes(currentUser.uid); document.getElementById('toggle-admin-only').disabled = !isAdmin; document.getElementById('toggle-disable-group').disabled = !isAdmin; document.getElementById('toggle-admin-only').checked = currentChatData.onlyAdminsCanPost; document.getElementById('toggle-disable-group').checked = currentChatData.isDisabled; const reqDiv = document.getElementById('pending-list'); reqDiv.innerHTML = ""; if(isAdmin && currentChatData.requests?.length) { safeClassRemove('pending-section', 'hidden'); currentChatData.requests.forEach(r => reqDiv.innerHTML += `<div class="bg-slate-800 p-2 rounded flex justify-between text-sm mb-1"><div><b>${r.alias}</b></div><button onclick="approveMember('${r.uid}','${r.alias}')" class="text-green-400">Accept</button></div>`); } else safeClassAdd('pending-section', 'hidden'); const memDiv = document.getElementById('member-list'); memDiv.innerHTML = ""; currentChatData.participants.forEach(uid => { const p = currentChatData.groupProfiles?.[uid]; const isMemAdmin = currentChatData.admins.includes(uid); memDiv.innerHTML += `<div class="p-2 border-b border-slate-700 text-sm flex justify-between items-center"><span>${p?.alias||'User'} ${isMemAdmin?'👑':''}</span> ${isAdmin && uid !== currentUser.uid ? `<div class="flex gap-2"><button onclick="makeAdmin('${uid}')" class="text-xs text-blue-400">Promote</button><button onclick="removeMember('${uid}')" class="text-xs text-red-400">Kick</button></div>` : ''}</div>`; }); } else { window.openModal('user-info-modal'); const otherUid = currentChatData.participants.find(id => id !== currentUser.uid); const user = currentChatData.userDetails[otherUid]; document.getElementById('u-info-img').src = user.photo || logoData; document.getElementById('u-info-name').innerText = user.name; document.getElementById('u-info-id').innerText = "ID: " + otherUid.slice(0, 8); } };
         window.deleteChatHistory = async () => { const batch = writeBatch(db); const q = query(collection(db, "chats", currentChatId, "messages")); const snap = await getDocs(q); snap.forEach(d => batch.update(d.ref, { deletedFor: arrayUnion(currentUser.uid) })); await batch.commit(); window.closeModals(); Swal.fire({icon:'success', title:'Cleared', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); };
         window.approveMember = async (uid, alias) => { const color = assignUniqueColor(currentChatData); const reqs = currentChatData.requests.filter(r => r.uid !== uid); await updateDoc(doc(db, "chats", currentChatId), { requests: reqs, participants: arrayUnion(uid), [`groupProfiles.${uid}`]: { alias, color, isReal: false } }); window.showChatInfo(); };
