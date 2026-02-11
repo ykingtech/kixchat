@@ -81,6 +81,8 @@
         .tab-btn { flex: 1; text-align: center; padding: 12px; font-size: 14px; color: #64748b; border-bottom: 2px solid transparent; cursor: pointer; transition: 0.3s; }
         .tab-btn.active { color: #f43f5e; border-bottom-color: #f43f5e; font-weight: 600; }
         
+        .unread-badge { background: #22c55e; color: black; font-weight: bold; font-size: 10px; padding: 2px 6px; border-radius: 999px; min-width: 20px; text-align: center; }
+
         .recording-pulse { animation: pulse-red 1.5s infinite; color: #f43f5e; }
         @keyframes pulse-red { 0% { text-shadow: 0 0 0 rgba(244, 63, 94, 0.7); } 70% { text-shadow: 0 0 10px rgba(244, 63, 94, 0); } 100% { text-shadow: 0 0 0 rgba(244, 63, 94, 0); } }
         
@@ -341,7 +343,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, arrayUnion, arrayRemove, orderBy, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, arrayUnion, arrayRemove, orderBy, getDoc, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCz8xJ5Qb7m5cjYWs9SqxpdtnZymYLiblI", authDomain: "kix-chatmass.firebaseapp.com", projectId: "kix-chatmass", storageBucket: "kix-chatmass.firebasestorage.app", messagingSenderId: "796961974964", appId: "1:796961974964:web:65c536e2a521b28e56c5e1", measurementId: "G-CPZC0E6HD7" };
         const app = initializeApp(firebaseConfig);
@@ -363,7 +365,7 @@
         let editingMessageId = null;
         let selectedImageBase64 = null;
         let deferredPrompt;
-        let currentMessages = []; // Store messages for status updates
+        let currentMessages = [];
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
@@ -457,7 +459,23 @@
                 name = data.userDetails?.[uid]?.name || "User"; photo = data.userDetails?.[uid]?.photo;
             }
             const iconHtml = photo ? `<img src="${photo}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white"><i class="ph-bold ph-${data.type==='group'?'users-three':'user'}"></i></div>`;
-            div.innerHTML = `${iconHtml}<div class="flex-1 min-w-0 pointer-events-none"><div class="flex justify-between"><h4 class="font-medium text-sm text-white truncate">${name}</h4>${!data.joined && data.type === 'group' ? '<span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 rounded">JOIN</span>' : ''}</div><p class="text-xs text-slate-400 truncate">${data.lastMessage || 'Tap to view'}</p></div>`;
+            
+            // UNREAD BADGE
+            const unread = data.unreadCounts?.[currentUser.uid] || 0;
+            
+            div.innerHTML = `
+                ${iconHtml}
+                <div class="flex-1 min-w-0 pointer-events-none">
+                    <div class="flex justify-between">
+                        <h4 class="font-medium text-sm text-white truncate">${name}</h4>
+                        ${!data.joined && data.type === 'group' ? '<span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 rounded">JOIN</span>' : ''}
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-xs text-slate-400 truncate flex-1">${data.lastMessage || 'Tap to view'}</p>
+                        ${unread > 0 ? `<div class="unread-badge ml-2">${unread}</div>` : ''}
+                    </div>
+                </div>
+            `;
             div.onclick = (e) => { e.preventDefault(); if(data.type === 'group' && !data.joined) { tempJoinData = data; document.getElementById('join-group-name').innerText = data.name; window.openModal('join-options-modal'); } else openChat(data.id, name, photo); };
             return div;
         }
@@ -488,12 +506,14 @@
             document.getElementById('chat-header-name').innerText = name;
             document.getElementById('chat-header-img').src = photo || logoData;
             
-            // Listen to Chat Meta for LastSeen status
+            // Listen to Chat Meta for LastSeen status & RESET UNREAD
+            updateDoc(doc(db, "chats", id), { [`unreadCounts.${currentUser.uid}`]: 0 });
+
             if(unsubscribeChatData) unsubscribeChatData();
             unsubscribeChatData = onSnapshot(doc(db, "chats", id), (docSnap) => {
                 currentChatData = docSnap.data();
                 checkAdminPermissions();
-                renderMessageList(); // Re-render messages to update ticks
+                renderMessageList();
             });
 
             // Listen to Messages
@@ -504,12 +524,10 @@
                 snap.forEach(d => currentMessages.push({ id: d.id, ...d.data() }));
                 renderMessageList();
                 
-                // Mark Seen Logic
                 if(snap.docs.length > 0) {
                     const lastMsg = currentMessages[currentMessages.length-1];
                     if(lastMsg.senderId !== currentUser.uid) {
-                        // Debounce update to avoid write loops
-                        updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp() });
+                        updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp(), [`unreadCounts.${currentUser.uid}`]: 0 });
                     }
                 }
             });
@@ -546,31 +564,18 @@
             let replyHtml = msg.replyTo ? `<div class="bg-black/20 p-1 rounded mb-1 text-xs border-l-2 border-white/50 truncate max-w-[150px]">${msg.replyTo.text}</div>` : "";
             let processedText = msg.text ? msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>') : "";
 
-            // --- TICK LOGIC ---
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
-                // Default: 2 Gray Ticks (Delivered)
                 let tickClass = "tick gray"; 
                 let tickIcon = "ph-bold ph-checks";
-
-                // Check Read Status
-                // Logic: If any OTHER participant has lastSeen > msg.createdAt, it's read.
-                // Simplified for Direct: Check other user. Group: Check if anyone saw.
                 if(currentChatData.lastSeen) {
-                    const seenTime = Object.entries(currentChatData.lastSeen)
-                        .filter(([uid, ts]) => uid !== currentUser.uid)
-                        .map(([_, ts]) => ts?.toMillis() || 0);
-                    
+                    const seenTime = Object.entries(currentChatData.lastSeen).filter(([uid, ts]) => uid !== currentUser.uid).map(([_, ts]) => ts?.toMillis() || 0);
                     const msgTime = msg.createdAt?.toMillis() || Date.now();
                     const maxSeen = Math.max(0, ...seenTime);
-                    
-                    if(maxSeen > msgTime) {
-                        tickClass = "tick blue"; // Read
-                    }
+                    if(maxSeen > msgTime) tickClass = "tick blue"; 
                 }
                 statusIcon = `<i class="${tickIcon} ${tickClass}"></i>`;
             }
-            // ------------------
 
             let content = "";
             if(msg.type === 'deleted') {
@@ -582,7 +587,6 @@
             } else {
                 content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}" ondblclick="setReminder('${msg.text}')">${senderName}${replyHtml}<p>${processedText}</p><div class="msg-meta">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''} ${statusIcon}</div></div>`;
             }
-            
             if(msg.isPrivate && !isMe) content += `<div class="privacy-lock"><i class="ph-fill ph-lock-key"></i></div>`;
 
             div.innerHTML = content;
@@ -623,7 +627,14 @@
                     replyTo: replyToMsg ? { id: replyToMsg.id, text: replyToMsg.text } : null,
                     status: 'sent', deletedFor: []
                 });
-                await updateDoc(doc(db, "chats", currentChatId), { lastMessage: type==='image'?'Photo':text, lastUpdated: serverTimestamp() });
+                
+                const updates = { lastMessage: type==='image'?'Photo':text, lastUpdated: serverTimestamp() };
+                if(currentChatData && currentChatData.participants) {
+                    currentChatData.participants.forEach(uid => {
+                        if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1);
+                    });
+                }
+                await updateDoc(doc(db, "chats", currentChatId), updates);
                 inputCleanUp();
             } catch(e) { console.error(e); }
         }
@@ -647,7 +658,6 @@
                 html += `<div class="context-item" onclick="setReply('${msg.text}', '${msg.id}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
                 html += `<div class="context-item" onclick="startForward('${msg.text}')"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
                 html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
-                
                 const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
                 if(msg.senderId === currentUser.uid || isAdmin) {
                     html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`;
