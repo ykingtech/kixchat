@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v2</title>
+    <title>Kix Chat - Final v3</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -17,7 +17,19 @@
 
     <style>
         :root { --bg-dark: #0f172a; --bg-panel: #1e293b; --accent: #f43f5e; }
-        body { font-family: 'Outfit', sans-serif; background: var(--bg-dark); color: #f8fafc; height: 100dvh; width: 100vw; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
+        
+        /* Updated Font Family for Emoji Support */
+        body { 
+            font-family: 'Outfit', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; 
+            background: var(--bg-dark); 
+            color: #f8fafc; 
+            height: 100dvh; 
+            width: 100vw; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            user-select: none; 
+        }
         
         #app-container { display: flex; flex: 1; height: 100%; overflow: hidden; position: relative; }
         
@@ -28,10 +40,33 @@
         .chat-item.active { background-color: rgba(244, 63, 94, 0.1); border-left: 3px solid #f43f5e; }
 
         /* Messages */
-        .chat-bubble { max-width: 85%; padding: 8px 12px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
-        .sent { background: #f43f5e; color: white; border-bottom-right-radius: 2px; align-self: flex-end; }
-        .received { background: #334155; color: white; border-bottom-left-radius: 2px; align-self: flex-start; }
+        .chat-bubble { 
+            max-width: 85%; 
+            padding: 6px 10px 8px 10px; /* Adjusted padding */
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            line-height: 1.4; 
+            position: relative; 
+            word-wrap: break-word; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .sent { background: #f43f5e; color: white; border-bottom-right-radius: 0px; align-self: flex-end; }
+        .received { background: #334155; color: white; border-bottom-left-radius: 0px; align-self: flex-start; }
         
+        /* Message Meta (Time & Ticks) */
+        .msg-meta {
+            float: right;
+            margin-left: 8px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            height: 14px;
+            line-height: 1;
+        }
+
         /* Features */
         .blur-content { filter: blur(6px); transition: filter 0.3s; cursor: pointer; }
         .blur-content:hover { filter: blur(0); }
@@ -39,7 +74,6 @@
         
         .reply-quote { border-left: 3px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* Fixed Context Menu Z-Index */
         .context-menu { position: fixed; z-index: 99999; background: #1e293b; border: 1px solid #334155; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: 180px; overflow: hidden; }
         .context-item { padding: 12px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: #cbd5e1; font-size: 0.9rem; }
         .context-item:hover { background: #334155; color: white; }
@@ -53,9 +87,9 @@
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .tick { font-size: 14px; margin-left: 4px; }
-        .tick.blue { color: #60a5fa; }
-        .tick.gray { color: #94a3b8; }
+        .tick { font-size: 16px; }
+        .tick.blue { color: #93c5fd; /* Light Blue for read */ }
+        .tick.gray { color: #cbd5e1; /* Gray for delivered */ }
 
         .mention { color: #fbbf24; font-weight: bold; background: rgba(251, 191, 36, 0.1); padding: 0 2px; rounded: 4px; }
     </style>
@@ -79,7 +113,6 @@
     <!-- SPLASH SCREEN -->
     <div id="splash-screen" class="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-[#0f172a]">
         <div class="flex justify-center mb-6 animate-pulse">
-            <!-- App Logo (Generated) -->
             <img id="splash-logo" class="w-24 h-24 rounded-3xl shadow-2xl object-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
         </div>
         <h1 class="text-2xl font-bold text-white tracking-widest mb-2">KIX CHAT</h1>
@@ -215,7 +248,7 @@
         </div>
     </div>
 
-    <!-- MODALS -->
+    <!-- MODALS (Join, Anon, Create, Forward, Admin, Add Friend) - same as before -->
     <!-- Join Options -->
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center">
@@ -281,8 +314,6 @@
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div>
             <div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div>
-            
-            <!-- Settings -->
             <div class="space-y-2 mb-4">
                 <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600">
                     <div class="text-sm text-slate-300">Only Admins Send</div>
@@ -293,7 +324,6 @@
                     <input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5">
                 </div>
             </div>
-
             <div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div>
             <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div>
         </div>
@@ -323,6 +353,7 @@
         let currentChatId = null;
         let currentChatData = null;
         let unsubscribeMessages = null;
+        let unsubscribeChatData = null;
         let currentTab = 'chats';
         let replyToMsg = null;
         let tempJoinData = null;
@@ -332,10 +363,10 @@
         let editingMessageId = null;
         let selectedImageBase64 = null;
         let deferredPrompt;
+        let currentMessages = []; // Store messages for status updates
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
-        // GENERATE LOGO FUNCTION
         function generateAppLogo() {
             const c = document.createElement('canvas'); c.width = 512; c.height = 512; const ctx = c.getContext('2d');
             const g = ctx.createLinearGradient(0, 512, 512, 0); g.addColorStop(0, '#f43f5e'); g.addColorStop(1, '#f97316');
@@ -348,29 +379,22 @@
         document.getElementById('splash-logo').src = logoData;
         document.getElementById('login-logo').src = logoData;
 
-        // PWA
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-banner').classList.remove('hidden'); });
         window.installPWA = () => { document.getElementById('pwa-banner').classList.add('hidden'); if(deferredPrompt) deferredPrompt.prompt(); };
 
-        // AUTH (GOOGLE ONLY)
         window.signInWithGoogle = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
-        
+        window.signInDemo = () => handleLogin({ uid: "demo_"+Date.now(), displayName: "Guest", email: "guest@kix.com", photoURL: "https://ui-avatars.com/api/?name=Guest" });
+
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
                 if(user) handleLogin(user);
-                else {
-                    safeClassRemove('splash-screen', 'hidden'); 
-                    safeClassAdd('splash-screen', 'hidden');
-                    safeClassRemove('login-screen', 'hidden');
-                }
+                else { safeClassRemove('splash-screen', 'hidden'); safeClassAdd('splash-screen', 'hidden'); safeClassRemove('login-screen', 'hidden'); }
             });
         });
 
         async function handleLogin(user) {
             currentUser = user;
-            safeClassAdd('splash-screen', 'hidden');
-            safeClassAdd('login-screen', 'hidden');
-            safeClassRemove('app-interface', 'hidden');
+            safeClassAdd('splash-screen', 'hidden'); safeClassAdd('login-screen', 'hidden'); safeClassRemove('app-interface', 'hidden');
             if(document.getElementById('my-avatar')) document.getElementById('my-avatar').src = user.photoURL;
             if(document.getElementById('join-my-pic')) document.getElementById('join-my-pic').src = user.photoURL;
             try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: user.photoURL }, { merge: true }); } catch(e){}
@@ -380,14 +404,8 @@
         function safeClassAdd(id, cls) { const el = document.getElementById(id); if(el) el.classList.add(cls); }
         function safeClassRemove(id, cls) { const el = document.getElementById(id); if(el) el.classList.remove(cls); }
 
-        window.switchTab = (tab) => {
-            currentTab = tab;
-            document.getElementById('tab-chats').className = `tab-btn ${tab==='chats'?'active':''}`;
-            document.getElementById('tab-groups').className = `tab-btn ${tab==='groups'?'active':''}`;
-            loadLists();
-        };
-
-        window.closeChat = () => { safeClassAdd('chat-area', 'hidden'); safeClassRemove('sidebar', 'hidden'); currentChatId = null; };
+        window.switchTab = (tab) => { currentTab = tab; document.getElementById('tab-chats').className = `tab-btn ${tab==='chats'?'active':''}`; document.getElementById('tab-groups').className = `tab-btn ${tab==='groups'?'active':''}`; loadLists(); };
+        window.closeChat = () => { safeClassAdd('chat-area', 'hidden'); safeClassRemove('sidebar', 'hidden'); currentChatId = null; if(unsubscribeChatData) unsubscribeChatData(); };
         window.openModal = (id) => { const el = document.getElementById(id); if(el) el.classList.remove('hidden'); };
         window.closeModals = () => document.querySelectorAll('[id$="-modal"]').forEach(el => el.classList.add('hidden'));
 
@@ -400,18 +418,13 @@
                 if(snap.empty) return Swal.fire({icon:'info', title:'Not Found', background:'#1e293b', color:'#fff'});
                 const group = { id: snap.docs[0].id, ...snap.docs[0].data(), joined: false };
                 if(group.participants.includes(currentUser.uid)) openChat(group.id, group.name, null);
-                else {
-                    tempJoinData = group;
-                    document.getElementById('join-group-name').innerText = group.name;
-                    window.openModal('join-options-modal');
-                }
+                else { tempJoinData = group; document.getElementById('join-group-name').innerText = group.name; window.openModal('join-options-modal'); }
                 e.target.value = '';
             }
         }
 
         function loadLists() {
-            const container = document.getElementById("list-container");
-            container.innerHTML = "";
+            const container = document.getElementById("list-container"); container.innerHTML = "";
             if(currentTab === 'chats') {
                 const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid), where("type", "==", "direct"));
                 onSnapshot(q, snap => renderList(snap, container));
@@ -419,52 +432,33 @@
                 const qJoined = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid), where("type", "==", "group"));
                 onSnapshot(qJoined, snap => {
                     container.innerHTML = "";
-                    const joined = [];
-                    snap.forEach(d => joined.push({id:d.id, ...d.data(), joined:true}));
-                    if(joined.length) {
-                        container.innerHTML += `<div class="text-[10px] text-slate-500 font-bold px-3 mt-2 mb-1">YOUR GROUPS</div>`;
-                        joined.forEach(g => container.appendChild(createItem(g)));
-                    }
+                    const joined = []; snap.forEach(d => joined.push({id:d.id, ...d.data(), joined:true}));
+                    if(joined.length) { container.innerHTML += `<div class="text-[10px] text-slate-500 font-bold px-3 mt-2 mb-1">YOUR GROUPS</div>`; joined.forEach(g => container.appendChild(createItem(g))); }
                     const qPub = query(collection(db, "chats"), where("isPublic", "==", true));
                     getDocs(qPub).then(pubSnap => {
-                        const pub = [];
-                        pubSnap.forEach(d => { if(!joined.find(j=>j.id===d.id)) pub.push({id:d.id, ...d.data(), joined:false}); });
-                        if(pub.length) {
-                            container.innerHTML += `<div class="text-[10px] text-slate-500 font-bold px-3 mt-4 mb-1">DISCOVER PUBLIC</div>`;
-                            pub.forEach(g => container.appendChild(createItem(g)));
-                        }
+                        const pub = []; pubSnap.forEach(d => { if(!joined.find(j=>j.id===d.id)) pub.push({id:d.id, ...d.data(), joined:false}); });
+                        if(pub.length) { container.innerHTML += `<div class="text-[10px] text-slate-500 font-bold px-3 mt-4 mb-1">DISCOVER PUBLIC</div>`; pub.forEach(g => container.appendChild(createItem(g))); }
                     });
                 });
             }
         }
 
         function renderList(snap, container) {
-            container.innerHTML = "";
-            const items = [];
-            snap.forEach(d => items.push({id:d.id, ...d.data()}));
+            container.innerHTML = ""; const items = []; snap.forEach(d => items.push({id:d.id, ...d.data()}));
             items.sort((a,b) => (b.lastUpdated?.toMillis()||0) - (a.lastUpdated?.toMillis()||0));
             items.forEach(i => container.appendChild(createItem(i)));
         }
 
         function createItem(data) {
-            const div = document.createElement('div');
-            div.className = `chat-item flex items-center gap-3 p-3 rounded-xl mb-1 ${currentChatId===data.id ? 'bg-white/10':''}`;
+            const div = document.createElement('div'); div.className = `chat-item flex items-center gap-3 p-3 rounded-xl mb-1 ${currentChatId===data.id ? 'bg-white/10':''}`;
             let name = data.name, photo = data.photo || "";
             if(data.type === 'direct') {
                 const uid = data.participants.find(id => id !== currentUser.uid) || currentUser.uid;
-                name = data.userDetails?.[uid]?.name || "User";
-                photo = data.userDetails?.[uid]?.photo;
+                name = data.userDetails?.[uid]?.name || "User"; photo = data.userDetails?.[uid]?.photo;
             }
             const iconHtml = photo ? `<img src="${photo}" class="w-10 h-10 rounded-full object-cover">` : `<div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white"><i class="ph-bold ph-${data.type==='group'?'users-three':'user'}"></i></div>`;
             div.innerHTML = `${iconHtml}<div class="flex-1 min-w-0 pointer-events-none"><div class="flex justify-between"><h4 class="font-medium text-sm text-white truncate">${name}</h4>${!data.joined && data.type === 'group' ? '<span class="text-[9px] bg-rose-500/20 text-rose-300 px-2 rounded">JOIN</span>' : ''}</div><p class="text-xs text-slate-400 truncate">${data.lastMessage || 'Tap to view'}</p></div>`;
-            div.onclick = (e) => {
-                e.preventDefault();
-                if(data.type === 'group' && !data.joined) {
-                    tempJoinData = data;
-                    document.getElementById('join-group-name').innerText = data.name;
-                    window.openModal('join-options-modal');
-                } else openChat(data.id, name, photo);
-            };
+            div.onclick = (e) => { e.preventDefault(); if(data.type === 'group' && !data.joined) { tempJoinData = data; document.getElementById('join-group-name').innerText = data.name; window.openModal('join-options-modal'); } else openChat(data.id, name, photo); };
             return div;
         }
 
@@ -475,15 +469,12 @@
                 window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null);
             } else alert("Private group requires request");
         };
-
         window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
         window.submitAnonRequest = async () => {
-            const alias = document.getElementById('anon-alias').value.trim();
-            if(!alias) return;
+            const alias = document.getElementById('anon-alias').value.trim(); if(!alias) return;
             await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: alias, timestamp: Date.now() }) });
             window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'});
         };
-
         function assignUniqueColor(chatData) {
             const usedColors = Object.values(chatData.groupProfiles || {}).map(p => p.color);
             const available = MEMBER_COLORS.filter(c => !usedColors.includes(c));
@@ -492,23 +483,35 @@
 
         async function openChat(id, name, photo) {
             currentChatId = id;
-            safeClassAdd('empty-state', 'hidden');
-            safeClassRemove('active-chat-ui', 'hidden');
+            safeClassAdd('empty-state', 'hidden'); safeClassRemove('active-chat-ui', 'hidden');
             if(window.innerWidth < 768) { safeClassAdd('sidebar', 'hidden'); safeClassRemove('chat-area', 'hidden'); }
             document.getElementById('chat-header-name').innerText = name;
             document.getElementById('chat-header-img').src = photo || logoData;
             
-            const snap = await getDoc(doc(db, "chats", id));
-            currentChatData = snap.data();
-            checkAdminPermissions();
+            // Listen to Chat Meta for LastSeen status
+            if(unsubscribeChatData) unsubscribeChatData();
+            unsubscribeChatData = onSnapshot(doc(db, "chats", id), (docSnap) => {
+                currentChatData = docSnap.data();
+                checkAdminPermissions();
+                renderMessageList(); // Re-render messages to update ticks
+            });
 
+            // Listen to Messages
             if(unsubscribeMessages) unsubscribeMessages();
             const q = query(collection(db, "chats", id, "messages"), orderBy("createdAt", "asc"));
             unsubscribeMessages = onSnapshot(q, snap => {
-                const container = document.getElementById('messages-container');
-                container.innerHTML = "";
-                snap.forEach(d => renderMessage({ id: d.id, ...d.data() }, container));
-                container.scrollTop = container.scrollHeight;
+                currentMessages = [];
+                snap.forEach(d => currentMessages.push({ id: d.id, ...d.data() }));
+                renderMessageList();
+                
+                // Mark Seen Logic
+                if(snap.docs.length > 0) {
+                    const lastMsg = currentMessages[currentMessages.length-1];
+                    if(lastMsg.senderId !== currentUser.uid) {
+                        // Debounce update to avoid write loops
+                        updateDoc(doc(db, "chats", id), { [`lastSeen.${currentUser.uid}`]: serverTimestamp() });
+                    }
+                }
             });
         }
 
@@ -516,16 +519,16 @@
             const wrapper = document.getElementById('main-controls');
             const banner = document.getElementById('admin-only-banner');
             const disabledBanner = document.getElementById('disabled-banner');
-            
-            if (currentChatData.isDisabled) {
-                wrapper.classList.add('hidden');
-                banner.classList.add('hidden');
-                disabledBanner.classList.remove('hidden');
-            } else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) {
-                wrapper.classList.add('hidden'); banner.classList.remove('hidden'); disabledBanner.classList.add('hidden');
-            } else {
-                wrapper.classList.remove('hidden'); banner.classList.add('hidden'); disabledBanner.classList.add('hidden');
-            }
+            if (currentChatData.isDisabled) { wrapper.classList.add('hidden'); banner.classList.add('hidden'); disabledBanner.classList.remove('hidden'); }
+            else if(currentChatData.type === 'group' && currentChatData.onlyAdminsCanPost && !currentChatData.admins.includes(currentUser.uid)) { wrapper.classList.add('hidden'); banner.classList.remove('hidden'); disabledBanner.classList.add('hidden'); }
+            else { wrapper.classList.remove('hidden'); banner.classList.add('hidden'); disabledBanner.classList.add('hidden'); }
+        }
+
+        function renderMessageList() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = "";
+            currentMessages.forEach(msg => renderMessage(msg, container));
+            container.scrollTop = container.scrollHeight;
         }
 
         function renderMessage(msg, container) {
@@ -537,13 +540,37 @@
             let bubbleStyle = ""; let senderName = "";
             if(currentChatData.type === 'group' && !isMe) {
                 const profile = currentChatData.groupProfiles?.[msg.senderId];
-                if(profile) { bubbleStyle = `background: ${profile.color}; color: white;`; senderName = `<span class="text-[10px] opacity-75 mb-1 block">${profile.alias || 'Member'}</span>`; }
+                if(profile) { bubbleStyle = `background: ${profile.color}; color: white;`; senderName = `<span class="text-[10px] opacity-75 mb-1 block font-bold">${profile.alias || 'Member'}</span>`; }
             }
             let extraClass = msg.isPrivate && !isMe ? "blur-content" : "";
             let replyHtml = msg.replyTo ? `<div class="bg-black/20 p-1 rounded mb-1 text-xs border-l-2 border-white/50 truncate max-w-[150px]">${msg.replyTo.text}</div>` : "";
-            
-            // Mentions Highlighting
             let processedText = msg.text ? msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>') : "";
+
+            // --- TICK LOGIC ---
+            let statusIcon = "";
+            if(isMe && msg.type !== 'deleted') {
+                // Default: 2 Gray Ticks (Delivered)
+                let tickClass = "tick gray"; 
+                let tickIcon = "ph-bold ph-checks";
+
+                // Check Read Status
+                // Logic: If any OTHER participant has lastSeen > msg.createdAt, it's read.
+                // Simplified for Direct: Check other user. Group: Check if anyone saw.
+                if(currentChatData.lastSeen) {
+                    const seenTime = Object.entries(currentChatData.lastSeen)
+                        .filter(([uid, ts]) => uid !== currentUser.uid)
+                        .map(([_, ts]) => ts?.toMillis() || 0);
+                    
+                    const msgTime = msg.createdAt?.toMillis() || Date.now();
+                    const maxSeen = Math.max(0, ...seenTime);
+                    
+                    if(maxSeen > msgTime) {
+                        tickClass = "tick blue"; // Read
+                    }
+                }
+                statusIcon = `<i class="${tickIcon} ${tickClass}"></i>`;
+            }
+            // ------------------
 
             let content = "";
             if(msg.type === 'deleted') {
@@ -551,9 +578,9 @@
             } else if(msg.type === 'sticker') {
                 content = `<img src="${msg.imageUrl}" class="w-32 h-32 object-contain cursor-pointer hover:scale-105 transition" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">`;
             } else if(msg.imageUrl) {
-                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}">${senderName}${replyHtml}<img src="${msg.imageUrl}" class="rounded-lg max-w-[200px] cursor-pointer" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">${processedText ? `<p class="mt-1">${processedText}</p>` : ''}<span class="text-[9px] opacity-70 block text-right mt-1">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''}</span></div>`;
+                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}">${senderName}${replyHtml}<img src="${msg.imageUrl}" class="rounded-lg max-w-[200px] cursor-pointer mb-1" onclick="document.getElementById('lightbox').classList.remove('hidden'); document.getElementById('lightbox-img').src='${msg.imageUrl}'">${processedText ? `<p class="mb-1">${processedText}</p>` : ''}<div class="msg-meta">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''} ${statusIcon}</div></div>`;
             } else {
-                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}" ondblclick="setReminder('${msg.text}')">${senderName}${replyHtml}<p>${processedText}</p><span class="text-[9px] opacity-70 block text-right mt-1">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''} ${isMe && msg.status!=='deleted' ? '<i class="ph-bold ph-check"></i>':''}</span></div>`;
+                content = `<div class="chat-bubble ${isMe ? 'sent' : 'received'} ${extraClass}" style="${!isMe ? bubbleStyle : ''}" ondblclick="setReminder('${msg.text}')">${senderName}${replyHtml}<p>${processedText}</p><div class="msg-meta">${msg.createdAt?.toDate().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})||''} ${statusIcon}</div></div>`;
             }
             
             if(msg.isPrivate && !isMe) content += `<div class="privacy-lock"><i class="ph-fill ph-lock-key"></i></div>`;
@@ -611,11 +638,8 @@
             e.preventDefault();
             const menu = document.getElementById('msg-context-menu');
             let x = e.clientX, y = e.clientY;
-            
-            // Smart Positioning (Fix Hidden Menu)
             if(x > window.innerWidth - 180) x -= 180;
             if(y > window.innerHeight - 150) y -= 150; 
-
             menu.style.left = `${x}px`; menu.style.top = `${y}px`;
             
             let html = '';
