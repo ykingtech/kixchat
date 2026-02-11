@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v22</title>
+    <title>Kix Chat - Final v23</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -99,6 +99,11 @@
     <div id="msg-context-menu" class="context-menu hidden"></div>
     <div id="zego-container"></div>
     
+    <!-- Custom End Call Button (Hidden by default) -->
+    <button id="custom-end-call-btn" class="hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[10000] bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 hover:bg-red-700 transition active:scale-95" onclick="endCallManually()">
+        <i class="ph-bold ph-phone-disconnect text-2xl"></i> <span class="font-bold">End Call</span>
+    </button>
+    
     <div id="pwa-banner" class="hidden fixed top-0 left-0 w-full bg-gradient-to-r from-rose-600 to-orange-500 text-white p-2 text-xs flex justify-between items-center z-[200]">
         <span>Install Kix Chat app!</span><button onclick="installPWA()" class="bg-white text-rose-600 px-3 py-1 rounded-full font-bold">Install</button>
     </div>
@@ -153,20 +158,24 @@
                         </div>
                     </div>
                     <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">🚫 This group has been disabled</div>
-                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4"><span id="blocked-text">You blocked this user.</span><button id="blocked-action-btn" class="text-rose-400 font-bold underline cursor-pointer">Unblock</button></div>
+                    <!-- Blocked Banner -->
+                    <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4">
+                         <span id="blocked-text">You blocked this user.</span> 
+                         <button id="blocked-action-btn" class="ml-2 text-rose-400 font-bold underline" onclick="handleBlockAction()">Unblock</button>
+                    </div>
 
                     <div id="active-call-banner" class="hidden"><div id="call-banner" onclick="joinCall()"><div class="flex items-center gap-2"><i class="ph-fill ph-video-camera text-xl"></i> <span>Ongoing Call...</span></div><span class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold">JOIN</span></div></div>
 
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
-                    <!-- Action Bar (Above Input) -->
-                    <div id="input-area-wrapper" class="p-0 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
+                    <!-- Input -->
+                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
-                        <div id="reply-banner" class="hidden flex justify-between items-center bg-slate-800 p-2 border-l-4 border-rose-500 m-2 rounded"><div class="text-xs overflow-hidden"><div class="text-rose-400 font-bold">Replying to...</div><div id="reply-text" class="text-slate-300 truncate"></div></div><button onclick="cancelReply()" class="p-1"><i class="ph-bold ph-x"></i></button></div>
-                        <div id="schedule-info" class="hidden text-xs text-yellow-400 flex items-center gap-1 bg-yellow-400/10 px-2 py-1 rounded w-fit m-2"><i class="ph-fill ph-clock"></i> Scheduled: <span id="schedule-time-display"></span> <button onclick="cancelSchedule()"><i class="ph-bold ph-x"></i></button></div>
-                        <div id="editing-indicator" class="hidden text-xs text-blue-400 mb-1 flex justify-between px-2"><span>Editing Message...</span> <button onclick="cancelEdit()"><i class="ph-bold ph-x"></i></button></div>
+                        <div id="reply-banner" class="hidden flex justify-between items-center bg-slate-800 p-2 rounded mb-2 border-l-4 border-rose-500"><div class="text-xs overflow-hidden"><div class="text-rose-400 font-bold">Replying to...</div><div id="reply-text" class="text-slate-300 truncate"></div></div><button onclick="cancelReply()" class="p-1"><i class="ph-bold ph-x"></i></button></div>
+                        <div id="schedule-info" class="hidden text-xs text-yellow-400 flex items-center gap-1 bg-yellow-400/10 px-2 py-1 rounded mb-2 w-fit"><i class="ph-fill ph-clock"></i> Scheduled: <span id="schedule-time-display"></span> <button onclick="cancelSchedule()"><i class="ph-bold ph-x"></i></button></div>
+                        <div id="editing-indicator" class="hidden text-xs text-blue-400 mb-1 flex justify-between"><span>Editing Message...</span> <button onclick="cancelEdit()"><i class="ph-bold ph-x"></i></button></div>
                         
                         <div id="image-preview-container" class="hidden p-2 bg-slate-800 border-t border-slate-600 relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute top-1 left-16 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
@@ -195,14 +204,22 @@
                             <label class="text-green-400 cursor-pointer p-1 hover:bg-white/10 rounded" title="Add Sticker"><i class="ph-bold ph-plus"></i><input type="file" class="hidden" accept="image/*" onchange="addCustomSticker(event)"></label>
                         </div>
                         <div id="sticker-content-default" class="grid grid-cols-4 gap-2">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Beaming%20Face%20with%20Smiling%20Eyes.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Tears%20of%20Joy.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Heart%20Suit.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Fire.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Clown%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pleading%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pleading%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Angry%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Angry%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/OK%20Hand.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/OK%20Hand.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                         </div>
                         <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
@@ -256,7 +273,7 @@
     <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4"><h3 class="text-lg font-bold">Create Group</h3><input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select><div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div></div></div>
     <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col"><h3 class="text-lg font-bold mb-4">Forward to...</h3><div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div><button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button></div></div>
     <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div><div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div><div class="space-y-2 mb-4"><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div></div><div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div></div></div>
-    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email or @username..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
+    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -291,6 +308,7 @@
         let pendingMentionId = null;
         let newProfilePicBase64 = null;
         let myLastSeenTime = 0;
+        let zegoInstance = null;
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
@@ -315,7 +333,12 @@
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
                 if(user) handleLogin(user);
-                else { safeClassRemove('splash-screen', 'hidden'); safeClassAdd('splash-screen', 'hidden'); safeClassRemove('login-screen', 'hidden'); safeClassAdd('app-interface', 'hidden'); }
+                else { 
+                    safeClassRemove('splash-screen', 'hidden'); 
+                    safeClassAdd('splash-screen', 'hidden'); 
+                    safeClassRemove('login-screen', 'hidden');
+                    safeClassAdd('app-interface', 'hidden'); // Ensure app is hidden on logout
+                }
             });
             if (Notification.permission !== "granted") Notification.requestPermission();
         });
@@ -323,12 +346,18 @@
         async function handleLogin(user) {
             currentUser = user;
             safeClassAdd('splash-screen', 'hidden'); safeClassAdd('login-screen', 'hidden'); safeClassRemove('app-interface', 'hidden');
+            
             const userDoc = await getDoc(doc(db, "users", user.uid));
             let photo = user.photoURL;
-            if(userDoc.exists() && userDoc.data().photoURL) photo = userDoc.data().photoURL;
+            if(userDoc.exists()) {
+                const d = userDoc.data();
+                if(d.photoURL) photo = d.photoURL;
+            }
+
             document.getElementById('my-avatar').src = photo;
             document.getElementById('settings-preview').src = photo;
             document.getElementById('join-my-pic').src = photo;
+            
             try { await setDoc(doc(db, "users", user.uid), { uid: user.uid, email: user.email, displayName: user.displayName, photoURL: photo }, { merge: true }); } catch(e){}
             loadLists(); loadSavedStickers(); initSpeech();
         }
@@ -463,7 +492,10 @@
         window.loadZegoScript = () => { return new Promise((resolve, reject) => { if(window.ZegoUIKitPrebuilt) return resolve(); const script = document.createElement('script'); script.src = "https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"; script.onload = resolve; script.onerror = reject; document.body.appendChild(script); }); };
         window.startCall = async (type) => { if (!ZEGO_APP_ID || !ZEGO_SERVER_SECRET) return alert("Please set ZegoCloud keys in code!"); try { await loadZegoScript(); await updateDoc(doc(db, "chats", currentChatId), { callState: { isActive: true, type: type, initiator: currentUser.uid, timestamp: Date.now() } }); joinZegoRoom(currentChatId, type); } catch(e) { console.error("Failed to load call SDK", e); alert("Call feature unavailable"); } };
         window.joinCall = async () => { if(currentChatData.callState) { try { await loadZegoScript(); joinZegoRoom(currentChatId, currentChatData.callState.type); } catch(e) { console.error(e); } } };
-        function joinZegoRoom(roomID, type) { const zp = ZegoUIKitPrebuilt.create(ZegoUIKitPrebuilt.generateKitTokenForTest(ZEGO_APP_ID, ZEGO_SERVER_SECRET, roomID, currentUser.uid, currentUser.displayName)); const container = document.getElementById('zego-container'); container.style.display = 'block'; zp.joinRoom({ container: container, scenario: { mode: type === 'video' ? ZegoUIKitPrebuilt.GroupCall : ZegoUIKitPrebuilt.GroupVoiceCall, }, showPreJoinView: false, onLeaveRoom: async () => { container.style.display = 'none'; if (currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) { await updateDoc(doc(db, "chats", currentChatId), { callState: null }); } } }); }
+        function joinZegoRoom(roomID, type) { const zp = ZegoUIKitPrebuilt.create(ZegoUIKitPrebuilt.generateKitTokenForTest(ZEGO_APP_ID, ZEGO_SERVER_SECRET, roomID, currentUser.uid, currentUser.displayName)); const container = document.getElementById('zego-container'); container.style.display = 'block'; 
+        // Add END CALL button to container (Custom Overlay)
+        const btn = document.createElement('button'); btn.className = "fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-600 text-white p-4 rounded-full shadow-lg z-[10000]"; btn.innerHTML = "<i class='ph-bold ph-phone-disconnect text-2xl'></i>"; btn.onclick = () => { zp.destroy(); container.style.display = 'none'; updateDoc(doc(db, "chats", currentChatId), { callState: null }); }; container.appendChild(btn);
+        zp.joinRoom({ container: container, scenario: { mode: type === 'video' ? ZegoUIKitPrebuilt.GroupCall : ZegoUIKitPrebuilt.GroupVoiceCall, }, showPreJoinView: false, onLeaveRoom: async () => { container.style.display = 'none'; if (currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) { await updateDoc(doc(db, "chats", currentChatId), { callState: null }); } } }); }
 
         async function openChat(id, name, photo) {
             document.getElementById("messages-container").innerHTML = '<div class="flex h-full items-center justify-center"><div class="loader"></div></div>';
@@ -480,7 +512,6 @@
                 if(docSnap.exists()) { 
                     currentChatData = docSnap.data(); 
                     checkAdminPermissions(); 
-                    
                     const callBanner = document.getElementById('active-call-banner');
                     if(currentChatData.callState && currentChatData.callState.isActive) { callBanner.classList.remove('hidden'); } else { callBanner.classList.add('hidden'); }
                     
@@ -820,7 +851,18 @@
         window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); window.showChatInfo(); };
         window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); window.showChatInfo(); };
         window.createGroup = async () => { const name = document.getElementById('group-name').value; if(!name) return; const category = document.getElementById('group-category').value; const isPublic = document.getElementById('group-public').checked; const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() }); window.closeModals(); window.switchTab('groups'); };
-        window.startChat = async () => { const email = document.getElementById('friend-email').value; if(!email) return; const q = query(collection(db, "users"), where("email", "==", email)); const snap = await getDocs(q); if(snap.empty) return alert("User not found"); const friend = snap.docs[0].data(); const chatId = [currentUser.uid, friend.uid].sort().join('_'); await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName, photo:friend.photoURL} } }, { merge: true }); window.closeModals(); openChat(chatId, friend.displayName, friend.photoURL); };
+        window.startChat = async () => { 
+            const inputVal = document.getElementById('friend-email').value.trim();
+            if(!inputVal) return;
+            let q = query(collection(db, "users"), where("email", "==", inputVal));
+            let snap = await getDocs(q);
+            if(snap.empty) { q = query(collection(db, "users"), where("username", "==", inputVal.replace('@',''))); snap = await getDocs(q); }
+            if(snap.empty) return Swal.fire({icon:'error', title:'User Not Found', background:'#1e293b', color:'#fff'});
+            const friend = snap.docs[0].data();
+            const chatId = [currentUser.uid, friend.uid].sort().join('_');
+            await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName||friend.email, photo:friend.photoURL} } }, { merge: true });
+            window.closeModals(); openChat(chatId, friend.displayName||friend.email, friend.photoURL);
+        };
         window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('profile-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
         // window.saveProfile logic already defined above...
 
