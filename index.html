@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kix Chat v2</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-panel: #1e293b;
+            --accent-primary: #f43f5e;
+            --msg-sent: #f43f5e;
+            --msg-received: #334155;
+        }
+
+        body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: #f8fafc; overflow: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+        .sent { background-color: var(--msg-sent); color: white; border-bottom-right-radius: 2px; align-self: flex-end; }
+        .received { background-color: var(--msg-received); color: white; border-bottom-left-radius: 2px; align-self: flex-start; }
+
+        .chat-item:hover { background-color: rgba(255, 255, 255, 0.05); }
+        .chat-item.active { background-color: rgba(244, 63, 94, 0.1); border-left: 3px solid #f43f5e; }
+
+        .unread-badge { background: #22c55e; color: black; font-weight: bold; font-size: 10px; padding: 2px 6px; border-radius: 999px; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col">
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0f172a] p-6">
+        <div class="text-center max-w-sm w-full space-y-6 fade-in">
+            <div class="flex justify-center mb-4">
+                <div class="w-20 h-20 bg-gradient-to-tr from-rose-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-rose-500/30">
+                    <i class="ph-fill ph-chat-teardrop-text text-4xl text-white"></i>
+                </div>
+            </div>
+            <h1 class="text-3xl font-bold">Kix Chat</h1>
+            <p class="text-slate-400 text-sm">Professional Messaging for Teams</p>
+            
+            <button onclick="signInWithGoogle()" class="w-full bg-white text-slate-900 font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-lg group">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
+                Sign in with Google
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-interface" class="hidden flex-1 flex h-full relative">
+        
+        <!-- SIDEBAR (Chat List) -->
+        <div class="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/30 flex flex-col z-20" id="sidebar">
+            <!-- Header -->
+            <div class="p-4 border-b border-slate-700/30 flex justify-between items-center bg-[#1e293b]">
+                <div class="flex items-center gap-3">
+                    <img id="my-avatar" src="" class="w-9 h-9 rounded-full border border-slate-600">
+                    <div>
+                        <h2 class="font-bold text-sm">Chats</h2>
+                        <div class="flex items-center gap-1 text-[10px] text-green-400">
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span> Online
+                        </div>
+                    </div>
+                </div>
+                <button onclick="showAddFriendModal()" class="w-8 h-8 rounded-full bg-slate-700 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-colors" title="Add New Chat">
+                    <i class="ph-bold ph-plus"></i>
+                </button>
+            </div>
+
+            <!-- Chat List Container -->
+            <div id="chat-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <!-- Chat items load here -->
+                <div class="text-center text-slate-500 text-xs mt-10">Loading conversations...</div>
+            </div>
+        </div>
+
+        <!-- CHAT AREA -->
+        <div class="flex-1 flex flex-col bg-[#0f172a] relative hidden md:flex" id="chat-area">
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                <i class="ph-duotone ph-chats-circle text-6xl mb-4 text-slate-700"></i>
+                <p>Select a conversation to start chatting</p>
+            </div>
+
+            <!-- Active Chat Interface -->
+            <div id="active-chat-interface" class="hidden flex-col h-full w-full">
+                <!-- Header -->
+                <div class="h-16 border-b border-slate-700/30 flex items-center justify-between px-4 bg-[#1e293b]/50 backdrop-blur-md">
+                    <div class="flex items-center gap-3">
+                        <button onclick="backToSidebar()" class="md:hidden text-slate-400"><i class="ph-bold ph-arrow-left text-xl"></i></button>
+                        <img id="chat-header-img" src="" class="w-8 h-8 rounded-full bg-slate-700">
+                        <h3 id="chat-header-name" class="font-bold text-sm text-white">User</h3>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col"></div>
+
+                <!-- Input -->
+                <div class="p-3 bg-[#1e293b] border-t border-slate-700/30">
+                    <!-- Image Preview -->
+                    <div id="image-preview-container" class="hidden mb-2 p-2 bg-slate-800 rounded-lg w-fit relative">
+                        <img id="image-preview" src="" class="h-16 rounded border border-slate-600">
+                        <button onclick="clearImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button>
+                    </div>
+
+                    <div class="flex items-center gap-2 max-w-4xl mx-auto">
+                        <label class="p-2 text-slate-400 hover:text-rose-500 cursor-pointer">
+                            <i class="ph-bold ph-image text-xl"></i>
+                            <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                        </label>
+                        <input id="message-input" type="text" class="flex-1 bg-[#0f172a] border border-slate-600 rounded-full px-4 py-2.5 text-sm text-white focus:border-rose-500 outline-none" placeholder="Type a message...">
+                        <button onclick="sendMessage()" id="send-btn" class="w-10 h-10 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95">
+                            <i class="ph-fill ph-paper-plane-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD FRIEND MODAL -->
+    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] rounded-2xl p-6 w-full max-w-sm border border-slate-700 shadow-2xl">
+            <h3 class="text-lg font-bold mb-4">New Chat</h3>
+            <input type="email" id="friend-email" placeholder="Enter friend's Gmail address" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 text-sm focus:border-rose-500 outline-none">
+            <div class="flex gap-2 justify-end">
+                <button onclick="document.getElementById('add-friend-modal').classList.add('hidden')" class="px-4 py-2 text-slate-400 hover:text-white text-sm">Cancel</button>
+                <button onclick="startChat()" class="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-sm font-medium">Start Chat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE & APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, increment, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 1. CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyCz8xJ5Qb7m5cjYWs9SqxpdtnZymYLiblI",
+            authDomain: "kix-chatmass.firebaseapp.com",
+            projectId: "kix-chatmass",
+            storageBucket: "kix-chatmass.firebasestorage.app",
+            messagingSenderId: "796961974964",
+            appId: "1:796961974964:web:65c536e2a521b28e56c5e1",
+            measurementId: "G-CPZC0E6HD7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // State
+        let currentUser = null;
+        let currentChatId = null;
+        let currentChatData = null;
+        let selectedImageBase64 = null;
+        let unsubscribeMessages = null;
+
+        // --- AUTH LOGIC ---
+        window.signInWithGoogle = () => {
+            signInWithPopup(auth, provider).catch((error) => alert(error.message));
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-interface').classList.remove('hidden');
+                document.getElementById('my-avatar').src = user.photoURL;
+
+                // Save/Update User in Firestore
+                await setDoc(doc(db, "users", user.uid), {
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    lastSeen: serverTimestamp()
+                }, { merge: true });
+
+                loadChats();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-interface').classList.add('hidden');
+            }
+        });
+
+        // --- SIDEBAR LOGIC (CHAT LIST) ---
+        function loadChats() {
+            const chatsRef = collection(db, "chats");
+            // Query chats where I am a participant
+            const q = query(chatsRef, where("participants", "array-contains", currentUser.uid));
+
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById("chat-list");
+                list.innerHTML = "";
+                
+                let chats = [];
+                snapshot.forEach(doc => {
+                    chats.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Client-side sort: Recent messages first
+                chats.sort((a, b) => (b.lastUpdated?.toMillis() || 0) - (a.lastUpdated?.toMillis() || 0));
+
+                if(chats.length === 0) {
+                    list.innerHTML = `<div class="text-center mt-5 text-slate-500 text-xs">No chats yet.<br>Click + to add a friend.</div>`;
+                    return;
+                }
+
+                chats.forEach(chat => {
+                    // Identify the other user
+                    const otherUserId = chat.participants.find(uid => uid !== currentUser.uid);
+                    const otherUserInfo = chat.userDetails ? chat.userDetails[otherUserId] : { name: 'User', photo: '' };
+                    
+                    // Unread Count Logic
+                    const unreadCount = chat.unreadCounts ? (chat.unreadCounts[currentUser.uid] || 0) : 0;
+                    const lastMsg = chat.lastMessage || "No messages yet";
+                    const isImage = chat.lastMessageType === 'image';
+                    
+                    // Time formatting
+                    let timeStr = "";
+                    if(chat.lastUpdated) {
+                        const date = chat.lastUpdated.toDate();
+                        const now = new Date();
+                        if(date.toDateString() === now.toDateString()) {
+                            timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        } else {
+                            timeStr = date.toLocaleDateString();
+                        }
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = `chat-item p-3 rounded-xl cursor-pointer flex items-center gap-3 transition-colors ${currentChatId === chat.id ? 'active' : ''}`;
+                    div.onclick = () => selectChat(chat.id, otherUserInfo);
+                    
+                    div.innerHTML = `
+                        <img src="${otherUserInfo.photo || 'https://ui-avatars.com/api/?name='+otherUserInfo.name}" class="w-10 h-10 rounded-full bg-slate-700 object-cover">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-baseline">
+                                <h4 class="font-medium text-sm truncate text-white">${otherUserInfo.name}</h4>
+                                <span class="text-[10px] text-slate-500">${timeStr}</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-0.5">
+                                <p class="text-xs text-slate-400 truncate w-32 ${unreadCount > 0 ? 'font-bold text-white' : ''}">
+                                    ${isImage ? '<i class="ph-bold ph-image"></i> Photo' : lastMsg}
+                                </p>
+                                ${unreadCount > 0 ? `<span class="unread-badge">${unreadCount}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            });
+        }
+
+        // --- START NEW CHAT (ADD FRIEND) ---
+        window.showAddFriendModal = () => document.getElementById('add-friend-modal').classList.remove('hidden');
+
+        window.startChat = async () => {
+            const email = document.getElementById('friend-email').value.trim();
+            if(!email) return;
+
+            // 1. Find User by Email
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("email", "==", email));
+            const querySnapshot = await getDocs(q);
+
+            if(querySnapshot.empty) {
+                alert("User not found! Ask them to log in to Kix Chat first.");
+                return;
+            }
+
+            const friendUser = querySnapshot.docs[0].data();
+            if(friendUser.uid === currentUser.uid) {
+                alert("You can't chat with yourself!");
+                return;
+            }
+
+            // 2. Check if chat already exists
+            const chatsRef = collection(db, "chats");
+            // Note: Firestore doesn't support array-equals directly for participants, so we do a simple check logic or creating unique IDs
+            // Simplified: Create/Get chat based on sorted UIDs to ensure uniqueness
+            const chatParticipants = [currentUser.uid, friendUser.uid].sort();
+            const chatId = `${chatParticipants[0]}_${chatParticipants[1]}`;
+            
+            const chatDocRef = doc(db, "chats", chatId);
+            
+            // Set chat data (creates if new, merges if exists)
+            await setDoc(chatDocRef, {
+                participants: chatParticipants,
+                lastUpdated: serverTimestamp(),
+                userDetails: {
+                    [currentUser.uid]: { name: currentUser.displayName, photo: currentUser.photoURL },
+                    [friendUser.uid]: { name: friendUser.displayName, photo: friendUser.photoURL }
+                },
+                unreadCounts: {
+                    [currentUser.uid]: 0,
+                    [friendUser.uid]: 0
+                }
+            }, { merge: true });
+
+            document.getElementById('add-friend-modal').classList.add('hidden');
+            document.getElementById('friend-email').value = "";
+            
+            // Auto select
+            selectChat(chatId, { name: friendUser.displayName, photo: friendUser.photoURL });
+        };
+
+        // --- CHAT AREA LOGIC ---
+        function selectChat(chatId, otherUserInfo) {
+            currentChatId = chatId;
+            currentChatData = otherUserInfo;
+
+            // UI Updates
+            document.getElementById('empty-state').classList.add('hidden');
+            document.getElementById('active-chat-interface').classList.remove('hidden'); // Mobile logic needed later
+            
+            // Mobile: Hide sidebar
+            if(window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('hidden');
+                document.getElementById('chat-area').classList.remove('hidden');
+                document.getElementById('chat-area').classList.add('flex');
+            }
+
+            // Header Update
+            document.getElementById('chat-header-name').innerText = otherUserInfo.name;
+            document.getElementById('chat-header-img').src = otherUserInfo.photo || `https://ui-avatars.com/api/?name=${otherUserInfo.name}`;
+
+            // Reset Unread Count for ME
+            const chatRef = doc(db, "chats", chatId);
+            updateDoc(chatRef, {
+                [`unreadCounts.${currentUser.uid}`]: 0
+            });
+
+            // Load Messages
+            if(unsubscribeMessages) unsubscribeMessages();
+            
+            const msgsRef = collection(db, "chats", chatId, "messages");
+            const q = query(msgsRef, orderBy("createdAt", "asc"));
+
+            unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                const container = document.getElementById("messages-container");
+                container.innerHTML = "";
+                
+                snapshot.forEach(doc => {
+                    const msg = doc.data();
+                    const isMe = msg.senderId === currentUser.uid;
+                    
+                    const div = document.createElement('div');
+                    div.className = `flex flex-col mb-2 ${isMe ? 'items-end' : 'items-start'}`;
+                    
+                    let content = "";
+                    if(msg.imageUrl) {
+                        content += `<img src="${msg.imageUrl}" class="rounded-lg mb-1 max-w-[200px] border border-slate-600 cursor-pointer" onclick="window.open(this.src)">`;
+                    }
+                    if(msg.text) {
+                        content += `<p>${msg.text}</p>`;
+                    }
+
+                    // Time
+                    const time = msg.createdAt ? msg.createdAt.toDate().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '...';
+
+                    div.innerHTML = `
+                        <div class="chat-bubble ${isMe ? 'sent' : 'received'}">
+                            ${content}
+                            <div class="text-[9px] ${isMe ? 'text-white/70' : 'text-slate-400'} text-right mt-1">${time}</div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+                
+                // Auto Scroll
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        window.backToSidebar = () => {
+            document.getElementById('sidebar').classList.remove('hidden');
+            document.getElementById('chat-area').classList.add('hidden');
+            currentChatId = null;
+        }
+
+        // --- SEND MESSAGE ---
+        window.sendMessage = async () => {
+            if(!currentChatId) return;
+            
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            const btn = document.getElementById('send-btn');
+
+            if(!text && !selectedImageBase64) return;
+
+            btn.disabled = true;
+            input.value = "";
+
+            try {
+                // 1. Add Message Doc
+                const messagesRef = collection(db, "chats", currentChatId, "messages");
+                await addDoc(messagesRef, {
+                    text: text,
+                    imageUrl: selectedImageBase64,
+                    senderId: currentUser.uid,
+                    createdAt: serverTimestamp()
+                });
+
+                // 2. Update Last Message & Unread Count for OTHER user
+                const chatRef = doc(db, "chats", currentChatId);
+                
+                // Identify other participant ID to increment their badge
+                // chatParticipants is simpler in 'chats' collection, but here we can derive it
+                // We will use dot notation field update. However, to increment 'the other person', we need their ID.
+                // For simplicity in this structure, we assume 2 participants. 
+                // We'll read the doc first or store participants in memory. 
+                // Better approach for efficiency:
+                // We know `currentChatId` is `uid1_uid2`.
+                const p = currentChatId.split('_');
+                const otherUid = p.find(id => id !== currentUser.uid);
+
+                await updateDoc(chatRef, {
+                    lastMessage: text || "Photo",
+                    lastMessageType: selectedImageBase64 ? 'image' : 'text',
+                    lastUpdated: serverTimestamp(),
+                    [`unreadCounts.${otherUid}`]: increment(1)
+                });
+
+                clearImage();
+                btn.disabled = false;
+                input.focus();
+
+            } catch(e) {
+                console.error(e);
+                alert("Error sending");
+                btn.disabled = false;
+            }
+        };
+
+        // --- IMAGE HANDLING ---
+        window.handleImageSelect = (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 600;
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('image-preview').src = selectedImageBase64;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.clearImage = () => {
+            selectedImageBase64 = null;
+            document.getElementById('image-input').value = "";
+            document.getElementById('image-preview-container').classList.add('hidden');
+        };
+
+        // Enter Key
+        document.getElementById("message-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+    </script>
+</body>
+</html>
