@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v25</title>
+    <title>Kix Chat - Final Version</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -108,7 +108,7 @@
     <!-- Zego Container -->
     <div id="zego-container"></div>
     
-    <!-- Custom End Call Button (Hidden by default, Very High Z-Index) -->
+    <!-- Custom End Call Button -->
     <button id="custom-end-call-btn" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-600 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-3 hover:bg-red-700 transition active:scale-95 animate-bounce">
         <i class="ph-bold ph-phone-disconnect text-2xl"></i> <span class="font-bold text-lg">End Call</span>
     </button>
@@ -167,6 +167,7 @@
                         </div>
                     </div>
                     <div id="disabled-banner" class="hidden bg-red-900/50 text-red-200 text-xs text-center py-1 border-b border-red-800">🚫 This group has been disabled</div>
+                    
                     <!-- Blocked Banner -->
                     <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4">
                          <span id="blocked-text">You blocked this user.</span> 
@@ -178,7 +179,7 @@
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
-                    <!-- Input Area Wrapper -->
+                    <!-- Input Area -->
                     <div id="input-area-wrapper" class="p-0 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
@@ -188,7 +189,7 @@
                         
                         <div id="image-preview-container" class="hidden p-2 bg-slate-800 border-t border-slate-600 relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute top-1 left-16 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
-                        <!-- Action Bar Row (+ Menu Alternative) -->
+                        <!-- Action Bar Row (Hidden by default, shown by + button) -->
                         <div id="action-bar" class="hidden flex gap-2 px-3 pt-2 pb-2 overflow-x-auto border-b border-slate-700/50">
                             <label class="action-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i> Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
                             <div class="action-btn" onclick="openPollModal()"><i class="ph-bold ph-chart-bar text-green-400"></i> Poll</div>
@@ -225,14 +226,6 @@
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pleading%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pleading%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Angry%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Angry%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
-                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/OK%20Hand.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/OK%20Hand.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                         </div>
                         <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
@@ -242,6 +235,7 @@
     </div>
 
     <!-- MODALS -->
+    
     <!-- Profile Modal (Settings) -->
     <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 relative text-center">
@@ -278,15 +272,97 @@
         </div>
     </div>
     
-    <!-- Other Modals (Notes, Poll, Join, Create, Forward, Admin, Add Friend) -->
-    <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col"><h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3><textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea><div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div></div></div>
-    <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-4">Create Poll</h3><input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none"><div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div></div></div>
-    <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div></div>
-    <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-2">Choose Alias</h3><input type="text" id="anon-alias" placeholder="e.g. Ghost Rider" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 outline-none"><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 px-3">Cancel</button><button onclick="submitAnonRequest()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Request</button></div></div></div>
-    <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4"><h3 class="text-lg font-bold">Create Group</h3><input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select><div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div></div></div>
-    <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col"><h3 class="text-lg font-bold mb-4">Forward to...</h3><div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div><button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button></div></div>
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div><div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div><div class="space-y-2 mb-4"><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div></div><div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div></div></div>
-    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email or @username..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
+    <!-- Shared Notes Modal -->
+    <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col">
+            <h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3>
+            <textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea>
+            <div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div>
+        </div>
+    </div>
+
+    <!-- Poll Modal -->
+    <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
+            <h3 class="text-lg font-bold mb-4">Create Poll</h3>
+            <input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
+            <input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
+            <input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none">
+            <div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div>
+        </div>
+    </div>
+
+    <!-- Join Group Options -->
+    <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center">
+            <h3 class="text-lg font-bold mb-2">Join Group</h3>
+            <p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p>
+            <div class="space-y-3">
+                <button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition">
+                    <img id="join-my-pic" class="w-8 h-8 rounded-full">
+                    <div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div>
+                </button>
+                <button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition">
+                    <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div>
+                    <div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div>
+                </button>
+            </div>
+            <button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Anon Alias Input -->
+    <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
+            <h3 class="text-lg font-bold mb-2">Choose Alias</h3>
+            <input type="text" id="anon-alias" placeholder="e.g. Ghost Rider" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 outline-none">
+            <div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 px-3">Cancel</button><button onclick="submitAnonRequest()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Request</button></div>
+        </div>
+    </div>
+
+    <!-- Create Group -->
+    <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4">
+            <h3 class="text-lg font-bold">Create Group</h3>
+            <input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none">
+            <select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select>
+            <div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div>
+            <div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div>
+        </div>
+    </div>
+
+    <!-- Forward Message -->
+    <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col">
+            <h3 class="text-lg font-bold mb-4">Forward to...</h3>
+            <div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div>
+            <button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Group Admin Info -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div>
+            <div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div>
+            <div class="space-y-2 mb-4">
+                <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div>
+                <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div>
+            </div>
+            <div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div>
+            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Add Friend -->
+    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
+            <div class="mb-2 text-sm text-slate-400">Enter Email or Username (@username)</div>
+            <input type="email" id="friend-email" placeholder="Search..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4">
+            <button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button>
+            <button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -318,7 +394,6 @@
         let selectedImageBase64 = null;
         let deferredPrompt;
         let currentMessages = [];
-        let forwardData = null; 
         let pendingMentionId = null;
         let newProfilePicBase64 = null;
         let myLastSeenTime = 0;
@@ -351,7 +426,7 @@
                     safeClassRemove('splash-screen', 'hidden'); 
                     safeClassAdd('splash-screen', 'hidden'); 
                     safeClassRemove('login-screen', 'hidden');
-                    safeClassAdd('app-interface', 'hidden'); // Ensure app is hidden on logout
+                    safeClassAdd('app-interface', 'hidden');
                 }
             });
             if (Notification.permission !== "granted") Notification.requestPermission();
@@ -398,7 +473,7 @@
                 else { tempJoinData = group; document.getElementById('join-group-name').innerText = group.name; window.openModal('join-options-modal'); }
                 e.target.value = '';
             }
-        }
+        };
 
         function loadLists() {
             const container = document.getElementById("list-container"); container.innerHTML = '<div class="mt-4"><div class="loader"></div></div>';
@@ -453,7 +528,6 @@
             return div;
         }
 
-        // SETTINGS: PROFILE & BIO
         window.openProfileModal = () => { 
             document.getElementById('settings-preview').src = currentUser.photoURL || logoData;
             getDoc(doc(db, "users", currentUser.uid)).then(s => {
@@ -482,7 +556,7 @@
                     const ref = doc(db, "chats", d.id);
                     const field = {}; 
                     if(newProfilePicBase64) field[`userDetails.${currentUser.uid}.photo`] = newProfilePicBase64;
-                    if(username) field[`userDetails.${currentUser.uid}.name`] = username; // Update display name
+                    if(username) field[`userDetails.${currentUser.uid}.name`] = username;
                     batch.update(ref, field);
                 });
                 await batch.commit();
@@ -499,19 +573,12 @@
         window.sendPoll = async () => { const q = document.getElementById('poll-question').value; const o1 = document.getElementById('poll-opt1').value; const o2 = document.getElementById('poll-opt2').value; if(!q || !o1 || !o2) return; await addDoc(collection(db, "chats", currentChatId, "messages"), { type: 'poll', senderId: currentUser.uid, createdAt: serverTimestamp(), question: q, options: [{text: o1, votes: []}, {text: o2, votes: []}], status: 'sent', deletedFor: [] }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "📊 Poll", lastUpdated: serverTimestamp() }); document.getElementById('poll-modal').classList.add('hidden'); };
         window.votePoll = async (msgId, optIdx) => { const msgRef = doc(db, "chats", currentChatId, "messages", msgId); const msgSnap = await getDoc(msgRef); const data = msgSnap.data(); data.options.forEach(opt => { const idx = opt.votes.indexOf(currentUser.uid); if(idx > -1) opt.votes.splice(idx, 1); }); data.options[optIdx].votes.push(currentUser.uid); await updateDoc(msgRef, { options: data.options }); };
 
-        // Zego Dynamic Load
         window.loadZegoScript = () => { return new Promise((resolve, reject) => { if(window.ZegoUIKitPrebuilt) return resolve(); const script = document.createElement('script'); script.src = "https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"; script.onload = resolve; script.onerror = reject; document.body.appendChild(script); }); };
         
-        // Manual End Call Logic
         window.endCallManually = () => {
-             if (zegoInstance) {
-                 zegoInstance.destroy(); // Stops camera/mic and leaves room natively
-                 zegoInstance = null;
-             }
+             if (zegoInstance) { zegoInstance.destroy(); zegoInstance = null; }
              document.getElementById('zego-container').style.display = 'none';
              document.getElementById('custom-end-call-btn').classList.add('hidden');
-             
-             // Update database to clear call state if initiator
              if (currentChatData && currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) {
                  updateDoc(doc(db, "chats", currentChatId), { callState: null });
              }
@@ -537,8 +604,6 @@
             zegoInstance = ZegoUIKitPrebuilt.create(ZegoUIKitPrebuilt.generateKitTokenForTest(ZEGO_APP_ID, ZEGO_SERVER_SECRET, roomID, currentUser.uid, currentUser.displayName)); 
             const container = document.getElementById('zego-container'); 
             container.style.display = 'block'; 
-            
-            // Show Custom End Call Button
             document.getElementById('custom-end-call-btn').classList.remove('hidden');
 
             zegoInstance.joinRoom({ 
@@ -546,7 +611,6 @@
                 scenario: { mode: type === 'video' ? ZegoUIKitPrebuilt.GroupCall : ZegoUIKitPrebuilt.GroupVoiceCall, }, 
                 showPreJoinView: false, 
                 onLeaveRoom: async () => { 
-                    // This triggers if user uses native Zego leave button
                     container.style.display = 'none'; 
                     document.getElementById('custom-end-call-btn').classList.add('hidden');
                     if (currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) { 
@@ -578,11 +642,7 @@
                     const lastSeenMap = currentChatData.lastSeen || {};
                     myLastSeenTime = lastSeenMap[currentUser.uid]?.toMillis() || 0;
                     
-                    // IF admin modal is open, refresh it so we see approved/removed users live
-                    if (!document.getElementById('admin-modal').classList.contains('hidden')) {
-                        showChatInfo();
-                    }
-
+                    if (!document.getElementById('admin-modal').classList.contains('hidden')) { showChatInfo(); }
                     if(currentMessages.length > 0) renderMessageList(); 
                 }
             });
@@ -602,12 +662,8 @@
                     if (!pendingMentionId && m.senderId !== currentUser.uid) {
                         const msgTime = m.createdAt?.toMillis() || Date.now();
                         const isNew = msgTime > myLastSeenTime;
-                        // Mention Detection Update
                         let isMentioned = false;
-                        if (m.text) {
-                            if (m.text.includes('@' + currentUser.displayName.split(' ')[0])) isMentioned = true;
-                            // Need to fetch username logic if used, defaulting to dispaly name for now
-                        }
+                        if (m.text) { if (m.text.includes('@' + currentUser.displayName.split(' ')[0])) isMentioned = true; }
                         if (isNew && isMentioned) pendingMentionId = m.id;
                     }
                 });
@@ -623,7 +679,7 @@
             });
         }
 
-        window.scrollToMention = () => { const container = document.getElementById('messages-container'); const el = document.getElementById('msg-'+pendingMentionId); if(el) el.scrollIntoView({behavior: "smooth", block: "center"}); document.getElementById('floating-mention-btn').classList.add('hidden'); };
+        window.scrollToMention = () => { const el = document.getElementById('msg-'+pendingMentionId); if(el) el.scrollIntoView({behavior: "smooth", block: "center"}); document.getElementById('floating-mention-btn').classList.add('hidden'); };
 
         function checkAdminPermissions() {
             const wrapper = document.getElementById('input-area-wrapper');
@@ -633,14 +689,12 @@
             
             if (currentChatData.type === 'direct' && currentChatData.blocked) {
                 const b = currentChatData.blocked;
-                // If I blocked them
                 if (b.by === currentUser.uid) {
                     blockedBanner.classList.remove('hidden');
                     document.getElementById('blocked-text').innerText = "You blocked this user.";
                     document.getElementById('blocked-action-btn').innerText = "Unblock";
                     document.getElementById('blocked-action-btn').onclick = () => handleBlockAction(true);
                 } else {
-                    // If they blocked me
                     blockedBanner.classList.remove('hidden');
                     document.getElementById('blocked-text').innerText = "You have been blocked.";
                     if (b.isAppealSent) {
@@ -737,11 +791,7 @@
             }
         };
 
-        window.confirmBlock = async (uid) => {
-             await updateDoc(doc(db, "chats", currentChatId), { blocked: { by: currentUser.uid, isAppealSent: false } });
-             window.closeModals();
-        };
-
+        window.confirmBlock = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { blocked: { by: currentUser.uid, isAppealSent: false } }); window.closeModals(); };
         function renderMessageList() { const c = document.getElementById('messages-container'); c.innerHTML = ""; currentMessages.forEach(msg => renderMessage(msg, c)); c.scrollTop = c.scrollHeight; }
 
         function renderMessage(msg, container) {
@@ -764,9 +814,7 @@
             }
             
             let processedText = "";
-            if (msg.text) {
-                processedText = msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
-            }
+            if (msg.text) { processedText = msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>'); }
 
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
@@ -812,7 +860,6 @@
         messageInput.addEventListener('keyup', (e) => {
             const val = e.target.value; 
             const popup = document.getElementById('mention-popup');
-            
             const cursor = e.target.selectionStart;
             const textBefore = val.substring(0, cursor);
             const lastWord = textBefore.split(' ').pop();
@@ -839,35 +886,127 @@
                        popup.appendChild(item);
                    }
                 }); 
-                if(hasMatches) {
-                    popup.classList.remove('hidden');
-                    popup.style.bottom = "60px";
-                } else {
-                    popup.classList.add('hidden');
-                }
-            } else { 
-                popup.classList.add('hidden'); 
-            }
+                if(hasMatches) { popup.classList.remove('hidden'); popup.style.bottom = "60px"; } else { popup.classList.add('hidden'); }
+            } else { popup.classList.add('hidden'); }
         });
 
         window.sendMessage = async () => {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if(!text && !selectedImageBase64) return;
-
             if(scheduledTime) {
                 const [h, m] = scheduledTime.split(':'); const target = new Date(); target.setHours(h, m, 0, 0); let diff = target - new Date(); if(diff < 0) diff += 86400000;
                 setTimeout(() => doSend(text, selectedImageBase64 ? 'image' : 'text'), diff);
                 Swal.fire({icon:'success', title:'Scheduled', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'});
                 cancelSchedule(); input.value = ""; clearImage(); return;
             }
-
-            if(editingMessageId) {
-                await updateDoc(doc(db, "chats", currentChatId, "messages", editingMessageId), { text, isEdited: true });
-                cancelEdit(); return;
-            }
+            if(editingMessageId) { await updateDoc(doc(db, "chats", currentChatId, "messages", editingMessageId), { text, isEdited: true }); cancelEdit(); return; }
             doSend(text, selectedImageBase64 ? 'image' : 'text');
         };
+
+        // ... [Rest of code for doSend, showContextMenu, Modals logic stays identical]
+        
+        window.joinAsReal = async () => {
+            try {
+                const alias = currentUser.displayName || currentUser.email?.split('@')[0] || "User";
+                if(tempJoinData.isPublic) {
+                    const color = assignUniqueColor(tempJoinData);
+                    await updateDoc(doc(db, "chats", tempJoinData.id), {
+                        participants: arrayUnion(currentUser.uid),
+                        [`groupProfiles.${currentUser.uid}`]: { alias: alias, color: color, isReal: true }
+                    });
+                    window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null);
+                } else {
+                    await updateDoc(doc(db, "chats", tempJoinData.id), {
+                        requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email || "", alias: alias, isReal: true, timestamp: Date.now() })
+                    });
+                    window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin to approve...', background:'#1e293b', color:'#fff'});
+                }
+            } catch (error) {
+                console.error("Join error:", error);
+                Swal.fire({icon:'error', title:'Error', text:'Could not join group.', background:'#1e293b', color:'#fff'});
+            }
+        };
+
+        window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
+        
+        window.submitAnonRequest = async () => {
+            try {
+                const alias = document.getElementById('anon-alias').value.trim();
+                if(!alias) return;
+                await updateDoc(doc(db, "chats", tempJoinData.id), {
+                    requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email || "", alias: alias, isReal: false, timestamp: Date.now() })
+                });
+                window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'});
+            } catch (error) {
+                console.error("Anon request error:", error);
+            }
+        };
+
+        window.approveMember = async (uid, alias, isRealStr) => {
+            try {
+                const isReal = isRealStr === 'true'; 
+                const color = assignUniqueColor(currentChatData); 
+                const reqs = currentChatData.requests.filter(r => r.uid !== uid); 
+                await updateDoc(doc(db, "chats", currentChatId), { 
+                    requests: reqs, 
+                    participants: arrayUnion(uid), 
+                    [`groupProfiles.${uid}`]: { alias: alias, color: color, isReal: isReal } 
+                }); 
+            } catch (error) { console.error("Approve error:", error); }
+        };
+
+        window.rejectMember = async (uid) => {
+            try {
+                const reqs = currentChatData.requests.filter(r => r.uid !== uid);
+                await updateDoc(doc(db, "chats", currentChatId), { requests: reqs });
+            } catch(e) {}
+        };
+
+        window.toggleAdminOnly = async () => { await updateDoc(doc(db, "chats", currentChatId), { onlyAdminsCanPost: document.getElementById('toggle-admin-only').checked }); };
+        window.toggleDisableGroup = async () => { await updateDoc(doc(db, "chats", currentChatId), { isDisabled: document.getElementById('toggle-disable-group').checked }); };
+        window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); };
+        window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); };
+        
+        window.createGroup = async () => { 
+            const name = document.getElementById('group-name').value; 
+            if(!name) return; 
+            const category = document.getElementById('group-category').value; 
+            const isPublic = document.getElementById('group-public').checked; 
+            const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); 
+            await addDoc(collection(db, "chats"), { 
+                name, type: 'group', isPublic, category, customId, 
+                participants: [currentUser.uid], admins: [currentUser.uid], requests: [], 
+                groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, 
+                lastUpdated: serverTimestamp() 
+            }); 
+            window.closeModals(); window.switchTab('groups'); 
+        };
+
+        window.startChat = async () => { 
+            const inputVal = document.getElementById('friend-email').value.trim(); 
+            if(!inputVal) return; 
+            let q = query(collection(db, "users"), where("email", "==", inputVal)); 
+            let snap = await getDocs(q); 
+            if(snap.empty) { 
+                q = query(collection(db, "users"), where("username", "==", inputVal.replace('@',''))); 
+                snap = await getDocs(q); 
+            } 
+            if(snap.empty) return Swal.fire({icon:'error', title:'User Not Found', background:'#1e293b', color:'#fff'}); 
+            
+            const friend = snap.docs[0].data(); 
+            const chatId = [currentUser.uid, friend.uid].sort().join('_'); 
+            await setDoc(doc(db, "chats", chatId), { 
+                participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), 
+                userDetails: { 
+                    [currentUser.uid]: {name:currentUser.displayName || "User", photo:currentUser.photoURL || ""}, 
+                    [friend.uid]: {name:friend.displayName||friend.email.split('@')[0], photo:friend.photoURL || ""} 
+                } 
+            }, { merge: true }); 
+            window.closeModals(); openChat(chatId, friend.displayName||friend.email.split('@')[0], friend.photoURL); 
+        };
+
+        window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('settings-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
 
         async function doSend(text, type, extra, directUrl=null) {
             try {
@@ -900,7 +1039,8 @@
             let html = '';
             if(msg.type !== 'deleted') {
                 html += `<div class="context-item" onclick="setReply('${msg.text || ''}', '${msg.id}', '${msg.type}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
-                html += `<div class="context-item" onclick="startForward('${msg.text}')"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
+                window.tempForwardData = { text: msg.text, imageUrl: msg.imageUrl, type: msg.type };
+                html += `<div class="context-item" onclick="startForward()"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
                 html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
                 const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
                 if(msg.senderId === currentUser.uid || isAdmin) { html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`; }
@@ -935,22 +1075,6 @@
         window.clearImage = () => { selectedImageBase64=null; document.getElementById('image-input').value=""; document.getElementById('image-preview-container').classList.add('hidden'); };
         function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
         window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
-        
-        // Group Logic Fixes
-        window.joinAsReal = async () => { if(tempJoinData.isPublic) { const color = assignUniqueColor(tempJoinData); await updateDoc(doc(db, "chats", tempJoinData.id), { participants: arrayUnion(currentUser.uid), [`groupProfiles.${currentUser.uid}`]: { alias: currentUser.displayName, color: color, isReal: true } }); window.closeModals(); openChat(tempJoinData.id, tempJoinData.name, null); } else { await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: currentUser.displayName, isReal: true, timestamp: Date.now() }) }); window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'}); } };
-        window.showAnonInput = () => { window.closeModals(); window.openModal('anon-input-modal'); };
-        window.submitAnonRequest = async () => { const alias = document.getElementById('anon-alias').value.trim(); if(!alias) return; await updateDoc(doc(db, "chats", tempJoinData.id), { requests: arrayUnion({ uid: currentUser.uid, email: currentUser.email, alias: alias, isReal: false, timestamp: Date.now() }) }); window.closeModals(); Swal.fire({icon:'success', title:'Request Sent', text:'Waiting for Admin...', background:'#1e293b', color:'#fff'}); };
-        
-        window.approveMember = async (uid, alias, isRealStr) => { const isReal = isRealStr === 'true'; const color = assignUniqueColor(currentChatData); const reqs = currentChatData.requests.filter(r => r.uid !== uid); await updateDoc(doc(db, "chats", currentChatId), { requests: reqs, participants: arrayUnion(uid), [`groupProfiles.${uid}`]: { alias: alias, color: color, isReal: isReal } }); };
-        window.rejectMember = async (uid) => { const reqs = currentChatData.requests.filter(r => r.uid !== uid); await updateDoc(doc(db, "chats", currentChatId), { requests: reqs }); };
-        
-        window.toggleAdminOnly = async () => { await updateDoc(doc(db, "chats", currentChatId), { onlyAdminsCanPost: document.getElementById('toggle-admin-only').checked }); };
-        window.toggleDisableGroup = async () => { await updateDoc(doc(db, "chats", currentChatId), { isDisabled: document.getElementById('toggle-disable-group').checked }); };
-        window.makeAdmin = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { admins: arrayUnion(uid) }); };
-        window.removeMember = async (uid) => { await updateDoc(doc(db, "chats", currentChatId), { participants: arrayRemove(uid), admins: arrayRemove(uid) }); };
-        window.createGroup = async () => { const name = document.getElementById('group-name').value; if(!name) return; const category = document.getElementById('group-category').value; const isPublic = document.getElementById('group-public').checked; const customId = "#G-" + Math.floor(1000 + Math.random() * 9000); await addDoc(collection(db, "chats"), { name, type: 'group', isPublic, category, customId, participants: [currentUser.uid], admins: [currentUser.uid], requests: [], groupProfiles: { [currentUser.uid]: { alias: 'Admin', color: MEMBER_COLORS[0], isReal: true } }, lastUpdated: serverTimestamp() }); window.closeModals(); window.switchTab('groups'); };
-        window.startChat = async () => { const inputVal = document.getElementById('friend-email').value.trim(); if(!inputVal) return; let q = query(collection(db, "users"), where("email", "==", inputVal)); let snap = await getDocs(q); if(snap.empty) { q = query(collection(db, "users"), where("username", "==", inputVal.replace('@',''))); snap = await getDocs(q); } if(snap.empty) return Swal.fire({icon:'error', title:'User Not Found', background:'#1e293b', color:'#fff'}); const friend = snap.docs[0].data(); const chatId = [currentUser.uid, friend.uid].sort().join('_'); await setDoc(doc(db, "chats", chatId), { participants: [currentUser.uid, friend.uid], type: 'direct', lastUpdated: serverTimestamp(), userDetails: { [currentUser.uid]: {name:currentUser.displayName, photo:currentUser.photoURL}, [friend.uid]: {name:friend.displayName||friend.email, photo:friend.photoURL} } }, { merge: true }); window.closeModals(); openChat(chatId, friend.displayName||friend.email, friend.photoURL); };
-        window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('settings-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
 
         document.getElementById("message-input").addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
