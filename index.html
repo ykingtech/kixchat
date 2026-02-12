@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kix Chat - Final v26</title>
+    <title>Kix Chat - Final v27</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -12,7 +12,7 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- ZEGOCLOUD -->
+    <!-- ZEGOCLOUD SDK -->
     <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
     <!-- Manifest -->
     <link rel="manifest" href="manifest.json">
@@ -99,8 +99,6 @@
         .loader { border: 3px solid rgba(255,255,255,0.1); border-left-color: #f43f5e; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Custom End Call Button - SUPER HIGH Z-INDEX */
-        #custom-end-call-btn { z-index: 99999 !important; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -110,11 +108,6 @@
     
     <!-- Zego Container -->
     <div id="zego-container"></div>
-    
-    <!-- Custom End Call Button -->
-    <button id="custom-end-call-btn" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-600 text-white px-8 py-4 rounded-full shadow-2xl flex items-center gap-3 hover:bg-red-700 transition active:scale-95 animate-bounce">
-        <i class="ph-bold ph-phone-disconnect text-2xl"></i> <span class="font-bold text-lg">End Call</span>
-    </button>
     
     <div id="pwa-banner" class="hidden fixed top-0 left-0 w-full bg-gradient-to-r from-rose-600 to-orange-500 text-white p-2 text-xs flex justify-between items-center z-[200]">
         <span>Install Kix Chat app!</span><button onclick="installPWA()" class="bg-white text-rose-600 px-3 py-1 rounded-full font-bold">Install</button>
@@ -182,7 +175,7 @@
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
-                    <!-- Input Area Wrapper -->
+                    <!-- Input Area -->
                     <div id="input-area-wrapper" class="p-0 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
@@ -192,7 +185,7 @@
                         
                         <div id="image-preview-container" class="hidden p-2 bg-slate-800 border-t border-slate-600 relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute top-1 left-16 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
-                        <!-- Action Bar Row (Always visible above input, NO plus icon needed) -->
+                        <!-- Action Bar Row (Always visible above input) -->
                         <div id="action-bar" class="flex gap-2 px-3 pt-2 pb-2 overflow-x-auto border-b border-slate-700/50">
                             <label class="action-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i> Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
                             <button onclick="openPollModal()" class="action-btn"><i class="ph-bold ph-chart-bar text-green-400"></i> Poll</button>
@@ -242,7 +235,7 @@
     </div>
 
     <!-- MODALS -->
-    <!-- Profile Modal -->
+    <!-- Profile Modal (Settings) -->
     <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
         <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 relative text-center">
             <button onclick="logout()" class="absolute top-4 left-4 text-red-400 hover:text-red-300 flex items-center gap-1 text-xs font-bold"><i class="ph-bold ph-sign-out text-lg"></i> Logout</button>
@@ -278,7 +271,7 @@
         </div>
     </div>
     
-    <!-- Other Modals (Notes, Poll, Join, Create, Forward, Admin, Add Friend) -->
+    <!-- Other Modals -->
     <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col"><h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3><textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea><div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div></div></div>
     <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-4">Create Poll</h3><input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none"><div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div></div></div>
     <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div></div>
@@ -293,7 +286,6 @@
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, setDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, updateDoc, arrayUnion, arrayRemove, orderBy, getDoc, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ZEGOCLOUD Keys
         const ZEGO_APP_ID = 910816597; 
         const ZEGO_SERVER_SECRET = "31464886a069743631dcee8d496d2a98"; 
 
@@ -325,6 +317,12 @@
         let zegoInstance = null;
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
+
+        function assignUniqueColor(chatData) {
+            const usedColors = Object.values(chatData.groupProfiles || {}).map(p => p.color);
+            const available = MEMBER_COLORS.filter(c => !usedColors.includes(c));
+            return available.length > 0 ? available[Math.floor(Math.random() * available.length)] : MEMBER_COLORS[Math.floor(Math.random() * MEMBER_COLORS.length)];
+        }
 
         function generateAppLogo() {
             const c = document.createElement('canvas'); c.width = 512; c.height = 512; const ctx = c.getContext('2d');
@@ -513,25 +511,9 @@
         window.sendPoll = async () => { const q = document.getElementById('poll-question').value; const o1 = document.getElementById('poll-opt1').value; const o2 = document.getElementById('poll-opt2').value; if(!q || !o1 || !o2) return; await addDoc(collection(db, "chats", currentChatId, "messages"), { type: 'poll', senderId: currentUser.uid, createdAt: serverTimestamp(), question: q, options: [{text: o1, votes: []}, {text: o2, votes: []}], status: 'sent', deletedFor: [] }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "📊 Poll", lastUpdated: serverTimestamp() }); document.getElementById('poll-modal').classList.add('hidden'); };
         window.votePoll = async (msgId, optIdx) => { const msgRef = doc(db, "chats", currentChatId, "messages", msgId); const msgSnap = await getDoc(msgRef); const data = msgSnap.data(); data.options.forEach(opt => { const idx = opt.votes.indexOf(currentUser.uid); if(idx > -1) opt.votes.splice(idx, 1); }); data.options[optIdx].votes.push(currentUser.uid); await updateDoc(msgRef, { options: data.options }); };
 
+        // Zego Dynamic Load
         window.loadZegoScript = () => { return new Promise((resolve, reject) => { if(window.ZegoUIKitPrebuilt) return resolve(); const script = document.createElement('script'); script.src = "https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"; script.onload = resolve; script.onerror = reject; document.body.appendChild(script); }); };
         
-        window.endCallManually = async () => {
-             try {
-                 if (currentChatData && currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) {
-                     await updateDoc(doc(db, "chats", currentChatId), { callState: null });
-                 }
-             } catch(err) { console.error(err); }
-
-             if (zegoInstance) {
-                 try { zegoInstance.destroy(); } catch(e) {}
-                 zegoInstance = null;
-             }
-             const container = document.getElementById('zego-container');
-             container.style.display = 'none';
-             container.innerHTML = ''; 
-             document.getElementById('custom-end-call-btn').classList.add('hidden');
-        };
-
         window.startCall = async (type) => { 
             if (!ZEGO_APP_ID || !ZEGO_SERVER_SECRET) return alert("Please set ZegoCloud keys in code!"); 
             try { 
@@ -552,20 +534,18 @@
             zegoInstance = ZegoUIKitPrebuilt.create(ZegoUIKitPrebuilt.generateKitTokenForTest(ZEGO_APP_ID, ZEGO_SERVER_SECRET, roomID, currentUser.uid, currentUser.displayName)); 
             const container = document.getElementById('zego-container'); 
             container.style.display = 'block'; 
-            document.getElementById('custom-end-call-btn').classList.remove('hidden');
 
             zegoInstance.joinRoom({ 
                 container: container, 
                 scenario: { mode: type === 'video' ? ZegoUIKitPrebuilt.GroupCall : ZegoUIKitPrebuilt.GroupVoiceCall, }, 
                 showPreJoinView: false, 
                 onLeaveRoom: async () => { 
-                    if (zegoInstance) { try { zegoInstance.destroy(); } catch(e){} zegoInstance = null; }
                     container.style.display = 'none'; 
                     container.innerHTML = '';
-                    document.getElementById('custom-end-call-btn').classList.add('hidden');
                     if (currentChatData && currentChatData.callState && currentChatData.callState.initiator === currentUser.uid) { 
                         try { await updateDoc(doc(db, "chats", currentChatId), { callState: null }); } catch(e){}
                     } 
+                    if(zegoInstance) { try { zegoInstance.destroy(); } catch(e){} zegoInstance = null; }
                 } 
             }); 
         }
@@ -591,11 +571,14 @@
                         callBanner.classList.remove('hidden'); 
                     } else { 
                         callBanner.classList.add('hidden');
+                        // Auto-cut if initiator leaves
                         if (zegoInstance) {
                              try { zegoInstance.destroy(); } catch(e) {}
                              zegoInstance = null;
-                             document.getElementById('zego-container').style.display = 'none';
-                             document.getElementById('custom-end-call-btn').classList.add('hidden');
+                             const container = document.getElementById('zego-container');
+                             container.style.display = 'none';
+                             container.innerHTML = '';
+                             Swal.fire({toast:true, position:'top', title:'Call Ended', icon:'info', timer:2000, showConfirmButton:false});
                         }
                     }
                     
@@ -774,9 +757,7 @@
             }
             
             let processedText = "";
-            if (msg.text) {
-                processedText = msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>');
-            }
+            if (msg.text) { processedText = msg.text.replace(/@(\w+)/g, '<span class="mention">@$1</span>'); }
 
             let statusIcon = "";
             if(isMe && msg.type !== 'deleted') {
