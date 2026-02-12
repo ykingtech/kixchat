@@ -74,11 +74,12 @@
         /* Mentions */
         .mention { color: #fcd34d; font-weight: bold; background: rgba(251, 191, 36, 0.2); padding: 0 4px; rounded: 4px; cursor: pointer; }
         
-        /* Action Bar (Top of Input) */
-        #action-bar { display: flex; gap: 10px; padding: 8px 12px; background: #1e293b; overflow-x: auto; border-bottom: 1px solid #334155; }
-        .action-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #0f172a; border-radius: 20px; font-size: 0.75rem; color: #cbd5e1; cursor: pointer; transition: 0.2s; white-space: nowrap; border: 1px solid #334155; }
-        .action-btn:hover { background: #334155; color: white; border-color: #f43f5e; }
-        .action-btn i { font-size: 1.1rem; }
+        /* Attachment Menu - Grid Style */
+        #attachment-menu { position: absolute; bottom: 70px; left: 10px; background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,0.8); animation: slideUp 0.2s ease-out; transform-origin: bottom left; }
+        .attach-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 75px; height: 70px; border-radius: 14px; background: #0f172a; color: #cbd5e1; font-size: 11px; font-weight: 500; gap: 6px; transition: 0.2s; border: 1px solid transparent; }
+        .attach-btn:hover { background: #334155; color: white; border-color: #f43f5e; }
+        .attach-btn i { font-size: 26px; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* Floating Mention Button */
         #floating-mention-btn { position: absolute; bottom: 100px; right: 20px; background: #ffffff; color: #f43f5e; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); z-index: 40; cursor: pointer; animation: bounceIn 0.3s; font-size: 1.5rem; }
@@ -171,7 +172,7 @@
                     <!-- Blocked Banner -->
                     <div id="blocked-banner" class="hidden bg-slate-800/90 text-slate-300 text-xs text-center py-2 border-t border-slate-700 absolute bottom-0 w-full z-30 flex justify-center items-center gap-4">
                          <span id="blocked-text">You blocked this user.</span> 
-                         <button id="blocked-action-btn" class="ml-2 text-rose-400 font-bold underline" onclick="handleBlockAction()">Unblock</button>
+                         <button id="blocked-action-btn" class="ml-2 text-rose-400 font-bold underline cursor-pointer" onclick="handleBlockAction(true)">Unblock</button>
                     </div>
 
                     <div id="active-call-banner" class="hidden"><div id="call-banner" onclick="joinCall()"><div class="flex items-center gap-2"><i class="ph-fill ph-video-camera text-xl"></i> <span>Ongoing Call...</span></div><span class="bg-white/20 px-2 py-0.5 rounded text-xs font-bold">JOIN</span></div></div>
@@ -179,8 +180,8 @@
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 flex flex-col w-full pb-20 scroll-smooth"></div>
                     <div id="floating-mention-btn" class="hidden" onclick="scrollToMention()"><i class="ph-bold ph-at"></i></div>
 
-                    <!-- Input Area -->
-                    <div id="input-area-wrapper" class="p-0 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
+                    <!-- Input -->
+                    <div id="input-area-wrapper" class="p-2 bg-[#1e293b] border-t border-slate-700/30 shrink-0 w-full z-20 relative transition-all">
                         <div id="mention-popup" class="hidden"></div>
                         <div id="admin-only-banner" class="hidden text-center text-xs text-rose-400 py-1 bg-rose-900/20 rounded mb-1">Only admins can send messages</div>
                         <div id="reply-banner" class="hidden flex justify-between items-center bg-slate-800 p-2 border-l-4 border-rose-500 m-2 rounded"><div class="text-xs overflow-hidden flex items-center gap-2"><i class="ph-bold ph-arrow-u-up-left text-rose-400"></i><span id="reply-text" class="text-slate-300 truncate">Replying...</span></div><button onclick="cancelReply()" class="p-1"><i class="ph-bold ph-x"></i></button></div>
@@ -189,17 +190,17 @@
                         
                         <div id="image-preview-container" class="hidden p-2 bg-slate-800 border-t border-slate-600 relative"><img id="image-preview" src="" class="h-14 rounded border border-slate-600"><button onclick="clearImage()" class="absolute top-1 left-16 bg-red-500 text-white rounded-full p-0.5"><i class="ph-bold ph-x text-xs"></i></button></div>
 
-                        <!-- Action Bar Row (Hidden by default, shown by + button) -->
-                        <div id="action-bar" class="hidden flex gap-2 px-3 pt-2 pb-2 overflow-x-auto border-b border-slate-700/50">
-                            <label class="action-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i> Image<input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
-                            <div class="action-btn" onclick="openPollModal()"><i class="ph-bold ph-chart-bar text-green-400"></i> Poll</div>
-                            <div class="action-btn" onclick="promptSchedule()"><i class="ph-bold ph-clock text-yellow-400"></i> Schedule</div>
-                            <div class="action-btn" onclick="togglePrivacy()"><i class="ph-bold ph-lock-key text-red-400" id="menu-lock-icon"></i> Privacy</div>
+                        <!-- Attachment Menu (Hidden by default, shown by + button) -->
+                        <div id="attachment-menu" class="hidden">
+                            <label class="attach-btn cursor-pointer"><i class="ph-bold ph-image text-blue-400"></i><span>Image</span><input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImage(event)"></label>
+                            <button onclick="openPollModal(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-chart-bar text-green-400"></i><span>Poll</span></button>
+                            <button onclick="promptSchedule(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-clock text-yellow-400"></i><span>Schedule</span></button>
+                            <button onclick="togglePrivacy(); toggleAttachmentMenu()" class="attach-btn"><i class="ph-bold ph-lock-key text-red-400" id="menu-lock-icon"></i><span>Privacy</span></button>
                         </div>
 
                         <!-- Main Input Row -->
                         <div id="main-controls" class="flex items-center gap-2 p-2 bg-[#1e293b]">
-                            <button id="attach-toggle-btn" onclick="toggleActionBar()" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
+                            <button id="attach-toggle-btn" onclick="toggleAttachmentMenu()" class="text-slate-400 hover:text-white p-1.5 rounded-full hover:bg-slate-800 transition bg-slate-800/50"><i class="ph-bold ph-plus text-xl"></i></button>
                             
                             <input id="message-input" type="text" class="flex-1 bg-[#0f172a] rounded-full px-4 py-2 border border-slate-600 text-sm text-white focus:border-rose-500 outline-none transition" placeholder="Message or @mention...">
                             
@@ -226,6 +227,14 @@
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pile%20of%20Poo.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                              <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Alien%20Monster.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Thumbs%20Up.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Party%20Popper.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Thinking%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pleading%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Pleading%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Angry%20Face.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Angry%20Face.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
+                             <img onclick="sendStickerUrl('https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/OK%20Hand.png')" src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/OK%20Hand.png" class="w-12 h-12 cursor-pointer hover:scale-110 transition">
                         </div>
                         <div id="sticker-content-saved" class="grid grid-cols-3 gap-2 hidden"></div>
                     </div>
@@ -267,102 +276,20 @@
             <p id="u-info-bio" class="text-sm text-slate-400 mb-6 italic border-t border-b border-slate-700 py-2">No bio available</p>
             <div class="grid grid-cols-2 gap-3">
                  <button onclick="deleteChatHistory()" class="bg-slate-700 text-white p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-slate-600"><i class="ph-bold ph-trash text-lg"></i> Clear Chat</button>
-                 <button id="block-btn" onclick="handleBlockAction()" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
+                 <button id="block-btn" onclick="" class="bg-red-900/30 text-red-400 p-3 rounded-lg text-xs flex flex-col items-center gap-1 hover:bg-red-900/50"><i class="ph-bold ph-prohibit text-lg"></i> Block</button>
             </div>
         </div>
     </div>
     
-    <!-- Shared Notes Modal -->
-    <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col">
-            <h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3>
-            <textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea>
-            <div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div>
-        </div>
-    </div>
-
-    <!-- Poll Modal -->
-    <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
-            <h3 class="text-lg font-bold mb-4">Create Poll</h3>
-            <input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
-            <input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none">
-            <input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none">
-            <div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div>
-        </div>
-    </div>
-
-    <!-- Join Group Options -->
-    <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center">
-            <h3 class="text-lg font-bold mb-2">Join Group</h3>
-            <p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p>
-            <div class="space-y-3">
-                <button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition">
-                    <img id="join-my-pic" class="w-8 h-8 rounded-full">
-                    <div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div>
-                </button>
-                <button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition">
-                    <div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div>
-                    <div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div>
-                </button>
-            </div>
-            <button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Anon Alias Input -->
-    <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
-            <h3 class="text-lg font-bold mb-2">Choose Alias</h3>
-            <input type="text" id="anon-alias" placeholder="e.g. Ghost Rider" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 outline-none">
-            <div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 px-3">Cancel</button><button onclick="submitAnonRequest()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Request</button></div>
-        </div>
-    </div>
-
-    <!-- Create Group -->
-    <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4">
-            <h3 class="text-lg font-bold">Create Group</h3>
-            <input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none">
-            <select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select>
-            <div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div>
-            <div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div>
-        </div>
-    </div>
-
-    <!-- Forward Message -->
-    <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col">
-            <h3 class="text-lg font-bold mb-4">Forward to...</h3>
-            <div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div>
-            <button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Group Admin Info -->
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div>
-            <div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div>
-            <div class="space-y-2 mb-4">
-                <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div>
-                <div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div>
-            </div>
-            <div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div>
-            <h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div>
-        </div>
-    </div>
-
-    <!-- Add Friend -->
-    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700">
-            <div class="mb-2 text-sm text-slate-400">Enter Email or Username (@username)</div>
-            <input type="email" id="friend-email" placeholder="Search..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4">
-            <button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button>
-            <button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button>
-        </div>
-    </div>
+    <!-- Other Modals -->
+    <div id="notes-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-lg border border-slate-700 h-[70vh] flex flex-col"><h3 class="text-lg font-bold mb-2 flex justify-between items-center">Shared Notes <button onclick="document.getElementById('notes-modal').classList.add('hidden')"><i class="ph-bold ph-x"></i></button></h3><textarea id="shared-note-area" class="flex-1 bg-[#0f172a] p-4 rounded-xl text-slate-300 outline-none resize-none border border-slate-600" placeholder="Type notes here..."></textarea><div class="mt-2 flex justify-end"><button onclick="saveSharedNote()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Save Note</button></div></div></div>
+    <div id="poll-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-4">Create Poll</h3><input type="text" id="poll-question" placeholder="Question..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt1" placeholder="Option 1" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-2 text-white outline-none"><input type="text" id="poll-opt2" placeholder="Option 2" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-2 mb-4 text-white outline-none"><div class="flex gap-2 justify-end"><button onclick="document.getElementById('poll-modal').classList.add('hidden')" class="text-slate-400 px-3">Cancel</button><button onclick="sendPoll()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Send Poll</button></div></div></div>
+    <div id="join-options-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 text-center"><h3 class="text-lg font-bold mb-2">Join Group</h3><p id="join-group-name" class="text-rose-400 font-medium mb-6">Group Name</p><div class="space-y-3"><button onclick="joinAsReal()" class="w-full bg-slate-700 hover:bg-slate-600 p-3 rounded-xl flex items-center gap-3 transition"><img id="join-my-pic" class="w-8 h-8 rounded-full"><div class="text-left"><div class="text-sm font-bold text-white">Join as Myself</div><div class="text-[10px] text-slate-400">Instant join if public</div></div></button><button onclick="showAnonInput()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-xl flex items-center gap-3 border border-slate-600 transition"><div class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center"><i class="ph-bold ph-mask-happy"></i></div><div class="text-left"><div class="text-sm font-bold text-white">Join Anonymously</div><div class="text-[10px] text-slate-400">Req. Approval</div></div></button></div><button onclick="closeModals()" class="mt-4 text-slate-500 text-sm">Cancel</button></div></div>
+    <div id="anon-input-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><h3 class="text-lg font-bold mb-2">Choose Alias</h3><input type="text" id="anon-alias" placeholder="e.g. Ghost Rider" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4 outline-none"><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 px-3">Cancel</button><button onclick="submitAnonRequest()" class="bg-rose-500 text-white px-4 py-2 rounded-lg">Request</button></div></div></div>
+    <div id="create-group-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 space-y-4"><h3 class="text-lg font-bold">Create Group</h3><input type="text" id="group-name" placeholder="Group Name" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><select id="group-category" class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white text-sm outline-none"><option value="general">General</option><option value="tech">Technology</option><option value="fun">Fun & Memes</option></select><div class="flex items-center gap-2"><input type="checkbox" id="group-public" class="accent-rose-500"><label for="group-public" class="text-sm text-slate-300">Public Group</label></div><div class="flex gap-2 justify-end"><button onclick="closeModals()" class="text-slate-400 text-sm">Cancel</button><button onclick="createGroup()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-sm">Create</button></div></div></div>
+    <div id="forward-modal" class="hidden fixed inset-0 z-[60] bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700 h-[60vh] flex flex-col"><h3 class="text-lg font-bold mb-4">Forward to...</h3><div id="forward-list" class="flex-1 overflow-y-auto space-y-2"></div><button onclick="closeModals()" class="mt-4 w-full py-2 text-slate-400">Cancel</button></div></div>
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-md border border-slate-700 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Group Info</h3><button onclick="closeModals()"><i class="ph-bold ph-x"></i></button></div><div class="bg-slate-800 p-2 rounded mb-4 text-center select-text"><span class="text-xs text-slate-400">Group ID:</span> <span id="admin-group-id" class="text-rose-400 font-mono font-bold"></span></div><div class="space-y-2 mb-4"><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-slate-300">Only Admins Send</div><input type="checkbox" id="toggle-admin-only" onchange="toggleAdminOnly()" class="accent-rose-500 w-5 h-5"></div><div class="flex items-center justify-between p-3 bg-[#0f172a] rounded-lg border border-slate-600"><div class="text-sm text-red-300">Disable Group</div><input type="checkbox" id="toggle-disable-group" onchange="toggleDisableGroup()" class="accent-red-500 w-5 h-5"></div></div><div id="pending-section" class="hidden mb-6"><h4 class="text-xs font-bold text-rose-400 uppercase mb-2">Pending Requests</h4><div id="pending-list" class="space-y-2"></div></div><h4 class="text-xs font-bold text-slate-500 uppercase mb-2">Members</h4><div id="member-list" class="space-y-2"></div></div></div>
+    <div id="add-friend-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"><div class="bg-[#1e293b] p-6 rounded-2xl w-full max-w-sm border border-slate-700"><input type="email" id="friend-email" placeholder="Email or @username..." class="w-full bg-[#0f172a] border border-slate-600 rounded-lg p-3 text-white mb-4"><button onclick="startChat()" class="w-full bg-rose-500 py-2 rounded text-white">Start Chat</button><button onclick="closeModals()" class="w-full mt-2 text-slate-500 text-sm">Cancel</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -401,6 +328,12 @@
 
         const MEMBER_COLORS = ['#e11d48', '#d97706', '#16a34a', '#2563eb', '#9333ea', '#db2777', '#0891b2', '#4f46e5'];
 
+        function assignUniqueColor(chatData) {
+            const usedColors = Object.values(chatData.groupProfiles || {}).map(p => p.color);
+            const available = MEMBER_COLORS.filter(c => !usedColors.includes(c));
+            return available.length > 0 ? available[Math.floor(Math.random() * available.length)] : MEMBER_COLORS[Math.floor(Math.random() * MEMBER_COLORS.length)];
+        }
+
         function generateAppLogo() {
             const c = document.createElement('canvas'); c.width = 512; c.height = 512; const ctx = c.getContext('2d');
             const g = ctx.createLinearGradient(0, 512, 512, 0); g.addColorStop(0, '#f43f5e'); g.addColorStop(1, '#f97316');
@@ -416,8 +349,25 @@
         window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-banner').classList.remove('hidden'); });
         window.installPWA = () => { document.getElementById('pwa-banner').classList.add('hidden'); if(deferredPrompt) deferredPrompt.prompt(); };
 
-        window.signInWithGoogle = () => signInWithPopup(auth, provider).catch(e => alert(e.message));
+        window.signInWithGoogle = () => { Notification.requestPermission(); signInWithPopup(auth, provider).catch(e => alert(e.message)); };
         window.logout = () => { signOut(auth).then(() => window.closeModals()).catch(e => console.error(e)); };
+
+        // Notification Setup
+        let swReg = null;
+        if ('serviceWorker' in navigator) {
+            const swCode = `self.addEventListener('notificationclick', e => { e.notification.close(); e.waitUntil(clients.matchAll({ type: 'window' }).then(c => c.length ? c[0].focus() : clients.openWindow('/'))); });`;
+            const blob = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blob)).then(r => swReg = r);
+        }
+
+        function sendNotification(title, body) {
+            if (Notification.permission === 'granted') {
+                if (swReg) swReg.showNotification(title, { body, icon: logoData, badge: logoData });
+                else new Notification(title, { body, icon: logoData });
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+                audio.play().catch(e=>{});
+            }
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             onAuthStateChanged(auth, user => {
@@ -429,7 +379,13 @@
                     safeClassAdd('app-interface', 'hidden');
                 }
             });
-            if (Notification.permission !== "granted") Notification.requestPermission();
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('attachment-menu');
+                const btn = document.getElementById('attach-toggle-btn');
+                if (menu && btn && !menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+                    menu.classList.add('hidden');
+                }
+            });
         });
 
         async function handleLogin(user) {
@@ -486,7 +442,7 @@
                             const unread = d.unreadCounts?.[currentUser.uid] || 0;
                             if (unread > 0 && change.doc.id !== currentChatId) {
                                 if (document.visibilityState === 'hidden' || currentChatId !== change.doc.id) {
-                                    new Notification(`New Message in ${d.name || 'Chat'}`, { body: d.lastMessage || 'New message' });
+                                    sendNotification(`New Message from ${d.name || 'someone'}`, d.lastMessage || 'Open to view');
                                 }
                             }
                         }
@@ -565,11 +521,11 @@
              Swal.fire({icon:'success', title:'Saved', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'});
         };
 
-        window.toggleActionBar = () => { const bar = document.getElementById('action-bar'); bar.classList.toggle('hidden'); };
+        window.toggleAttachmentMenu = () => { const menu = document.getElementById('attachment-menu'); menu.classList.toggle('hidden'); };
         window.openNotes = () => { document.getElementById('notes-modal').classList.remove('hidden'); if(currentChatData.sharedNote) document.getElementById('shared-note-area').value = currentChatData.sharedNote; else document.getElementById('shared-note-area').value = ""; };
         window.saveSharedNote = async () => { const note = document.getElementById('shared-note-area').value; await updateDoc(doc(db, "chats", currentChatId), { sharedNote: note }); document.getElementById('notes-modal').classList.add('hidden'); Swal.fire({toast:true, position:'top', icon:'success', title:'Note Saved', showConfirmButton:false, timer:1000}); };
 
-        window.openPollModal = () => { document.getElementById('poll-modal').classList.remove('hidden'); document.getElementById('action-bar').classList.add('hidden'); };
+        window.openPollModal = () => { document.getElementById('poll-modal').classList.remove('hidden'); document.getElementById('attachment-menu').classList.add('hidden'); };
         window.sendPoll = async () => { const q = document.getElementById('poll-question').value; const o1 = document.getElementById('poll-opt1').value; const o2 = document.getElementById('poll-opt2').value; if(!q || !o1 || !o2) return; await addDoc(collection(db, "chats", currentChatId, "messages"), { type: 'poll', senderId: currentUser.uid, createdAt: serverTimestamp(), question: q, options: [{text: o1, votes: []}, {text: o2, votes: []}], status: 'sent', deletedFor: [] }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "📊 Poll", lastUpdated: serverTimestamp() }); document.getElementById('poll-modal').classList.add('hidden'); };
         window.votePoll = async (msgId, optIdx) => { const msgRef = doc(db, "chats", currentChatId, "messages", msgId); const msgSnap = await getDoc(msgRef); const data = msgSnap.data(); data.options.forEach(opt => { const idx = opt.votes.indexOf(currentUser.uid); if(idx > -1) opt.votes.splice(idx, 1); }); data.options[optIdx].votes.push(currentUser.uid); await updateDoc(msgRef, { options: data.options }); };
 
@@ -689,12 +645,14 @@
             
             if (currentChatData.type === 'direct' && currentChatData.blocked) {
                 const b = currentChatData.blocked;
+                // If I blocked them
                 if (b.by === currentUser.uid) {
                     blockedBanner.classList.remove('hidden');
                     document.getElementById('blocked-text').innerText = "You blocked this user.";
                     document.getElementById('blocked-action-btn').innerText = "Unblock";
                     document.getElementById('blocked-action-btn').onclick = () => handleBlockAction(true);
                 } else {
+                    // If they blocked me
                     blockedBanner.classList.remove('hidden');
                     document.getElementById('blocked-text').innerText = "You have been blocked.";
                     if (b.isAppealSent) {
@@ -862,22 +820,25 @@
             const popup = document.getElementById('mention-popup');
             const cursor = e.target.selectionStart;
             const textBefore = val.substring(0, cursor);
-            const lastWord = textBefore.split(' ').pop();
+            const words = textBefore.split(' ');
+            const lastWord = words[words.length - 1];
 
             if (lastWord.startsWith('@') && currentChatData.type === 'group') {
                 popup.innerHTML = "";
                 let hasMatches = false;
+                const searchTerm = lastWord.substring(1).toLowerCase();
+                
                 currentChatData.participants.forEach(uid => {
                    const profile = currentChatData.groupProfiles?.[uid]; 
                    const name = profile?.alias || "User";
-                   if(name.toLowerCase().includes(lastWord.substring(1).toLowerCase())) {
+                   if(name.toLowerCase().includes(searchTerm)) {
                        hasMatches = true;
                        const item = document.createElement('div'); 
                        item.className = "mention-item text-white text-sm"; 
                        item.innerText = name;
                        item.onclick = () => { 
                            const textAfter = val.substring(cursor);
-                           const newTextBefore = textBefore.substring(0, textBefore.lastIndexOf(lastWord));
+                           const newTextBefore = textBefore.substring(0, textBefore.length - lastWord.length);
                            messageInput.value = newTextBefore + "@" + name + " " + textAfter;
                            popup.innerHTML = "";
                            popup.classList.add('hidden');
@@ -894,17 +855,88 @@
             const input = document.getElementById('message-input');
             const text = input.value.trim();
             if(!text && !selectedImageBase64) return;
+
             if(scheduledTime) {
                 const [h, m] = scheduledTime.split(':'); const target = new Date(); target.setHours(h, m, 0, 0); let diff = target - new Date(); if(diff < 0) diff += 86400000;
                 setTimeout(() => doSend(text, selectedImageBase64 ? 'image' : 'text'), diff);
                 Swal.fire({icon:'success', title:'Scheduled', timer:1000, showConfirmButton:false, background:'#1e293b', color:'#fff'});
                 cancelSchedule(); input.value = ""; clearImage(); return;
             }
-            if(editingMessageId) { await updateDoc(doc(db, "chats", currentChatId, "messages", editingMessageId), { text, isEdited: true }); cancelEdit(); return; }
+
+            if(editingMessageId) {
+                await updateDoc(doc(db, "chats", currentChatId, "messages", editingMessageId), { text, isEdited: true });
+                cancelEdit(); return;
+            }
             doSend(text, selectedImageBase64 ? 'image' : 'text');
         };
 
-        // ... [Rest of code for doSend, showContextMenu, Modals logic stays identical]
+        async function doSend(text, type, extra, directUrl=null) {
+            try {
+                const img = directUrl || selectedImageBase64;
+                await addDoc(collection(db, "chats", currentChatId, "messages"), {
+                    text: text || extra, imageUrl: img, senderId: currentUser.uid, type,
+                    createdAt: serverTimestamp(), isPrivate: isPrivacyMode,
+                    replyTo: replyToMsg ? { id: replyToMsg.id, text: replyToMsg.text, type: replyToMsg.type || 'text' } : null,
+                    status: 'sent', deletedFor: []
+                });
+                
+                const updates = { lastMessage: type==='image'?'Photo':(type==='sticker'?'Sticker':text), lastUpdated: serverTimestamp() };
+                if(currentChatData && currentChatData.participants) {
+                    currentChatData.participants.forEach(uid => {
+                        if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1);
+                    });
+                }
+                await updateDoc(doc(db, "chats", currentChatId), updates);
+                inputCleanUp();
+            } catch(e) { console.error(e); }
+        }
+
+        function inputCleanUp() { document.getElementById('message-input').value = ""; clearImage(); cancelReply(); if(isPrivacyMode) togglePrivacy(); document.getElementById('attachment-menu').classList.add('hidden'); }
+
+        window.showContextMenu = (e, msg) => {
+            e.preventDefault(); const menu = document.getElementById('msg-context-menu');
+            let x = e.clientX, y = e.clientY; if(x > window.innerWidth - 180) x -= 180; if(y > window.innerHeight - 150) y -= 150; 
+            menu.style.left = `${x}px`; menu.style.top = `${y}px`;
+            
+            let html = '';
+            if(msg.type !== 'deleted') {
+                html += `<div class="context-item" onclick="setReply('${msg.text || ''}', '${msg.id}', '${msg.type}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
+                window.tempForwardData = { text: msg.text, imageUrl: msg.imageUrl, type: msg.type };
+                html += `<div class="context-item" onclick="startForward()"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
+                html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
+                const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
+                if(msg.senderId === currentUser.uid || isAdmin) { html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`; }
+                if(msg.senderId === currentUser.uid && msg.type === 'text') html += `<div class="context-item" onclick="startEdit('${msg.id}', '${msg.text.replace(/'/g, "\\'")}')"><i class="ph-bold ph-pencil"></i> Edit</div>`;
+                if(msg.imageUrl || msg.type === 'sticker') html += `<div class="context-item" onclick="saveSticker('${msg.imageUrl}')"><i class="ph-bold ph-star"></i> Save Sticker</div>`;
+            }
+            menu.innerHTML = html; menu.classList.remove('hidden');
+            const close = () => { menu.classList.add('hidden'); document.removeEventListener('click', close); };
+            setTimeout(() => document.addEventListener('click', close), 100);
+        };
+
+        window.setReply = (text, id, type) => { 
+            replyToMsg = { id, text: text, type: type }; 
+            document.getElementById('reply-banner').classList.remove('hidden'); 
+            const display = type === 'sticker' ? '👾 Sticker' : (type === 'image' ? '📷 Photo' : text);
+            document.getElementById('reply-text').innerText = display; 
+        };
+        window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
+        window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
+        window.cancelEdit = () => { editingMessageId = null; document.getElementById('message-input').value = ""; document.getElementById('editing-indicator').classList.add('hidden'); };
+        window.deleteMessage = async (id, scope) => { const ref = doc(db, "chats", currentChatId, "messages", id); if(scope === 'everyone') { await updateDoc(ref, { type: 'deleted', text: '', imageUrl: null }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "🚫 Message deleted", lastUpdated: serverTimestamp() }); } else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) }); };
+        window.startForward = () => { window.openModal('forward-modal'); const list = document.getElementById('forward-list'); list.innerHTML = ""; const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid)); onSnapshot(q, snap => { snap.forEach(d => { const btn = document.createElement('div'); btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm"; btn.innerText = d.data().name || "Chat"; btn.onclick = async () => { const { text, imageUrl, type } = window.tempForwardData; await addDoc(collection(db, "chats", d.id, "messages"), { text: text || null, imageUrl: imageUrl || null, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true }); await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() }); window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); }; list.appendChild(btn); }); }); };
+        window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('menu-lock-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key text-red-400" : "ph-bold ph-lock-open text-red-400"; document.getElementById('attachment-menu').classList.add('hidden'); Swal.fire({toast:true, title: isPrivacyMode?'Privacy ON':'Privacy OFF', position:'top', timer:1000, showConfirmButton:false}); };
+        window.promptSchedule = () => { Swal.fire({title:'Time', input:'time', background:'#1e293b', color:'#fff'}).then(r => { if(r.value){ scheduledTime = r.value; document.getElementById('schedule-info').classList.remove('hidden'); document.getElementById('schedule-time-display').innerText = r.value; document.getElementById('attachment-menu').classList.add('hidden'); }}); };
+        window.cancelSchedule = () => { scheduledTime = null; document.getElementById('schedule-info').classList.add('hidden'); };
+        window.setReminder = (txt) => { Swal.fire({title:'Remind me', input:'select', inputOptions:{1:'1 Min', 60:'1 Hour'}, background:'#1e293b', color:'#fff'}).then(r => { if(r.value) setTimeout(() => Swal.fire({title:txt, background:'#1e293b', color:'#fff'}), r.value*60000); }); };
+        window.toggleStickerPicker = () => { document.getElementById('sticker-picker').classList.toggle('hidden'); loadSavedStickers(); };
+        window.showStickerTab = (t) => { document.getElementById('sticker-content-default').classList.toggle('hidden', t!=='default'); document.getElementById('sticker-content-saved').classList.toggle('hidden', t!=='saved'); };
+        window.sendSticker = (e, u=null) => doSend(u, 'sticker', e); window.sendStickerUrl = (url) => doSend(null, 'sticker', null, url); window.saveSticker = (url) => { let s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); if(!s.includes(url)) s.push(url); localStorage.setItem('kix_stickers', JSON.stringify(s)); loadSavedStickers(); }; window.addCustomSticker = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { window.saveSticker(ev.target.result); }; r.readAsDataURL(f); };
+        function loadSavedStickers() { const s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); const c = document.getElementById('sticker-content-saved'); c.innerHTML = ""; s.forEach(u => { const b = document.createElement('button'); b.innerHTML = `<img src="${u}" class="w-full h-16 object-contain">`; b.onclick=()=>sendStickerUrl(u); c.appendChild(b); }); c.classList.remove('hidden'); c.classList.add('grid'); }
+        window.handleImage = (e) => { document.getElementById('attachment-menu').classList.add('hidden'); const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload=(ev)=>{ const i = new Image(); i.onload=()=>{ const c=document.createElement('canvas'); const m=800; let w=i.width,h=i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); selectedImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('image-preview').src=selectedImageBase64; document.getElementById('image-preview-container').classList.remove('hidden'); }; i.src=ev.target.result; }; r.readAsDataURL(f); };
+        window.clearImage = () => { selectedImageBase64=null; document.getElementById('image-input').value=""; document.getElementById('image-preview-container').classList.add('hidden'); };
+        function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
+        window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
         
         window.joinAsReal = async () => {
             try {
@@ -1007,74 +1039,6 @@
         };
 
         window.handleProfileImageSelect = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { const i = new Image(); i.onload = () => { const c = document.createElement('canvas'); const m = 300; let w = i.width, h = i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); newProfilePicBase64 = c.toDataURL('image/jpeg', 0.6); document.getElementById('settings-preview').src = newProfilePicBase64; }; i.src = ev.target.result; }; r.readAsDataURL(f); };
-
-        async function doSend(text, type, extra, directUrl=null) {
-            try {
-                const img = directUrl || selectedImageBase64;
-                await addDoc(collection(db, "chats", currentChatId, "messages"), {
-                    text: text || extra, imageUrl: img, senderId: currentUser.uid, type,
-                    createdAt: serverTimestamp(), isPrivate: isPrivacyMode,
-                    replyTo: replyToMsg ? { id: replyToMsg.id, text: replyToMsg.text, type: replyToMsg.type || 'text' } : null,
-                    status: 'sent', deletedFor: []
-                });
-                
-                const updates = { lastMessage: type==='image'?'Photo':(type==='sticker'?'Sticker':text), lastUpdated: serverTimestamp() };
-                if(currentChatData && currentChatData.participants) {
-                    currentChatData.participants.forEach(uid => {
-                        if(uid !== currentUser.uid) updates[`unreadCounts.${uid}`] = increment(1);
-                    });
-                }
-                await updateDoc(doc(db, "chats", currentChatId), updates);
-                inputCleanUp();
-            } catch(e) { console.error(e); }
-        }
-
-        function inputCleanUp() { document.getElementById('message-input').value = ""; clearImage(); cancelReply(); if(isPrivacyMode) togglePrivacy(); document.getElementById('action-bar').classList.add('hidden'); }
-
-        window.showContextMenu = (e, msg) => {
-            e.preventDefault(); const menu = document.getElementById('msg-context-menu');
-            let x = e.clientX, y = e.clientY; if(x > window.innerWidth - 180) x -= 180; if(y > window.innerHeight - 150) y -= 150; 
-            menu.style.left = `${x}px`; menu.style.top = `${y}px`;
-            
-            let html = '';
-            if(msg.type !== 'deleted') {
-                html += `<div class="context-item" onclick="setReply('${msg.text || ''}', '${msg.id}', '${msg.type}')"><i class="ph-bold ph-arrow-u-up-left"></i> Reply</div>`;
-                window.tempForwardData = { text: msg.text, imageUrl: msg.imageUrl, type: msg.type };
-                html += `<div class="context-item" onclick="startForward()"><i class="ph-bold ph-arrow-fat-right"></i> Forward</div>`;
-                html += `<div class="context-item" onclick="deleteMessage('${msg.id}', 'me')"><i class="ph-bold ph-trash"></i> Delete for Me</div>`;
-                const isAdmin = currentChatData.type === 'group' && currentChatData.admins.includes(currentUser.uid);
-                if(msg.senderId === currentUser.uid || isAdmin) { html += `<div class="context-item" style="color:#f87171" onclick="deleteMessage('${msg.id}', 'everyone')"><i class="ph-bold ph-trash-simple"></i> Delete Everyone</div>`; }
-                if(msg.senderId === currentUser.uid && msg.type === 'text') html += `<div class="context-item" onclick="startEdit('${msg.id}', '${msg.text.replace(/'/g, "\\'")}')"><i class="ph-bold ph-pencil"></i> Edit</div>`;
-                if(msg.imageUrl || msg.type === 'sticker') html += `<div class="context-item" onclick="saveSticker('${msg.imageUrl}')"><i class="ph-bold ph-star"></i> Save Sticker</div>`;
-            }
-            menu.innerHTML = html; menu.classList.remove('hidden');
-            const close = () => { menu.classList.add('hidden'); document.removeEventListener('click', close); };
-            setTimeout(() => document.addEventListener('click', close), 100);
-        };
-
-        window.setReply = (text, id, type) => { 
-            replyToMsg = { id, text: text, type: type }; 
-            document.getElementById('reply-banner').classList.remove('hidden'); 
-            const display = type === 'sticker' ? '👾 Sticker' : (type === 'image' ? '📷 Photo' : text);
-            document.getElementById('reply-text').innerText = display; 
-        };
-        window.cancelReply = () => { replyToMsg = null; document.getElementById('reply-banner').classList.add('hidden'); };
-        window.startEdit = (id, text) => { editingMessageId = id; const inp = document.getElementById('message-input'); inp.value = text; inp.focus(); document.getElementById('editing-indicator').classList.remove('hidden'); };
-        window.cancelEdit = () => { editingMessageId = null; document.getElementById('message-input').value = ""; document.getElementById('editing-indicator').classList.add('hidden'); };
-        window.deleteMessage = async (id, scope) => { const ref = doc(db, "chats", currentChatId, "messages", id); if(scope === 'everyone') { await updateDoc(ref, { type: 'deleted', text: '', imageUrl: null }); await updateDoc(doc(db, "chats", currentChatId), { lastMessage: "🚫 Message deleted", lastUpdated: serverTimestamp() }); } else await updateDoc(ref, { deletedFor: arrayUnion(currentUser.uid) }); };
-        window.startForward = () => { window.openModal('forward-modal'); const list = document.getElementById('forward-list'); list.innerHTML = ""; const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid)); onSnapshot(q, snap => { snap.forEach(d => { const btn = document.createElement('div'); btn.className = "p-3 bg-slate-800 rounded hover:bg-slate-700 cursor-pointer mb-2 text-sm"; btn.innerText = d.data().name || "Chat"; btn.onclick = async () => { const { text, imageUrl, type } = window.tempForwardData; await addDoc(collection(db, "chats", d.id, "messages"), { text: text || null, imageUrl: imageUrl || null, type: type, senderId: currentUser.uid, createdAt: serverTimestamp(), forwarded: true }); await updateDoc(doc(db, "chats", d.id), { lastMessage: type === 'sticker' ? 'Sticker' : (type === 'image' ? 'Photo' : text), lastUpdated: serverTimestamp() }); window.closeModals(); Swal.fire({icon:'success', title:'Forwarded', timer:800, showConfirmButton:false, background:'#1e293b', color:'#fff'}); }; list.appendChild(btn); }); }); };
-        window.togglePrivacy = () => { isPrivacyMode = !isPrivacyMode; const icn = document.getElementById('menu-lock-icon'); icn.className = isPrivacyMode ? "ph-bold ph-lock-key text-red-400" : "ph-bold ph-lock-open text-red-400"; document.getElementById('action-bar').classList.add('hidden'); Swal.fire({toast:true, title: isPrivacyMode?'Privacy ON':'Privacy OFF', position:'top', timer:1000, showConfirmButton:false}); };
-        window.promptSchedule = () => { Swal.fire({title:'Time', input:'time', background:'#1e293b', color:'#fff'}).then(r => { if(r.value){ scheduledTime = r.value; document.getElementById('schedule-info').classList.remove('hidden'); document.getElementById('schedule-time-display').innerText = r.value; document.getElementById('action-bar').classList.add('hidden'); }}); };
-        window.cancelSchedule = () => { scheduledTime = null; document.getElementById('schedule-info').classList.add('hidden'); };
-        window.setReminder = (txt) => { Swal.fire({title:'Remind me', input:'select', inputOptions:{1:'1 Min', 60:'1 Hour'}, background:'#1e293b', color:'#fff'}).then(r => { if(r.value) setTimeout(() => Swal.fire({title:txt, background:'#1e293b', color:'#fff'}), r.value*60000); }); };
-        window.toggleStickerPicker = () => { document.getElementById('sticker-picker').classList.toggle('hidden'); loadSavedStickers(); };
-        window.showStickerTab = (t) => { document.getElementById('sticker-content-default').classList.toggle('hidden', t!=='default'); document.getElementById('sticker-content-saved').classList.toggle('hidden', t!=='saved'); };
-        window.sendSticker = (e, u=null) => doSend(u, 'sticker', e); window.sendStickerUrl = (url) => doSend(null, 'sticker', null, url); window.saveSticker = (url) => { let s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); if(!s.includes(url)) s.push(url); localStorage.setItem('kix_stickers', JSON.stringify(s)); loadSavedStickers(); }; window.addCustomSticker = (e) => { const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = (ev) => { window.saveSticker(ev.target.result); }; r.readAsDataURL(f); };
-        function loadSavedStickers() { const s = JSON.parse(localStorage.getItem('kix_stickers')||"[]"); const c = document.getElementById('sticker-content-saved'); c.innerHTML = ""; s.forEach(u => { const b = document.createElement('button'); b.innerHTML = `<img src="${u}" class="w-full h-16 object-contain">`; b.onclick=()=>sendStickerUrl(u); c.appendChild(b); }); c.classList.remove('hidden'); c.classList.add('grid'); }
-        window.handleImage = (e) => { document.getElementById('action-bar').classList.add('hidden'); const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload=(ev)=>{ const i = new Image(); i.onload=()=>{ const c=document.createElement('canvas'); const m=800; let w=i.width,h=i.height; if(w>h){if(w>m){h*=m/w;w=m}}else{if(h>m){w*=m/h;h=m}} c.width=w; c.height=h; c.getContext('2d').drawImage(i,0,0,w,h); selectedImageBase64=c.toDataURL('image/jpeg',0.7); document.getElementById('image-preview').src=selectedImageBase64; document.getElementById('image-preview-container').classList.remove('hidden'); }; i.src=ev.target.result; }; r.readAsDataURL(f); };
-        window.clearImage = () => { selectedImageBase64=null; document.getElementById('image-input').value=""; document.getElementById('image-preview-container').classList.add('hidden'); };
-        function initSpeech() { if('webkitSpeechRecognition' in window) { recognition = new webkitSpeechRecognition(); recognition.lang='si-LK'; recognition.onresult = (e) => { document.getElementById('message-input').value += e.results[0][0].transcript; document.getElementById('mic-btn').classList.remove('recording-pulse'); }; } }
-        window.toggleSpeech = () => { if(!recognition) return; const b = document.getElementById('mic-btn'); if(b.classList.contains('recording-pulse')) { recognition.stop(); b.classList.remove('recording-pulse'); } else { recognition.start(); b.classList.add('recording-pulse'); } };
 
         document.getElementById("message-input").addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     </script>
